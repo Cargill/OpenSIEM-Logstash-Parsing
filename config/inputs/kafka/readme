@@ -1,0 +1,3 @@
+If we combine multiple files in one pipeline definition would that be multiple pipelines or one?
+Generate separate input files for individual log sources or just add topic names?
+    If we just add multiple topics, a new consumer group has to be created and would reprocess existing logs.
