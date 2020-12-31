@@ -1,23 +1,20 @@
-################# INPUT ##################
-- pipeline.id: kafka
-  path.config: "/etc/gnsyslog-logstash/logstash/pipelines_conf_dir/00_ingest/00_kafka/{0_input,1_filter,2_output}.conf"
+################# ENRICH #################
+- pipeline.id: enrichments
+  path.config: "${LOGSTASH_HOME}/config/enrichments/{*}.conf"
   queue.type: persisted
-  queue.max_bytes: 8192mb
-
-################# QUEUE ##################
-- pipeline.id: queue
-  queue.type: persisted
-  path.config: "/etc/gnsyslog-logstash/logstash/pipelines_conf_dir/queue.conf"
   queue.max_bytes: 8192mb
 
 ################# OUTPUT #################
-- pipeline.id: output
-  path.config: "/etc/gnsyslog-logstash/logstash/pipelines_conf_dir/output_elasticsearch.conf"
+- pipeline.id: elastic_output
+  path.config: "${LOGSTASH_HOME}/config/outputs/elastic_output.conf"
+- pipeline.id: s3_output
+  path.config: "${LOGSTASH_HOME}/config/outputs/s3_output.conf"
+- pipeline.id: nc4_output
+  path.config: "${LOGSTASH_HOME}/config/outputs/nc4_output.conf"
 
-################# ENRICH #################
-
-- pipeline.id: enrichments
-  path.config: "/etc/gnsyslog-logstash/logstash/pipelines_conf_dir/02_enrich/{*}.conf"
+################# INPUT ##################
+- pipeline.id: kafka
+  path.config: "/etc/gnsyslog-logstash/logstash/pipelines_conf_dir/00_ingest/00_kafka/{0_input,1_filter,2_output}.conf"
   queue.type: persisted
   queue.max_bytes: 8192mb
 
