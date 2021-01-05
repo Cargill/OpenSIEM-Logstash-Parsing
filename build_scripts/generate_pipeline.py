@@ -164,46 +164,68 @@ class LogstashHelper(object):
             output_str = output_conf.read()
         return output_str
 
-    def __add_enrichments_and_output(self, conf_dir: str, conf_list: list):
-        enrichments = self.__get_enrichments()
-        output_block = self.__get_output_block()
-        for conf_file_name in conf_list:
-            file_contents = None
-            with open(f'{conf_dir}/{conf_file_name}', encoding='UTF-8') as config:
-                file_contents = config.read()
-            if self.deploy_env == 'test':
-                if 'VAR_ENRICHMENTS' not in file_contents:
-                    raise ValueError(
-                        f'config {conf_file_name} does not contain VAR_ENRICHMENTS variable')
-                if 'VAR_OUTPUT' not in file_contents:
-                    raise ValueError(
-                        f'config {conf_file_name} does not contain VAR_OUTPUT variable')
-            file_contents = file_contents.replace('# VAR_OUTPUT', output_block)
-            file_contents = file_contents.replace(
-                '# VAR_ENRICHMENTS', enrichments)
-            with open(f'{conf_dir}/{conf_file_name}', 'w', encoding='UTF-8') as config:
-                config.write(file_contents)
+    def __add_custom_input_field(self, conf_file: str, config):
+        add_fields_block = 'add_field => {\n' + \
+        f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
+        f'      "[@metadata][config]" => "{config["config"]}"\n' + \
+        f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
+        '    }'
+        file_contents = None
+        with open(conf_file, encoding='UTF-8') as config:
+            file_contents = config.read()
+        if self.deploy_env == 'test':
+            if 'VAR_CUSTOM_FIELDS' not in file_contents:
+                raise ValueError(
+                    f'config {conf_file} does not contain VAR_CUSTOM_FIELDS')
+        file_contents = file_contents.replace('# VAR_CUSTOM_FIELDS', add_fields_block)
+        with open(conf_file, 'w', encoding='UTF-8') as config:
+            config.write(file_contents)
 
-    def __tweak_kafka_settings(self, file_as_str, max_poll_records):
-        # tweaking these values
-        file_as_str = file_as_str.replace(
-            'max_poll_records => "500"', f'max_poll_records => "{max_poll_records}"')
-        return file_as_str
+    def __replace_vars(self, conf_file_path, vars_dict):
+        unknown_var_regexp = re.compile(r'VAR_.\w*')
+        # get index_name from settings json
+        config_name = conf_file_path.split('.conf')[0]
+        log_type = config_name.split('_')[-1]
+        max_poll_records = 500
+        consumer_threads = 4
+        if log_type == 'daily':
+            consumer_threads = 16
+
+        # reduce consumer_threads for high volume logs as they would be processed on 2 nodes
+        if config_name in self.high_volume_logs:
+            consumer_threads = 8
+        if config_name in self.clear_lag_logs:
+            consumer_threads = 4
+
+        vars_dict['KAFKA_TOPIC'] = config_name
+        vars_dict['KAFKA_GROUP_ID'] = config_name
+        vars_dict['KAFKA_CLIENT_ID'] = f'{config_name}-{self.sub_my_ip}-input'
+        vars_dict['CONSUMER_THREADS'] = consumer_threads
+        vars_dict['MAX_POLL_RECORDS'] = max_poll_records
+        s3_date_pattern = '%{+xxxx/MM/dd}'
+        vars_dict['S3_PREFIX'] = f'{config_name}/{s3_date_pattern}'
+
+        file_contents = None
+        
+        with open(conf_file_path, encoding='UTF-8') as config:
+            file_contents = config.read()
+        for var in vars_dict.keys():
+            file_contents = file_contents.replace(
+                f'VAR_{var}', f'{vars_dict[var]}')
+
+        unknown_vars = unknown_var_regexp.findall(file_contents)
+        if len(unknown_vars) > 0:
+            raise ValueError(
+                f'Unknown variable/s {unknown_vars} in config {conf_file_path}.')
+
+        with open(conf_file_path, 'w', encoding='UTF-8') as config:
+            config.write(file_contents)
+    
 
     def replace_vars(self):
-        conf_dir = f'{self.logstash_dir}/pipeline/confs'
-        conf_list = os.listdir(conf_dir)
-        conf_list = list(
-            filter(lambda file_name: file_name.endswith('.conf'), conf_list))
-        # add enrichments and output to every file
-        self.__add_enrichments_and_output(conf_dir, conf_list)
-
         kafka_servers_str = ':9092,'.join(self.kafka_servers) + ':9092'
         elastic_servers_str = '"' + \
             ':9200", "'.join(self.elastic_servers) + ':9200"'
-        date = '%{+xxxx.MM.dd}'
-        month = '%{+xxxx.MM}'
-        week = '%{+xxxx.ww}'
         vars_dict = {
             'KAFKA_JAAS_PATH': '/usr/share/logstash/config/kafka_jaas.conf',
             'KAFKA_CLIENT_TRUSTSTORE': '/usr/share/logstash/config/kafka_client_truststore.jks',
@@ -235,61 +257,26 @@ class LogstashHelper(object):
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
         }
-
-        unknown_var_regexp = re.compile("VAR_.\w*")
-        for conf_file in conf_list:
-            config_name = conf_file.split('.conf')[0]
-            log_type = config_name.split('_')[-1]
-
-            if log_type == 'daily':
-                index_name = f'{config_name.lower()}_{date}'
-                consumer_threads = 16
-            elif log_type == 'weekly':
-                index_name = f'{config_name.lower()}_{week}'
-                consumer_threads = 4
-            else:
-                # monthly or anything else
-                index_name = f'{config_name.lower()}_{month}'
-                consumer_threads = 4
-
-            # treat test settings as low volume, they are not priority
-            if config_name.startswith('test_'):
-                consumer_threads = 4
-                max_poll_records = 100
-
-            # reduce consumer_threads for high volume logs as they would be processed on 2 nodes
-            if config_name in self.high_volume_logs:
-                consumer_threads = 8
-            if config_name in self.clear_lag_logs:
-                consumer_threads = 4
-
-            vars_dict['KAFKA_TOPIC'] = config_name
-            vars_dict['KAFKA_GROUP_ID'] = config_name
-            vars_dict['KAFKA_CLIENT_ID'] = f'{config_name}-{self.sub_my_ip}-input'
-            vars_dict['ELASTIC_INDEX'] = index_name
-            vars_dict['CONSUMER_THREADS'] = consumer_threads
-            vars_dict['MAX_POLL_RECORDS'] = max_poll_records
-            s3_date_pattern = '%{+xxxx/MM/dd}'
-            vars_dict['S3_PREFIX'] = f'{config_name}/{s3_date_pattern}'
-
-            file_contents = None
-            with open(f'{conf_dir}/{conf_file}', encoding='UTF-8') as config:
-                file_contents = config.read()
-            for var in vars_dict.keys():
-                file_contents = file_contents.replace(
-                    f'VAR_{var}', f'{vars_dict[var]}')
-
-            unknown_vars = unknown_var_regexp.findall(file_contents)
-            if len(unknown_vars) > 0:
-                raise ValueError(
-                    f'Unknown variable/s {unknown_vars} in config {conf_file}.')
-
-            # for all logs update these settings
-            file_contents = self.__tweak_kafka_settings(
-                file_contents, max_poll_records)
-
-            with open(f'{conf_dir}/{conf_file}', 'w', encoding='UTF-8') as config:
-                config.write(file_contents)
+        azure_inputs_path = os.path.join(self.logstash_dir, 'config', 'inputs', 'azure')
+        kafka_input_dir = os.path.join(self.logstash_dir, 'config', 'inputs', 'kafka')
+        azure_inputs = os.listdir(azure_inputs_path)
+        settings = []
+        with open(os.path.join(self.logstash_dir, 'build_scripts', 'settings.json'), 'r') as settings_file:
+            settings = json.load(settings_file)
+        
+        for input_name in azure_inputs:
+            config = settings[input_name[:-5]]
+            vars_dict['PIPELINE_NAME'] = config['config']
+            self.__add_custom_input_field(f'{azure_inputs_path}/{input_name}', config)
+            self.__replace_vars(f'{azure_inputs_path}/{input_name}', vars_dict)
+        kafka_inputs = os.listdir(kafka_input_dir)
+        for input_name in kafka_inputs:
+            if input_name in ['1_syslog_input.conf', '2_non_syslog_input.conf']:
+                continue
+            config = settings[input_name[:-5]]
+            self.__add_custom_input_field(f'{kafka_input_dir}/{input_name}', config)
+            vars_dict['PIPELINE_NAME'] = config['config']
+            self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
 
     def __get_log_distribution(self, num_logs: int, num_servers: int, arr_idx: int, logs: list):
         fair_allocation = int(num_logs / num_servers)
@@ -426,7 +413,6 @@ class LogstashHelper(object):
                              f'  path.config: \"{config_file_path}\"\n' + \
                              f'  pipeline.workers: {pipeline_workers}\n'
 
-
             file_contents = file_contents + pipeline_entry
 
         with open(pipeline_file_path, 'w', encoding='UTF-8') as pipeline:
@@ -463,6 +449,27 @@ class LogstashHelper(object):
             'VAR_HOSTNAME', hostname)
         with open(log_file_path, 'w', encoding='UTF-8') as jaas_file:
             jaas_file.write(log_file_str)
+
+    def generate_kafka_inputs(self):
+        root_dir = self.logstash_dir
+        azure_inputs_path = os.path.join(root_dir, 'config', 'inputs', 'azure')
+        kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
+        azure_input_list = os.listdir(azure_inputs_path)
+
+        settings = []
+        settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
+        with open(settings_file_path, 'r') as settings_file:
+            settings = json.load(settings_file)
+        for key in settings.keys():
+            setting = settings[key]
+            log_source_conf = f'{setting["log_source"]}.conf'
+            if log_source_conf not in azure_input_list:
+                # it's a kafka input, generate an input conf
+                with open(os.path.join(kafka_input_dir, '1_syslog_input.conf')) as base_input_file:
+                    input_file_path = os.path.join(
+                        kafka_input_dir, log_source_conf)
+                    with open(input_file_path, 'w') as kafka_input_file:
+                        kafka_input_file.write(base_input_file.read())
 
 
 def setup_test_env():
@@ -636,128 +643,62 @@ def notify_teams(url):
     requests.post(url=url, json=json_data)
 
 
-# if __name__ == "__main__":
-#     '''
-#         SPECIAL CASE
-#         (in drone build step when changes are pushed to master branch)
-#         This script can be run with an optional ms teams webhook url argument,
-#         it posts node and settings mappings to that ms teams channel and exits.
-
-#         GENERAL CASE
-#         Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
-
-#         On every node the git repo is downloded in /opt/logstash
-#         and logstash is deployed in /usr/share/logstash .
-
-#         Chef gets proper values from secrets manager and sets them as environment variables and launches this script.
-#         The script replaces variables from all files(logstash settings, kafka_jaas, log4j2.properties etc) present in the repo
-#         and generates pipelines.yml file for logstash
-#     '''
-#     try:
-#         cur_file_path = os.path.abspath(__file__)
-#         build_scripts_dir = os.path.dirname(cur_file_path)
-#         logstash_dir = os.path.dirname(build_scripts_dir)
-#         deploy_dir = '/usr/share/logstash'
-#         deployed_conf_dir = f'{deploy_dir}/config/confs/'
-#         pipeline_dir = f'{logstash_dir}/pipeline'
-#         pipeline_file_path = f'{pipeline_dir}/pipelines.yml'
-
-#         # sys.argv[0] is by default the python script name
-#         # check if notify was passed, then notify on ms teams
-#         if len(sys.argv) > 1:
-#             url = sys.argv[1]
-#             notify_teams(url)
-#             sys.exit(0)
-
-#         if os.environ['DEPLOY_ENV'] == 'test':
-#             logger.info('setting up test env')
-#             setup_test_env()
-
-#         helper = LogstashHelper(logstash_dir)
-#         helper.replace_vars()
-#         logger.info('Variables replaced')
-#         helper.substitute_jaas_with_values()
-#         logger.info('Kafka jaas file substituted')
-#         helper.substitute_logger_with_values()
-#         logger.info('logger configuration substituted')
-#         log_path_names = helper.generate_pipeline(
-#             deployed_conf_dir, pipeline_file_path)
-#         logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
-#         test_for_change(deploy_dir, pipeline_dir)
-#     except KeyError as k:
-#         logger.error(f'Could not find key {k}')
-#         logger.exception(k)
-#         logger.error(f'Exiting abruptly')
-#         sys.exit(-1)
-#     except Exception as e:
-#         logger.error(e)
-#         logger.exception(e)
-#         logger.error(f'Exiting abruptly')
-#         sys.exit(-1)
-
-
-def generate_settings():
-    cur_file_path = os.path.abspath(__file__)
-    build_scripts_dir = os.path.dirname(cur_file_path)
-    root_dir = os.path.dirname(build_scripts_dir)
-    processor_dir_path = os.path.join(root_dir,'config', 'processors')
-    processors_list = os.listdir(processor_dir_path)
-    processors_list.sort()
-    processors_list = list(
-        filter(lambda file_name: file_name.endswith('.conf'), processors_list))
-    
-    settings = []
-    for processor in processors_list:
-        processor_name = processor[:-5]
-        log_type = processor_name.split('_')[-1]
-        date = '%{+xxxx.MM.dd}'
-        month = '%{+xxxx.MM}'
-        week = '%{+xxxx.ww}'
-        if log_type == 'daily':
-            index_name = f'{processor_name.lower()}_{date}'
-            consumer_threads = 16
-        elif log_type == 'weekly':
-            index_name = f'{processor_name.lower()}_{week}'
-            consumer_threads = 4
-        else:
-            # monthly or anything else
-            index_name = f'{processor_name.lower()}_{month}'
-            consumer_threads = 4
-        ignore_enrichments = []
-        setting = {
-            "log_source" : processor_name,
-            "config" : processor_name,
-            "elastic_index" : index_name,
-            "ignore_enrichments" : ignore_enrichments,
-            "output_list" : ["elasticsearch", "s3"]
-        }
-        settings.append(setting)
-        if 'log_audit_checkpoint.fw' in processor_name:
-            if processor_name not in ['log_audit_checkpoint.auth_weekly', 'log_audit_checkpoint.operations_daily']:
-                setting['config'] = 'log_audit_checkpoint.fw'
-        elif log_type == 'daily' and 'log_audit_windows.events' in processor_name:
-            setting['config'] = 'log_audit_windows.events'
-        if 'log_audit_checkpoint.fw_cnet_eu_internet_daily' in processor_name or 'log_audit_checkpoint.fw_cnet_gl_vpn_daily' in processor_name:
-            ignore_enrichments.append('disable_dns_enrichment')
-    settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
-    with open(settings_file_path, 'w') as settings_file:
-        json.dump(settings, settings_file, indent=2)
-    
-    # delete checkpoint and wef configs
-    proc_dels = []
-    for processor in processors_list:
-        processor_name = processor[:-5]
-        log_type = processor_name.split('_')[-1]
-        if 'log_audit_checkpoint.fw' in processor_name:
-            if processor_name not in ['log_audit_checkpoint.auth_weekly', 'log_audit_checkpoint.operations_daily']:
-                processor_del = os.path.join(processor_dir_path, processor)
-                proc_dels.append(processor_del)
-        elif log_type == 'daily' and 'log_audit_windows.events' in processor_name:
-            processor_del = os.path.join(processor_dir_path, processor)
-            proc_dels.append(processor_del)
-        
-    for proc_del in proc_dels:
-        os.remove(proc_del)
-
 if __name__ == "__main__":
-    generate_settings()
+    '''
+        SPECIAL CASE
+        (in drone build step when changes are pushed to master branch)
+        This script can be run with an optional ms teams webhook url argument,
+        it posts node and settings mappings to that ms teams channel and exits.
+
+        GENERAL CASE
+        Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
+
+        On every node the git repo is downloded in /opt/logstash
+        and logstash is deployed in /usr/share/logstash .
+
+        Chef gets proper values from secrets manager and sets them as environment variables and launches this script.
+        The script replaces variables from all files(logstash settings, kafka_jaas, log4j2.properties etc) present in the repo
+        and generates pipelines.yml file for logstash
+    '''
+    try:
+        cur_file_path = os.path.abspath(__file__)
+        build_scripts_dir = os.path.dirname(cur_file_path)
+        logstash_dir = os.path.dirname(build_scripts_dir)
+        deploy_dir = '/usr/share/logstash'
+        deployed_conf_dir = f'{deploy_dir}/config/confs/'
+        pipeline_dir = f'{logstash_dir}/pipeline'
+        pipeline_file_path = f'{pipeline_dir}/pipelines.yml'
+
+        # sys.argv[0] is by default the python script name
+        # check if notify was passed, then notify on ms teams
+        if len(sys.argv) > 1:
+            url = sys.argv[1]
+            notify_teams(url)
+            sys.exit(0)
+
+        if os.environ['DEPLOY_ENV'] == 'test':
+            logger.info('setting up test env')
+            setup_test_env()
+
+        helper = LogstashHelper(logstash_dir)
+        helper.generate_kafka_inputs()
+        helper.replace_vars()
+        logger.info('Variables replaced')
+        # helper.substitute_jaas_with_values()
+        # logger.info('Kafka jaas file substituted')
+        # helper.substitute_logger_with_values()
+        # logger.info('logger configuration substituted')
+        # log_path_names = helper.generate_pipeline(
+        #     deployed_conf_dir, pipeline_file_path)
+        # logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
+        # test_for_change(deploy_dir, pipeline_dir)
+    except KeyError as k:
+        logger.error(f'Could not find key {k}')
+        logger.exception(k)
+        logger.error(f'Exiting abruptly')
+        sys.exit(-1)
+    except Exception as e:
+        logger.error(e)
+        logger.exception(e)
+        logger.error(f'Exiting abruptly')
+        sys.exit(-1)
