@@ -173,7 +173,7 @@
   },
   {
     "log_source": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
-    "config": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
+    "config": "log_audit_checkpoint.fw",
     "elastic_index": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly_%{+xxxx.ww}",
     "ignore_enrichments": [],
     "output_list": [
@@ -183,7 +183,7 @@
   },
   {
     "log_source": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
-    "config": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
+    "config": "log_audit_checkpoint.fw",
     "elastic_index": "log_audit_checkpoint.fw_cnet_gl_plant_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
@@ -235,7 +235,7 @@
   },
   {
     "log_source": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
-    "config": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
+    "config": "log_audit_checkpoint.fw",
     "elastic_index": "log_audit_checkpoint.fw_cnet_na_lab_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [

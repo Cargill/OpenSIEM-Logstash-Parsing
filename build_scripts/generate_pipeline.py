@@ -732,8 +732,9 @@ def generate_settings():
             "output_list" : ["elasticsearch", "s3"]
         }
         settings.append(setting)
-        if log_type == 'daily' and 'log_audit_checkpoint.fw' in processor_name:
-            setting['config'] = 'log_audit_checkpoint.fw'
+        if 'log_audit_checkpoint.fw' in processor_name:
+            if processor_name not in ['log_audit_checkpoint.auth_weekly', 'log_audit_checkpoint.operations_daily']:
+                setting['config'] = 'log_audit_checkpoint.fw'
         elif log_type == 'daily' and 'log_audit_windows.events' in processor_name:
             setting['config'] = 'log_audit_windows.events'
         if 'log_audit_checkpoint.fw_cnet_eu_internet_daily' in processor_name or 'log_audit_checkpoint.fw_cnet_gl_vpn_daily' in processor_name:
@@ -741,6 +742,22 @@ def generate_settings():
     settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
     with open(settings_file_path, 'w') as settings_file:
         json.dump(settings, settings_file, indent=2)
+    
+    # delete checkpoint and wef configs
+    proc_dels = []
+    for processor in processors_list:
+        processor_name = processor[:-5]
+        log_type = processor_name.split('_')[-1]
+        if 'log_audit_checkpoint.fw' in processor_name:
+            if processor_name not in ['log_audit_checkpoint.auth_weekly', 'log_audit_checkpoint.operations_daily']:
+                processor_del = os.path.join(processor_dir_path, processor)
+                proc_dels.append(processor_del)
+        elif log_type == 'daily' and 'log_audit_windows.events' in processor_name:
+            processor_del = os.path.join(processor_dir_path, processor)
+            proc_dels.append(processor_del)
+        
+    for proc_del in proc_dels:
+        os.remove(proc_del)
 
 if __name__ == "__main__":
     generate_settings()
