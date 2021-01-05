@@ -1,0 +1,1426 @@
+[
+  {
+    "log_source": "log_audit_a10.proxy_monthly",
+    "config": "log_audit_a10.proxy_monthly",
+    "elastic_index": "log_audit_a10.proxy_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_a10.traffic_monthly",
+    "config": "log_audit_a10.traffic_monthly",
+    "elastic_index": "log_audit_a10.traffic_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_accellion.sft_monthly",
+    "config": "log_audit_accellion.sft_monthly",
+    "elastic_index": "log_audit_accellion.sft_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_apache.access_monthly",
+    "config": "log_audit_apache.access_monthly",
+    "elastic_index": "log_audit_apache.access_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_apache.error_monthly",
+    "config": "log_audit_apache.error_monthly",
+    "elastic_index": "log_audit_apache.error_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_apc.pdu_weekly",
+    "config": "log_audit_apc.pdu_weekly",
+    "elastic_index": "log_audit_apc.pdu_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_armor.app.audit_monthly",
+    "config": "log_audit_armor.app.audit_monthly",
+    "elastic_index": "log_audit_armor.app.audit_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_aws.cloudtrail_daily",
+    "config": "log_audit_aws.cloudtrail_daily",
+    "elastic_index": "log_audit_aws.cloudtrail_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_azure.event_hub_audit_weekly",
+    "config": "log_audit_azure.event_hub_audit_weekly",
+    "elastic_index": "log_audit_azure.event_hub_audit_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_azure.event_hub_operational_weekly",
+    "config": "log_audit_azure.event_hub_operational_weekly",
+    "elastic_index": "log_audit_azure.event_hub_operational_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_azure.event_hub_signin_daily",
+    "config": "log_audit_azure.event_hub_signin_daily",
+    "elastic_index": "log_audit_azure.event_hub_signin_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.auth_weekly",
+    "config": "log_audit_checkpoint.auth_weekly",
+    "elastic_index": "log_audit_checkpoint.auth_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_ap_internet_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_ap_internet_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_ap_partners_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_ap_partners_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_eu_internet_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_eu_internet_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [
+      "disable_dns_enrichment"
+    ],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_eu_partners_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_eu_partners_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_fallback_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_fallback_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
+    "config": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
+    "config": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_plant_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_gl_vpn_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_vpn_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [
+      "disable_dns_enrichment"
+    ],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_la_internet_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_la_internet_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_la_partners_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_la_partners_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_na_internet_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_na_internet_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
+    "config": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_na_lab_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_cnet_na_partners_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_na_partners_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.fw_plant_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_plant_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_checkpoint.operations_daily",
+    "config": "log_audit_checkpoint.operations_daily",
+    "elastic_index": "log_audit_checkpoint.operations_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.dna_weekly",
+    "config": "log_audit_cisco.dna_weekly",
+    "elastic_index": "log_audit_cisco.dna_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.mso_monthly",
+    "config": "log_audit_cisco.mso_monthly",
+    "elastic_index": "log_audit_cisco.mso_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.prime_monthly",
+    "config": "log_audit_cisco.prime_monthly",
+    "elastic_index": "log_audit_cisco.prime_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.router_weekly",
+    "config": "log_audit_cisco.router_weekly",
+    "elastic_index": "log_audit_cisco.router_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.switch_weekly",
+    "config": "log_audit_cisco.switch_weekly",
+    "elastic_index": "log_audit_cisco.switch_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.wireless.ap_monthly",
+    "config": "log_audit_cisco.wireless.ap_monthly",
+    "elastic_index": "log_audit_cisco.wireless.ap_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.wireless.bridge_weekly",
+    "config": "log_audit_cisco.wireless.bridge_weekly",
+    "elastic_index": "log_audit_cisco.wireless.bridge_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco.wireless.control.system_weekly",
+    "config": "log_audit_cisco.wireless.control.system_weekly",
+    "elastic_index": "log_audit_cisco.wireless.control.system_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.amauth_monthly",
+    "config": "log_audit_cisco_riverbed.amauth_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.amauth_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.audit_monthly",
+    "config": "log_audit_cisco_riverbed.audit_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.audit_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.opnetreport_monthly",
+    "config": "log_audit_cisco_riverbed.opnetreport_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.opnetreport_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.scportal_monthly",
+    "config": "log_audit_cisco_riverbed.scportal_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.scportal_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.stdout_monthly",
+    "config": "log_audit_cisco_riverbed.stdout_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.stdout_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_cisco_riverbed.vnes_analytics_monthly",
+    "config": "log_audit_cisco_riverbed.vnes_analytics_monthly",
+    "elastic_index": "log_audit_cisco_riverbed.vnes_analytics_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_citrix.netscaler_daily",
+    "config": "log_audit_citrix.netscaler_daily",
+    "elastic_index": "log_audit_citrix.netscaler_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_citrix.session_monthly",
+    "config": "log_audit_citrix.session_monthly",
+    "elastic_index": "log_audit_citrix.session_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_exchange.2016.msg.trkg_weekly",
+    "config": "log_audit_exchange.2016.msg.trkg_weekly",
+    "elastic_index": "log_audit_exchange.2016.msg.trkg_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_f5.big.ip.gtm.dns_monthly",
+    "config": "log_audit_f5.big.ip.gtm.dns_monthly",
+    "elastic_index": "log_audit_f5.big.ip.gtm.dns_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_f5.big.ip.ltm_monthly",
+    "config": "log_audit_f5.big.ip.ltm_monthly",
+    "elastic_index": "log_audit_f5.big.ip.ltm_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_forescout.host_monthly",
+    "config": "log_audit_forescout.host_monthly",
+    "elastic_index": "log_audit_forescout.host_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_infoblox_daily",
+    "config": "log_audit_infoblox_daily",
+    "elastic_index": "log_audit_infoblox_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_lieberman.random.pass.mgr_monthly",
+    "config": "log_audit_lieberman.random.pass.mgr_monthly",
+    "elastic_index": "log_audit_lieberman.random.pass.mgr_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_linux.host_monthly",
+    "config": "log_audit_linux.host_monthly",
+    "elastic_index": "log_audit_linux.host_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_linux.redhat_daily",
+    "config": "log_audit_linux.redhat_daily",
+    "elastic_index": "log_audit_linux.redhat_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_meraki.router_weekly",
+    "config": "log_audit_meraki.router_weekly",
+    "elastic_index": "log_audit_meraki.router_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_microsoft.iis.w3c_monthly",
+    "config": "log_audit_microsoft.iis.w3c_monthly",
+    "elastic_index": "log_audit_microsoft.iis.w3c_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_mpki.cmpv2_weekly",
+    "config": "log_audit_mpki.cmpv2_weekly",
+    "elastic_index": "log_audit_mpki.cmpv2_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_mwg.proxy_monthly",
+    "config": "log_audit_mwg.proxy_monthly",
+    "elastic_index": "log_audit_mwg.proxy_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_nc4_monthly",
+    "config": "log_audit_nc4_monthly",
+    "elastic_index": "log_audit_nc4_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_netgate.anira_weekly",
+    "config": "log_audit_netgate.anira_weekly",
+    "elastic_index": "log_audit_netgate.anira_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_o365.msg.trkg_weekly",
+    "config": "log_audit_o365.msg.trkg_weekly",
+    "elastic_index": "log_audit_o365.msg.trkg_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_okta_monthly",
+    "config": "log_audit_okta_monthly",
+    "elastic_index": "log_audit_okta_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_other_monthly",
+    "config": "log_audit_other_monthly",
+    "elastic_index": "log_audit_other_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_pingfederate_monthly",
+    "config": "log_audit_pingfederate_monthly",
+    "elastic_index": "log_audit_pingfederate_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_remote_console_weekly",
+    "config": "log_audit_remote_console_weekly",
+    "elastic_index": "log_audit_remote_console_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_rsa.auth_monthly",
+    "config": "log_audit_rsa.auth_monthly",
+    "elastic_index": "log_audit_rsa.auth_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_spectracom.ntp_monthly",
+    "config": "log_audit_spectracom.ntp_monthly",
+    "elastic_index": "log_audit_spectracom.ntp_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_syncplicity.adm_monthly",
+    "config": "log_audit_syncplicity.adm_monthly",
+    "elastic_index": "log_audit_syncplicity.adm_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_syncplicity.usr_monthly",
+    "config": "log_audit_syncplicity.usr_monthly",
+    "elastic_index": "log_audit_syncplicity.usr_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_tenable.nessus_scanner_weekly",
+    "config": "log_audit_tenable.nessus_scanner_weekly",
+    "elastic_index": "log_audit_tenable.nessus_scanner_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_tenable.security_center_weekly",
+    "config": "log_audit_tenable.security_center_weekly",
+    "elastic_index": "log_audit_tenable.security_center_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_ubiquiti.controller_session_logs_monthly",
+    "config": "log_audit_ubiquiti.controller_session_logs_monthly",
+    "elastic_index": "log_audit_ubiquiti.controller_session_logs_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_ubiquiti.wireless_bridge_monthly",
+    "config": "log_audit_ubiquiti.wireless_bridge_monthly",
+    "elastic_index": "log_audit_ubiquiti.wireless_bridge_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_dc_ap_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_dc_ap_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_dc_eu_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_dc_eu_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_dc_la_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_dc_la_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_dc_na_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_dc_na_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_dc_plant_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_dc_plant_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_monthly",
+    "config": "log_audit_windows.events_monthly",
+    "elastic_index": "log_audit_windows.events_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_plant_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_plant_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_server_ap_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_server_ap_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_server_eu_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_server_eu_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_server_la_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_server_la_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_server_na_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_server_na_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_audit_windows.events_server_plant_daily",
+    "config": "log_audit_windows.events",
+    "elastic_index": "log_audit_windows.events_server_plant_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_network_aws.vpcflow_daily",
+    "config": "log_network_aws.vpcflow_daily",
+    "elastic_index": "log_network_aws.vpcflow_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_ops_nortel.pbx_monthly",
+    "config": "log_ops_nortel.pbx_monthly",
+    "elastic_index": "log_ops_nortel.pbx_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_relay_check_monthly",
+    "config": "log_relay_check_monthly",
+    "elastic_index": "log_relay_check_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_a10.waf_monthly",
+    "config": "log_security_a10.waf_monthly",
+    "elastic_index": "log_security_a10.waf_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_aws.guardduty_monthly",
+    "config": "log_security_aws.guardduty_monthly",
+    "elastic_index": "log_security_aws.guardduty_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_azure.event_hub_tcs",
+    "config": "log_security_azure.event_hub_tcs",
+    "elastic_index": "log_security_azure.event_hub_tcs_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_bomgar_monthly",
+    "config": "log_security_bomgar_monthly",
+    "elastic_index": "log_security_bomgar_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.apic_monthly",
+    "config": "log_security_cisco.apic_monthly",
+    "elastic_index": "log_security_cisco.apic_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.ise_monthly",
+    "config": "log_security_cisco.ise_monthly",
+    "elastic_index": "log_security_cisco.ise_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.meraki.wap_monthly",
+    "config": "log_security_cisco.meraki.wap_monthly",
+    "elastic_index": "log_security_cisco.meraki.wap_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.meraki_monthly",
+    "config": "log_security_cisco.meraki_monthly",
+    "elastic_index": "log_security_cisco.meraki_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.satellite_monthly",
+    "config": "log_security_cisco.satellite_monthly",
+    "elastic_index": "log_security_cisco.satellite_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.stealthwatch_monthly",
+    "config": "log_security_cisco.stealthwatch_monthly",
+    "elastic_index": "log_security_cisco.stealthwatch_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_cisco.waas_monthly",
+    "config": "log_security_cisco.waas_monthly",
+    "elastic_index": "log_security_cisco.waas_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_forescout.counteract.nac_weekly",
+    "config": "log_security_forescout.counteract.nac_weekly",
+    "elastic_index": "log_security_forescout.counteract.nac_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_guardium.db_monthly",
+    "config": "log_security_guardium.db_monthly",
+    "elastic_index": "log_security_guardium.db_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_hp.network.node.mgr_monthly",
+    "config": "log_security_hp.network.node.mgr_monthly",
+    "elastic_index": "log_security_hp.network.node.mgr_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_juniper.fw_monthly",
+    "config": "log_security_juniper.fw_monthly",
+    "elastic_index": "log_security_juniper.fw_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_juniper.ssl.vpn_weekly",
+    "config": "log_security_juniper.ssl.vpn_weekly",
+    "elastic_index": "log_security_juniper.ssl.vpn_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_layer7.securespan.soa.gw_monthly",
+    "config": "log_security_layer7.securespan.soa.gw_monthly",
+    "elastic_index": "log_security_layer7.securespan.soa.gw_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.atd_monthly",
+    "config": "log_security_mcafee.atd_monthly",
+    "elastic_index": "log_security_mcafee.atd_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mcp_daily",
+    "config": "log_security_mcafee.mcp_daily",
+    "elastic_index": "log_security_mcafee.mcp_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mcp_madjv_monthly",
+    "config": "log_security_mcafee.mcp_madjv_monthly",
+    "elastic_index": "log_security_mcafee.mcp_madjv_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mcp_qa_monthly",
+    "config": "log_security_mcafee.mcp_qa_monthly",
+    "elastic_index": "log_security_mcafee.mcp_qa_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_ap_daily",
+    "config": "log_security_mcafee.mwg_ap_daily",
+    "elastic_index": "log_security_mcafee.mwg_ap_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_daily",
+    "config": "log_security_mcafee.mwg_daily",
+    "elastic_index": "log_security_mcafee.mwg_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_eu_daily",
+    "config": "log_security_mcafee.mwg_eu_daily",
+    "elastic_index": "log_security_mcafee.mwg_eu_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_fallback_daily",
+    "config": "log_security_mcafee.mwg_fallback_daily",
+    "elastic_index": "log_security_mcafee.mwg_fallback_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_la_daily",
+    "config": "log_security_mcafee.mwg_la_daily",
+    "elastic_index": "log_security_mcafee.mwg_la_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.mwg_na_daily",
+    "config": "log_security_mcafee.mwg_na_daily",
+    "elastic_index": "log_security_mcafee.mwg_na_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_mcafee.net.security.mgr_monthly",
+    "config": "log_security_mcafee.net.security.mgr_monthly",
+    "elastic_index": "log_security_mcafee.net.security.mgr_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_microsoft.ata_monthly",
+    "config": "log_security_microsoft.ata_monthly",
+    "elastic_index": "log_security_microsoft.ata_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_palo.alto.fw_weekly",
+    "config": "log_security_palo.alto.fw_weekly",
+    "elastic_index": "log_security_palo.alto.fw_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_preempt_monthly",
+    "config": "log_security_preempt_monthly",
+    "elastic_index": "log_security_preempt_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_proofpoint.pod_email_gateway_daily",
+    "config": "log_security_proofpoint.pod_email_gateway_daily",
+    "elastic_index": "log_security_proofpoint.pod_email_gateway_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_proofpoint.siem_api_clicks_monthly",
+    "config": "log_security_proofpoint.siem_api_clicks_monthly",
+    "elastic_index": "log_security_proofpoint.siem_api_clicks_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_proofpoint.siem_api_messages_monthly",
+    "config": "log_security_proofpoint.siem_api_messages_monthly",
+    "elastic_index": "log_security_proofpoint.siem_api_messages_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sap.onapsis_monthly",
+    "config": "log_security_sap.onapsis_monthly",
+    "elastic_index": "log_security_sap.onapsis_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sdwan.app_non_production_weekly",
+    "config": "log_security_sdwan.app_non_production_weekly",
+    "elastic_index": "log_security_sdwan.app_non_production_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sdwan.app_production_weekly",
+    "config": "log_security_sdwan.app_production_weekly",
+    "elastic_index": "log_security_sdwan.app_production_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sdwan.os_ubuntu_non_production_weekly",
+    "config": "log_security_sdwan.os_ubuntu_non_production_weekly",
+    "elastic_index": "log_security_sdwan.os_ubuntu_non_production_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sdwan.os_ubuntu_production_weekly",
+    "config": "log_security_sdwan.os_ubuntu_production_weekly",
+    "elastic_index": "log_security_sdwan.os_ubuntu_production_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_sinkhole_monthly",
+    "config": "log_security_sinkhole_monthly",
+    "elastic_index": "log_security_sinkhole_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_symantec.dlp_monthly",
+    "config": "log_security_symantec.dlp_monthly",
+    "elastic_index": "log_security_symantec.dlp_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_symantec.endpoint_monthly",
+    "config": "log_security_symantec.endpoint_monthly",
+    "elastic_index": "log_security_symantec.endpoint_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_tanium_monthly",
+    "config": "log_security_tanium_monthly",
+    "elastic_index": "log_security_tanium_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_tap.api.siem.pp_weekly",
+    "config": "log_security_tap.api.siem.pp_weekly",
+    "elastic_index": "log_security_tap.api.siem.pp_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_security_tufin_monthly",
+    "config": "log_security_tufin_monthly",
+    "elastic_index": "log_security_tufin_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_source_unidentified_weekly",
+    "config": "log_source_unidentified_weekly",
+    "elastic_index": "log_source_unidentified_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "log_tenable_securitycenter",
+    "config": "log_tenable_securitycenter",
+    "elastic_index": "log_tenable_securitycenter_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_audit_o365.dlp_weekly",
+    "config": "test_log_audit_o365.dlp_weekly",
+    "elastic_index": "test_log_audit_o365.dlp_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_audit_sap_daily",
+    "config": "test_log_audit_sap_daily",
+    "elastic_index": "test_log_audit_sap_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_azure.atp_api_monthly",
+    "config": "test_log_security_azure.atp_api_monthly",
+    "elastic_index": "test_log_security_azure.atp_api_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_azure.event_hub_atp_weekly",
+    "config": "test_log_security_azure.event_hub_atp_weekly",
+    "elastic_index": "test_log_security_azure.event_hub_atp_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_azure.graph_aad2_api_monthly",
+    "config": "test_log_security_azure.graph_aad2_api_monthly",
+    "elastic_index": "test_log_security_azure.graph_aad2_api_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_azure.graph_api_monthly",
+    "config": "test_log_security_azure.graph_api_monthly",
+    "elastic_index": "test_log_security_azure.graph_api_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_misp.metrics_daily",
+    "config": "test_log_security_misp.metrics_daily",
+    "elastic_index": "test_log_security_misp.metrics_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_misp.metrics_vetted_daily",
+    "config": "test_log_security_misp.metrics_vetted_daily",
+    "elastic_index": "test_log_security_misp.metrics_vetted_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_proofpoint.forensics_api_monthly",
+    "config": "test_log_security_proofpoint.forensics_api_monthly",
+    "elastic_index": "test_log_security_proofpoint.forensics_api_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  {
+    "log_source": "test_log_security_proofpoint.trap_weekly",
+    "config": "test_log_security_proofpoint.trap_weekly",
+    "elastic_index": "test_log_security_proofpoint.trap_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  }
+]

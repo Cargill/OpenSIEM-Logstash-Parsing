@@ -252,7 +252,7 @@ class LogstashHelper(object):
                 index_name = f'{config_name.lower()}_{month}'
                 consumer_threads = 4
 
-            # treat test configs as low volume, they are not priority
+            # treat test settings as low volume, they are not priority
             if config_name.startswith('test_'):
                 consumer_threads = 4
                 max_poll_records = 100
@@ -310,9 +310,9 @@ class LogstashHelper(object):
     def generate_pipeline(self, deployed_conf_dir, pipeline_file_path):
         '''
             Generate pipelines.yml and write to pipeline_file_path.
-            Use deployed_conf_dir to add absolute paths of the configs in pipelines.yml
+            Use deployed_conf_dir to add absolute paths of the settings in pipelines.yml
 
-            Get configs list from pipeline/confs directory and try to do a fair distribution of configs
+            Get settings list from pipeline/confs directory and try to do a fair distribution of settings
             while generated pipelines file.
         '''
         conf_list = os.listdir(f'{self.logstash_dir}/pipeline/confs')
@@ -340,7 +340,7 @@ class LogstashHelper(object):
             if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
                 continue
             log_type = config_file.split('_')[-1]
-            # treat test configs as low volume, they are not a priority
+            # treat test settings as low volume, they are not a priority
             if config_file.startswith('test_'):
                 log_type = 'monthly'
             if log_type == 'daily':
@@ -394,7 +394,7 @@ class LogstashHelper(object):
         file_contents = ''
         for log_source_name in log_path_names:
             log_type = log_source_name.split('_')[-1]
-            # treat test configs as low volume, they are not a priority
+            # treat test settings as low volume, they are not a priority
             if log_source_name.startswith('test_'):
                 log_type = 'monthly'
 
@@ -512,7 +512,7 @@ def setup_test_env():
 def generate_checksum(deploy_dir):
     '''
         Generates checksums for all files in
-            deploy_dir/confs (logstash configs)
+            deploy_dir/confs (logstash settings)
             AND
             deploy_dir (common setting files)
         and returns dictonaries settings_checksum_dict and conf_checksum_dict respectively.
@@ -581,7 +581,7 @@ def test_for_change(deploy_dir, logstash_dir):
     if changed:
         with open('/data/should_redeploy', 'a', encoding='UTF-8') as change_file:
             change_file.write('changed')
-            logger.info("configs changed")
+            logger.info("settings changed")
 
 
 def notify_teams(url):
@@ -604,7 +604,7 @@ def notify_teams(url):
     os.environ['LOGSTASH_SERVERS'] = ','.join(server_ips)
 
     # facts is the list of name value pairs that teams API understands
-    # We'll be using a fact to represent a node and assigned configs to it
+    # We'll be using a fact to represent a node and assigned settings to it
     facts = []
     # iterate over num_indexers and generate pipelines.yml for each of them
     for i in range(0, num_indexers):
@@ -613,7 +613,7 @@ def notify_teams(url):
         pipeline_file_path = f'{pipeline_dir}/pipelines{i+1}.yml'
         pipelines = helper.generate_pipeline(
             deployed_conf_dir, pipeline_file_path)
-        # get the list of configs assigned to the current node and code this information into fact name value pair
+        # get the list of settings assigned to the current node and code this information into fact name value pair
         facts.append({
             'name': f'node{os.environ["MY_INDEX"]}',
             'value': ', '.join(pipelines)
@@ -636,61 +636,111 @@ def notify_teams(url):
     requests.post(url=url, json=json_data)
 
 
+# if __name__ == "__main__":
+#     '''
+#         SPECIAL CASE
+#         (in drone build step when changes are pushed to master branch)
+#         This script can be run with an optional ms teams webhook url argument,
+#         it posts node and settings mappings to that ms teams channel and exits.
+
+#         GENERAL CASE
+#         Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
+
+#         On every node the git repo is downloded in /opt/logstash
+#         and logstash is deployed in /usr/share/logstash .
+
+#         Chef gets proper values from secrets manager and sets them as environment variables and launches this script.
+#         The script replaces variables from all files(logstash settings, kafka_jaas, log4j2.properties etc) present in the repo
+#         and generates pipelines.yml file for logstash
+#     '''
+#     try:
+#         cur_file_path = os.path.abspath(__file__)
+#         build_scripts_dir = os.path.dirname(cur_file_path)
+#         logstash_dir = os.path.dirname(build_scripts_dir)
+#         deploy_dir = '/usr/share/logstash'
+#         deployed_conf_dir = f'{deploy_dir}/config/confs/'
+#         pipeline_dir = f'{logstash_dir}/pipeline'
+#         pipeline_file_path = f'{pipeline_dir}/pipelines.yml'
+
+#         # sys.argv[0] is by default the python script name
+#         # check if notify was passed, then notify on ms teams
+#         if len(sys.argv) > 1:
+#             url = sys.argv[1]
+#             notify_teams(url)
+#             sys.exit(0)
+
+#         if os.environ['DEPLOY_ENV'] == 'test':
+#             logger.info('setting up test env')
+#             setup_test_env()
+
+#         helper = LogstashHelper(logstash_dir)
+#         helper.replace_vars()
+#         logger.info('Variables replaced')
+#         helper.substitute_jaas_with_values()
+#         logger.info('Kafka jaas file substituted')
+#         helper.substitute_logger_with_values()
+#         logger.info('logger configuration substituted')
+#         log_path_names = helper.generate_pipeline(
+#             deployed_conf_dir, pipeline_file_path)
+#         logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
+#         test_for_change(deploy_dir, pipeline_dir)
+#     except KeyError as k:
+#         logger.error(f'Could not find key {k}')
+#         logger.exception(k)
+#         logger.error(f'Exiting abruptly')
+#         sys.exit(-1)
+#     except Exception as e:
+#         logger.error(e)
+#         logger.exception(e)
+#         logger.error(f'Exiting abruptly')
+#         sys.exit(-1)
+
+
+def generate_settings():
+    cur_file_path = os.path.abspath(__file__)
+    build_scripts_dir = os.path.dirname(cur_file_path)
+    root_dir = os.path.dirname(build_scripts_dir)
+    processor_dir_path = os.path.join(root_dir,'config', 'processors')
+    processors_list = os.listdir(processor_dir_path)
+    processors_list.sort()
+    processors_list = list(
+        filter(lambda file_name: file_name.endswith('.conf'), processors_list))
+    
+    settings = []
+    for processor in processors_list:
+        processor_name = processor[:-5]
+        log_type = processor_name.split('_')[-1]
+        date = '%{+xxxx.MM.dd}'
+        month = '%{+xxxx.MM}'
+        week = '%{+xxxx.ww}'
+        if log_type == 'daily':
+            index_name = f'{processor_name.lower()}_{date}'
+            consumer_threads = 16
+        elif log_type == 'weekly':
+            index_name = f'{processor_name.lower()}_{week}'
+            consumer_threads = 4
+        else:
+            # monthly or anything else
+            index_name = f'{processor_name.lower()}_{month}'
+            consumer_threads = 4
+        ignore_enrichments = []
+        setting = {
+            "log_source" : processor_name,
+            "config" : processor_name,
+            "elastic_index" : index_name,
+            "ignore_enrichments" : ignore_enrichments,
+            "output_list" : ["elasticsearch", "s3"]
+        }
+        settings.append(setting)
+        if log_type == 'daily' and 'log_audit_checkpoint.fw' in processor_name:
+            setting['config'] = 'log_audit_checkpoint.fw'
+        elif log_type == 'daily' and 'log_audit_windows.events' in processor_name:
+            setting['config'] = 'log_audit_windows.events'
+        if 'log_audit_checkpoint.fw_cnet_eu_internet_daily' in processor_name or 'log_audit_checkpoint.fw_cnet_gl_vpn_daily' in processor_name:
+            ignore_enrichments.append('disable_dns_enrichment')
+    settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
+    with open(settings_file_path, 'w') as settings_file:
+        json.dump(settings, settings_file, indent=2)
+
 if __name__ == "__main__":
-    '''
-        SPECIAL CASE
-        (in drone build step when changes are pushed to master branch)
-        This script can be run with an optional ms teams webhook url argument,
-        it posts node and configs mappings to that ms teams channel and exits.
-
-        GENERAL CASE
-        Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
-
-        On every node the git repo is downloded in /opt/logstash
-        and logstash is deployed in /usr/share/logstash .
-
-        Chef gets proper values from secrets manager and sets them as environment variables and launches this script.
-        The script replaces variables from all files(logstash configs, kafka_jaas, log4j2.properties etc) present in the repo
-        and generates pipelines.yml file for logstash
-    '''
-    try:
-        cur_file_path = os.path.abspath(__file__)
-        build_scripts_dir = os.path.dirname(cur_file_path)
-        logstash_dir = os.path.dirname(build_scripts_dir)
-        deploy_dir = '/usr/share/logstash'
-        deployed_conf_dir = f'{deploy_dir}/config/confs/'
-        pipeline_dir = f'{logstash_dir}/pipeline'
-        pipeline_file_path = f'{pipeline_dir}/pipelines.yml'
-
-        # sys.argv[0] is by default the python script name
-        # check if notify was passed, then notify on ms teams
-        if len(sys.argv) > 1:
-            url = sys.argv[1]
-            notify_teams(url)
-            sys.exit(0)
-
-        if os.environ['DEPLOY_ENV'] == 'test':
-            logger.info('setting up test env')
-            setup_test_env()
-
-        helper = LogstashHelper(logstash_dir)
-        helper.replace_vars()
-        logger.info('Variables replaced')
-        helper.substitute_jaas_with_values()
-        logger.info('Kafka jaas file substituted')
-        helper.substitute_logger_with_values()
-        logger.info('logger configuration substituted')
-        log_path_names = helper.generate_pipeline(
-            deployed_conf_dir, pipeline_file_path)
-        logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
-        test_for_change(deploy_dir, pipeline_dir)
-    except KeyError as k:
-        logger.error(f'Could not find key {k}')
-        logger.exception(k)
-        logger.error(f'Exiting abruptly')
-        sys.exit(-1)
-    except Exception as e:
-        logger.error(e)
-        logger.exception(e)
-        logger.error(f'Exiting abruptly')
-        sys.exit(-1)
+    generate_settings()
