@@ -257,26 +257,39 @@ class LogstashHelper(object):
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
         }
-        azure_inputs_path = os.path.join(self.logstash_dir, 'config', 'inputs', 'azure')
+        azure_inputs_dir = os.path.join(self.logstash_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(self.logstash_dir, 'config', 'inputs', 'kafka')
-        azure_inputs = os.listdir(azure_inputs_path)
+        processor_dir = os.path.join(self.logstash_dir, 'config', 'processors')
+        enrichment_dir = os.path.join(self.logstash_dir, 'config', 'enrichments')
+        output_dir = os.path.join(self.logstash_dir, 'config', 'outputs')
+        
         settings = []
         with open(os.path.join(self.logstash_dir, 'build_scripts', 'settings.json'), 'r') as settings_file:
             settings = json.load(settings_file)
         
+        azure_inputs = os.listdir(azure_inputs_dir)
         for input_name in azure_inputs:
-            config = settings[input_name[:-5]]
+            config = settings[input_name[:-5]] # stripping .conf
             vars_dict['PIPELINE_NAME'] = config['config']
-            self.__add_custom_input_field(f'{azure_inputs_path}/{input_name}', config)
-            self.__replace_vars(f'{azure_inputs_path}/{input_name}', vars_dict)
+            self.__add_custom_input_field(f'{azure_inputs_dir}/{input_name}', config)
+            self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
         kafka_inputs = os.listdir(kafka_input_dir)
         for input_name in kafka_inputs:
             if input_name in ['1_syslog_input.conf', '2_non_syslog_input.conf']:
                 continue
-            config = settings[input_name[:-5]]
+            config = settings[input_name[:-5]]  # stripping .conf
             self.__add_custom_input_field(f'{kafka_input_dir}/{input_name}', config)
             vars_dict['PIPELINE_NAME'] = config['config']
             self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
+        processsors = os.listdir(processor_dir)
+        for processor_name in processsors:
+            config = processor_name[:-5] # stripping .conf
+            vars_dict['PIPELINE_NAME'] = config
+            self.__replace_vars(f'{processor_dir}/{processor_name}', vars_dict)
+        outputs = os.listdir(output_dir)
+        for output_name in outputs:
+            self.__replace_vars(f'{output_dir}/{output_name}', vars_dict)
+        
 
     def __get_log_distribution(self, num_logs: int, num_servers: int, arr_idx: int, logs: list):
         fair_allocation = int(num_logs / num_servers)
