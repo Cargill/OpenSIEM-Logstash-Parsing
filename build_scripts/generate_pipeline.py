@@ -437,7 +437,7 @@ class LogstashHelper(object):
         '''
             Substitute variables in kafka_jaas.conf
         '''
-        jaas_file_path = f'{self.logstash_dir}/pipeline/kafka_jaas.conf'
+        jaas_file_path = f'{self.logstash_dir}/config/kafka_jaas.conf'
         jaas_file_str = ''
         with open(jaas_file_path) as jaas_file:
             jaas_file_str = jaas_file.read()
@@ -452,7 +452,7 @@ class LogstashHelper(object):
         '''
             Substitute variables in log4j2.properties
         '''
-        log_file_path = f'{self.logstash_dir}/pipeline/log4j2.properties'
+        log_file_path = f'{self.logstash_dir}/config/log4j2.properties'
         log_file_str = ''
         with open(log_file_path) as jaas_file:
             log_file_str = jaas_file.read()
@@ -697,10 +697,10 @@ if __name__ == "__main__":
         helper.generate_kafka_inputs()
         helper.replace_vars()
         logger.info('Variables replaced')
-        # helper.substitute_jaas_with_values()
-        # logger.info('Kafka jaas file substituted')
-        # helper.substitute_logger_with_values()
-        # logger.info('logger configuration substituted')
+        helper.substitute_jaas_with_values()
+        logger.info('Kafka jaas file substituted')
+        helper.substitute_logger_with_values()
+        logger.info('logger configuration substituted')
         # log_path_names = helper.generate_pipeline(
         #     deployed_conf_dir, pipeline_file_path)
         # logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
