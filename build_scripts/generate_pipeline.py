@@ -166,10 +166,10 @@ class LogstashHelper(object):
 
     def __add_custom_input_field(self, conf_file: str, config):
         add_fields_block = 'add_field => {\n' + \
-        f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
-        f'      "[@metadata][config]" => "{config["config"]}"\n' + \
-        f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
-        '    }'
+            f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
+            f'      "[@metadata][config]" => "{config["config"]}"\n' + \
+            f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
+            '    }'
         file_contents = None
         with open(conf_file, encoding='UTF-8') as config:
             file_contents = config.read()
@@ -177,7 +177,8 @@ class LogstashHelper(object):
             if 'VAR_CUSTOM_FIELDS' not in file_contents:
                 raise ValueError(
                     f'config {conf_file} does not contain VAR_CUSTOM_FIELDS')
-        file_contents = file_contents.replace('# VAR_CUSTOM_FIELDS', add_fields_block)
+        file_contents = file_contents.replace(
+            '# VAR_CUSTOM_FIELDS', add_fields_block)
         with open(conf_file, 'w', encoding='UTF-8') as config:
             config.write(file_contents)
 
@@ -206,7 +207,7 @@ class LogstashHelper(object):
         vars_dict['S3_PREFIX'] = f'{config_name}/{s3_date_pattern}'
 
         file_contents = None
-        
+
         with open(conf_file_path, encoding='UTF-8') as config:
             file_contents = config.read()
         for var in vars_dict.keys():
@@ -220,7 +221,6 @@ class LogstashHelper(object):
 
         with open(conf_file_path, 'w', encoding='UTF-8') as config:
             config.write(file_contents)
-    
 
     def replace_vars(self):
         kafka_servers_str = ':9092,'.join(self.kafka_servers) + ':9092'
@@ -257,39 +257,40 @@ class LogstashHelper(object):
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
         }
-        azure_inputs_dir = os.path.join(self.logstash_dir, 'config', 'inputs', 'azure')
-        kafka_input_dir = os.path.join(self.logstash_dir, 'config', 'inputs', 'kafka')
+        azure_inputs_dir = os.path.join(
+            self.logstash_dir, 'config', 'inputs', 'azure')
+        kafka_input_dir = os.path.join(
+            self.logstash_dir, 'config', 'inputs', 'kafka')
         processor_dir = os.path.join(self.logstash_dir, 'config', 'processors')
-        enrichment_dir = os.path.join(self.logstash_dir, 'config', 'enrichments')
+        enrichment_dir = os.path.join(
+            self.logstash_dir, 'config', 'enrichments')
         output_dir = os.path.join(self.logstash_dir, 'config', 'outputs')
-        
-        settings = []
-        with open(os.path.join(self.logstash_dir, 'build_scripts', 'settings.json'), 'r') as settings_file:
-            settings = json.load(settings_file)
-        
+
+        settings = self.load_settings()
         azure_inputs = os.listdir(azure_inputs_dir)
         for input_name in azure_inputs:
-            config = settings[input_name[:-5]] # stripping .conf
+            config = settings[input_name[:-5]]  # stripping .conf
             vars_dict['PIPELINE_NAME'] = config['config']
-            self.__add_custom_input_field(f'{azure_inputs_dir}/{input_name}', config)
+            self.__add_custom_input_field(
+                f'{azure_inputs_dir}/{input_name}', config)
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
         kafka_inputs = os.listdir(kafka_input_dir)
         for input_name in kafka_inputs:
             if input_name in ['1_syslog_input.conf', '2_non_syslog_input.conf']:
                 continue
             config = settings[input_name[:-5]]  # stripping .conf
-            self.__add_custom_input_field(f'{kafka_input_dir}/{input_name}', config)
+            self.__add_custom_input_field(
+                f'{kafka_input_dir}/{input_name}', config)
             vars_dict['PIPELINE_NAME'] = config['config']
             self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
         processsors = os.listdir(processor_dir)
         for processor_name in processsors:
-            config = processor_name[:-5] # stripping .conf
+            config = processor_name[:-5]  # stripping .conf
             vars_dict['PIPELINE_NAME'] = config
             self.__replace_vars(f'{processor_dir}/{processor_name}', vars_dict)
         outputs = os.listdir(output_dir)
         for output_name in outputs:
             self.__replace_vars(f'{output_dir}/{output_name}', vars_dict)
-        
 
     def __get_log_distribution(self, num_logs: int, num_servers: int, arr_idx: int, logs: list):
         fair_allocation = int(num_logs / num_servers)
@@ -315,29 +316,25 @@ class LogstashHelper(object):
             Get settings list from pipeline/confs directory and try to do a fair distribution of settings
             while generated pipelines file.
         '''
-        conf_list = os.listdir(f'{self.logstash_dir}/pipeline/confs')
-        conf_list.sort()
-        conf_list = list(
-            filter(lambda file_name: file_name.endswith('.conf'), conf_list))
-        conf_names = list(
-            map(lambda file_name: file_name.split('.conf')[0], conf_list))
+        settings = self.load_settings()
+        conf_names = settings.keys()
 
-        self.prod_only_logs = self.__get_matched_items(
+        prod_only_logs = self.__get_matched_items(
             conf_names, self.prod_only_logs)
-        self.high_volume_logs = self.__get_matched_items(
+        high_volume_logs = self.__get_matched_items(
             conf_names, self.high_volume_logs)
-        self.clear_lag_logs = self.__get_matched_items(
+        clear_lag_logs = self.__get_matched_items(
             conf_names, self.clear_lag_logs)
 
         daily_logs = []
         weekly_logs = []
         monthly_logs = []
         for config_file in conf_names:
-            if config_file in self.high_volume_logs:
+            if config_file in high_volume_logs:
                 continue
-            if config_file in self.clear_lag_logs:
+            if config_file in clear_lag_logs:
                 continue
-            if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
+            if self.deploy_env == 'dev' and config_file in prod_only_logs:
                 continue
             log_type = config_file.split('_')[-1]
             # treat test settings as low volume, they are not a priority
@@ -352,86 +349,92 @@ class LogstashHelper(object):
             else:
                 monthly_logs.append(config_file)
 
-        log_path_names = []
+        selected_log_sources = []
         arr_idx = self.my_index - 1
         num_servers = len(self.logstash_servers)
 
         # process each clear lag log on this many nodes
         num_nodes_for_clear_lag = 4
-        clear_number = len(self.clear_lag_logs)
+        clear_number = len(clear_lag_logs)
         num_servers_for_clear_lag = clear_number*num_nodes_for_clear_lag
+        if num_servers < num_servers_for_clear_lag:
+            # cannot process clear lag logs explicitly.
+            # treat them like high volume logs
+            num_servers_for_clear_lag = 0
+            high_volume_logs = high_volume_logs + clear_lag_logs
+            clear_number = 0
         if clear_number > 0:
             normalized_index = arr_idx % clear_number
             clear_lag_conf = self.__get_log_distribution(
-                clear_number, num_servers, normalized_index, self.clear_lag_logs)
+                clear_number, num_servers, normalized_index, clear_lag_logs)
         else:
             clear_lag_conf = []
         if arr_idx < num_servers_for_clear_lag:
-            log_path_names = clear_lag_conf
+            selected_log_sources = clear_lag_conf
         else:
             num_servers = num_servers - num_servers_for_clear_lag
             arr_idx = arr_idx - num_servers_for_clear_lag
 
             for logs in [daily_logs, weekly_logs, monthly_logs]:
                 num_logs = len(logs)
-                log_path_names = log_path_names + \
+                selected_log_sources = selected_log_sources + \
                     self.__get_log_distribution(
                         num_logs, num_servers, arr_idx, logs)
 
             # distribute high volume logs on this many nodes
-            high_number = len(self.high_volume_logs)
+            high_number = len(high_volume_logs)
             if high_number > 0:
                 normalized_index = arr_idx % high_number
                 high_vol_conf = self.__get_log_distribution(
-                    high_number, num_servers, normalized_index, self.high_volume_logs)
+                    high_number, num_servers, normalized_index, high_volume_logs)
             else:
                 high_vol_conf = []
             if arr_idx+1 > high_number*2:
                 # don't process high volume logs on more than 2 nodes
                 high_vol_conf = []
-            log_path_names = log_path_names + high_vol_conf
+            selected_log_sources = selected_log_sources + high_vol_conf
+        print(selected_log_sources)
+        # file_contents = ''
+        # for log_source_name in selected_log_sources:
+        #     log_type = log_source_name.split('_')[-1]
+        #     # treat test settings as low volume, they are not a priority
+        #     if log_source_name.startswith('test_'):
+        #         log_type = 'monthly'
 
-        file_contents = ''
-        for log_source_name in log_path_names:
-            log_type = log_source_name.split('_')[-1]
-            # treat test settings as low volume, they are not a priority
-            if log_source_name.startswith('test_'):
-                log_type = 'monthly'
+        #     if log_type == 'daily':
+        #         pipeline_workers = 32
+        #         batch_size = 1000
+        #         batch_delay = 50
+        #     elif log_type == 'weekly':
+        #         pipeline_workers = 8
+        #         batch_size = 150
+        #         batch_delay = 50
+        #     elif log_type == 'monthly':
+        #         pipeline_workers = 4
+        #         batch_size = 150
+        #         batch_delay = 50
+        #     else:
+        #         pipeline_workers = 4
+        #         batch_size = 150
+        #         batch_delay = 50
 
-            if log_type == 'daily':
-                pipeline_workers = 32
-                batch_size = 1000
-                batch_delay = 50
-            elif log_type == 'weekly':
-                pipeline_workers = 8
-                batch_size = 150
-                batch_delay = 50
-            elif log_type == 'monthly':
-                pipeline_workers = 4
-                batch_size = 150
-                batch_delay = 50
-            else:
-                pipeline_workers = 4
-                batch_size = 150
-                batch_delay = 50
+        #     if log_source_name in high_volume_logs or log_source_name in clear_lag_logs:
+        #         pipeline_workers = 64
+        #         batch_size = 1000
 
-            if log_source_name in self.high_volume_logs or log_source_name in self.clear_lag_logs:
-                pipeline_workers = 64
-                batch_size = 1000
+        #     config_file_path = f'{deployed_conf_dir}{log_source_name}.conf'
+        #     pipeline_entry = f'- pipeline.id: {log_source_name}\n' + \
+        #                      f'  pipeline.batch.delay: {batch_delay}\n' + \
+        #                      f'  pipeline.batch.size: {batch_size}\n' + \
+        #                      f'  path.config: \"{config_file_path}\"\n' + \
+        #                      f'  pipeline.workers: {pipeline_workers}\n'
 
-            config_file_path = f'{deployed_conf_dir}{log_source_name}.conf'
-            pipeline_entry = f'- pipeline.id: {log_source_name}\n' + \
-                             f'  pipeline.batch.delay: {batch_delay}\n' + \
-                             f'  pipeline.batch.size: {batch_size}\n' + \
-                             f'  path.config: \"{config_file_path}\"\n' + \
-                             f'  pipeline.workers: {pipeline_workers}\n'
+        #     file_contents = file_contents + pipeline_entry
 
-            file_contents = file_contents + pipeline_entry
+        # with open(pipeline_file_path, 'w', encoding='UTF-8') as pipeline:
+        #     pipeline.write(file_contents)
 
-        with open(pipeline_file_path, 'w', encoding='UTF-8') as pipeline:
-            pipeline.write(file_contents)
-
-        return log_path_names
+        return selected_log_sources
 
     def substitute_jaas_with_values(self):
         '''
@@ -463,16 +466,20 @@ class LogstashHelper(object):
         with open(log_file_path, 'w', encoding='UTF-8') as jaas_file:
             jaas_file.write(log_file_str)
 
+    def load_settings(self):
+        settings = {}
+        settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
+        with open(settings_file_path, 'r') as settings_file:
+            settings = json.load(settings_file)
+        return settings
+
     def generate_kafka_inputs(self):
         root_dir = self.logstash_dir
         azure_inputs_path = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
         azure_input_list = os.listdir(azure_inputs_path)
 
-        settings = []
-        settings_file_path = os.path.join(build_scripts_dir, 'settings.json')
-        with open(settings_file_path, 'r') as settings_file:
-            settings = json.load(settings_file)
+        settings = self.load_settings()
         for key in settings.keys():
             setting = settings[key]
             log_source_conf = f'{setting["log_source"]}.conf'
@@ -586,7 +593,7 @@ def test_for_change(deploy_dir, logstash_dir):
                 changed = True
                 break
         # check conf files checksum
-        for log_path_name in log_path_names:
+        for log_path_name in selected_log_sources:
             old_checksum = old_conf_checksum_dict.get(
                 f'{log_path_name}.conf', '')
             new_checksum = new_conf_checksum_dict.get(
@@ -701,8 +708,8 @@ if __name__ == "__main__":
         logger.info('Kafka jaas file substituted')
         helper.substitute_logger_with_values()
         logger.info('logger configuration substituted')
-        # log_path_names = helper.generate_pipeline(
-        #     deployed_conf_dir, pipeline_file_path)
+        selected_log_sources = helper.generate_pipeline(
+            deployed_conf_dir, pipeline_file_path)
         # logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
         # test_for_change(deploy_dir, pipeline_dir)
     except KeyError as k:
