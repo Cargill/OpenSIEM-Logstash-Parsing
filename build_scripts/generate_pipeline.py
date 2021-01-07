@@ -616,8 +616,8 @@ def setup_test_env():
         'bitsight_auth': 'byeKS!!',
         'nc4_api_key': 'nc4_api_key',
         'nc4_api_uri': 'nc4_api_uri',
-        'azure_atp_consumer': 'conn',
-        'azure_atp_conn': 'conn',
+        'azure_atp_consumer': 'azure_atp_consumer',
+        'azure_atp_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
     })
     os.environ['MY_INDEX'] = '1'
     os.environ['SUB_MY_IP'] = '10615222'
