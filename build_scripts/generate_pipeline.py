@@ -248,7 +248,7 @@ class LogstashHelper(object):
         azure_inputs = os.listdir(azure_inputs_dir)
         for input_name in azure_inputs:
             config = settings[input_name[:-5]]  # stripping .conf
-            vars_dict['PIPELINE_NAME'] = config['config']
+            vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
             self.__add_custom_input_field(
                 f'{azure_inputs_dir}/{input_name}', config)
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
@@ -259,12 +259,12 @@ class LogstashHelper(object):
             config = settings[input_name[:-5]]  # stripping .conf
             self.__add_custom_input_field(
                 f'{kafka_input_dir}/{input_name}', config)
-            vars_dict['PIPELINE_NAME'] = config['config']
+            vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
             self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
         processsors = os.listdir(processor_dir)
         for processor_name in processsors:
             config = processor_name[:-5]  # stripping .conf
-            vars_dict['PIPELINE_NAME'] = config
+            vars_dict['PIPELINE_NAME'] = '"' + config + '"'
             self.__replace_vars(f'{processor_dir}/{processor_name}', vars_dict)
         outputs = os.listdir(output_dir)
         for output_name in outputs:
@@ -388,12 +388,10 @@ class LogstashHelper(object):
             # create a pipeline for input
             # if input is azure
             if log_source_input_conf in azure_input_list:
-                input_config_file_path = os.path.join(
-                    '${LOGSTASH_HOME}', 'config', 'inputs', 'azure', log_source_input_conf)
+                input_config_file_path = '${LOGSTASH_HOME}' + f'/config/inputs/azure/{log_source_input_conf}'
             # if input is kafka
             elif log_source_input_conf in kafka_input_list:
-                input_config_file_path = os.path.join(
-                    '${LOGSTASH_HOME}', 'config', 'inputs', 'kafka', log_source_input_conf)
+                input_config_file_path = '${LOGSTASH_HOME}' + f'/config/inputs/kafka/{log_source_input_conf}'
             else:
                 raise ValueError(
                     f'config {log_source_input_conf} does not have an input')
@@ -401,8 +399,7 @@ class LogstashHelper(object):
             input_pipeline_id = f'input_{log_source}'
             # create a pipeline for processor
             # use the config name for file path
-            processor_config_file_path = os.path.join(
-                '${LOGSTASH_HOME}', 'config', 'processors', log_source_processor_conf)
+            processor_config_file_path = '${LOGSTASH_HOME}' + f'/config/processors/{log_source_processor_conf}'
             # and log_source name for id
             processor_pipeline_id = f'proc_{log_source}'
 
