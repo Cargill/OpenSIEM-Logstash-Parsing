@@ -8,10 +8,9 @@ from pathlib import Path
 
 def get_logger():
     import logging
-    from logging.handlers import TimedRotatingFileHandler
     from logging.handlers import RotatingFileHandler
 
-    logger = logging.getLogger('my_app')
+    logger = logging.getLogger()
     # set default logging as lowest level
     # handlers get logs after filtered by this level
     logger.setLevel(logging.DEBUG)
@@ -664,7 +663,7 @@ def notify_teams(url, logstash_dir):
             'value': ', '.join(log_sources)
         })
     # print the fact list (can be seen in drone build step)
-    print(json.dumps(facts))
+    logger.info(json.dumps(facts))
     # the format that ms teams understands
     json_data = {
         '@type': 'MessageCard',
