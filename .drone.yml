@@ -17,7 +17,7 @@ pipeline:
   generate-pipeline:
     image: python:3.7-alpine
     when:
-      event: [ pull_request ]
+      event: [ pull_request, push ]
       branch: [ develop, master ]
     commands:
       - export DEPLOY_ENV=test
@@ -28,7 +28,7 @@ pipeline:
     image: docker.binrepo.cglcloud.in/tgrc-logstash:ubuntu
     pull: true
     when:
-      event: [ pull_request ]
+      event: [ pull_request, push ]
       branch: [ develop, master ]
     commands:
       - cp -r config/* /usr/share/logstash/config/
