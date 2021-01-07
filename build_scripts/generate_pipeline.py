@@ -145,25 +145,6 @@ class LogstashHelper(object):
         ]
         return api_logs
 
-    def __get_enrichments(self):
-        enrichment_path = f'{self.logstash_dir}/pipeline/enrichments'
-        enrichment_list = os.listdir(enrichment_path)
-        enrichment_list.sort()
-        enrichment_list = list(
-            filter(lambda file_name: file_name.endswith('.conf'), enrichment_list))
-        all_enrichments = ''
-        for enrichment_file in enrichment_list:
-            with open(f'{enrichment_path}/{enrichment_file}') as enrichment_conf:
-                all_enrichments += enrichment_conf.read() + '\n'
-        return all_enrichments
-
-    def __get_output_block(self):
-        output_path = f'{self.logstash_dir}/pipeline/output.conf'
-        output_str = ''
-        with open(output_path) as output_conf:
-            output_str = output_conf.read()
-        return output_str
-
     def __add_custom_input_field(self, conf_file: str, config):
         add_fields_block = 'add_field => {\n' + \
             f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
@@ -385,7 +366,7 @@ class LogstashHelper(object):
                 high_vol_conf = []
             selected_log_sources = selected_log_sources + high_vol_conf
         return selected_log_sources
-    
+
     def generate_pipeline(self, pipeline_file_path):
         '''
             Generate pipelines.yml and write to pipeline_file_path.
@@ -393,7 +374,6 @@ class LogstashHelper(object):
             Get settings list from pipeline/confs directory and try to do a fair distribution of settings
             while generated pipelines file.
         '''
-        
         selected_log_sources = self.get_selected_log_sources()
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
@@ -524,6 +504,43 @@ class LogstashHelper(object):
                     with open(input_file_path, 'w') as kafka_input_file:
                         kafka_input_file.write(base_input_file.read())
 
+    def test_for_change(self, last_deployed_dir, current_deployable_dir):
+        '''
+            Compare the checksums to see if something changed between existing deployment and ongoing deployment
+            If something did change, write 'changed' to file /data/should_redeploy .
+            Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
+        '''
+        old_settings_checksum_dict, old_conf_checksum_dict = generate_checksum(
+            last_deployed_dir)
+        new_settings_checksum_dict, new_conf_checksum_dict = generate_checksum(
+            current_deployable_dir)
+        changed = False
+        if len(new_settings_checksum_dict.keys()) == len(old_settings_checksum_dict.keys()):
+            # check settings checksum
+            for k in new_settings_checksum_dict.keys():
+                if new_settings_checksum_dict[k] != old_settings_checksum_dict.get(k, ''):
+                    logger.info(f'checksum different for {k}')
+                    changed = True
+                    break
+            # check conf files checksum
+            selected_log_sources = self.get_selected_log_sources()
+            for log_path_name in selected_log_sources:
+                old_checksum = old_conf_checksum_dict.get(
+                    f'{log_path_name}.conf', '')
+                new_checksum = new_conf_checksum_dict.get(
+                    f'{log_path_name}.conf', '')
+                if old_checksum != new_checksum:
+                    logger.info(f'checksum different for {log_path_name}')
+                    changed = True
+                    break
+        else:
+            changed = True
+            logger.info('checksum settings dict are unequal in length')
+        if changed:
+            with open('/data/should_redeploy', 'a', encoding='UTF-8') as change_file:
+                change_file.write('changed')
+                logger.info("settings changed")
+
 
 def setup_test_env():
     '''
@@ -607,44 +624,7 @@ def generate_checksum(dir_path):
     return settings_checksum_dict, conf_checksum_dict
 
 
-def test_for_change(deploy_dir, logstash_dir):
-    '''
-        Compare the checksums to see if something changed between existing deployment and ongoing deployment
-        If something did change, write 'changed' to file /data/should_redeploy .
-        Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
-    '''
-    old_settings_checksum_dict, old_conf_checksum_dict = generate_checksum(
-        deploy_dir)
-    new_settings_checksum_dict, new_conf_checksum_dict = generate_checksum(
-        logstash_dir)
-    changed = False
-    if len(new_settings_checksum_dict.keys()) == len(old_settings_checksum_dict.keys()):
-        # check settings checksum
-        for k in new_settings_checksum_dict.keys():
-            if new_settings_checksum_dict[k] != old_settings_checksum_dict.get(k, ''):
-                logger.info(f'checksum different for {k}')
-                changed = True
-                break
-        # check conf files checksum
-        for log_path_name in selected_log_sources:
-            old_checksum = old_conf_checksum_dict.get(
-                f'{log_path_name}.conf', '')
-            new_checksum = new_conf_checksum_dict.get(
-                f'{log_path_name}.conf', '')
-            if old_checksum != new_checksum:
-                logger.info(f'checksum different for {log_path_name}')
-                changed = True
-                break
-    else:
-        changed = True
-        logger.info('checksum settings dict are unequal in length')
-    if changed:
-        with open('/data/should_redeploy', 'a', encoding='UTF-8') as change_file:
-            change_file.write('changed')
-            logger.info("settings changed")
-
-
-def notify_teams(url, logstash_dir, config_dir):
+def notify_teams(url, logstash_dir):
     '''
         Send nodes and confifs mappings to microsoft teams channel via provided webhook url
 
@@ -720,15 +700,14 @@ if __name__ == "__main__":
         cur_file_path = os.path.abspath(__file__)
         build_scripts_dir = os.path.dirname(cur_file_path)
         logstash_dir = os.path.dirname(build_scripts_dir)
-        deploy_dir = '/usr/share/logstash'
-        config_dir = os.path.join(logstash_dir, 'config')
-        pipeline_file_path = os.path.join(config_dir, 'pipelines.yml')
+        pipeline_file_path = os.path.join(
+            logstash_dir, 'config', 'pipelines.yml')
 
         # sys.argv[0] is by default the python script name
         # check if notify was passed, then notify on ms teams
         if len(sys.argv) > 1:
             url = sys.argv[1]
-            notify_teams(url, logstash_dir, config_dir)
+            notify_teams(url, logstash_dir)
             sys.exit(0)
 
         if os.environ['DEPLOY_ENV'] == 'test':
@@ -745,7 +724,10 @@ if __name__ == "__main__":
         logger.info('logger configuration substituted')
         helper.generate_pipeline(pipeline_file_path)
         logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
-        # test_for_change(deploy_dir, config_dir)
+
+        last_deployed_dir = '/usr/share/logstash/config'
+        current_deployable_dir = logstash_dir
+        # helper.test_for_change(last_deployed_dir, current_deployable_dir)
     except KeyError as k:
         logger.error(f'Could not find key {k}')
         logger.exception(k)
