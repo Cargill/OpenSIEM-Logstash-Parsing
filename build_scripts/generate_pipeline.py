@@ -504,15 +504,61 @@ class LogstashHelper(object):
                     with open(input_file_path, 'w') as kafka_input_file:
                         kafka_input_file.write(base_input_file.read())
 
+    def generate_checksum(self, dir_path):
+        '''
+            Generates checksums for all files in
+                dir_path/confs (logstash settings)
+                AND
+                dir_path (common setting files)
+            and returns dictonaries settings_checksum_dict and conf_checksum_dict respectively.
+            Each dict contains file name as key and it's md5 hash as value.
+        '''
+        selected_log_sources = self.get_selected_log_sources()
+        settings = self.load_settings()
+        selected_log_processors = [settings[log_source]['config'] for log_source in selected_log_sources]
+        
+        conf_files = []
+        setting_files = []
+        config_dir = os.path.join(dir_path, 'config')
+        for root, _, files in os.walk(config_dir):
+            if root == config_dir:
+                setting_files = [os.path.join(root,file_name) for file_name in files]
+                continue
+            for file_name in files:
+                file_path = str(os.path.join(root,file_name))
+                if 'inputs' in root and file_name.split('.conf')[0] not in selected_log_sources:
+                    continue
+                if 'processors' in root and file_name.split('.conf')[0] not in selected_log_processors:
+                    continue
+                conf_files.append(file_path)
+
+        logger.info(f'generating checksum for common files')
+        settings_checksum_dict = {}
+        for setting_file_path in setting_files:
+            with open(setting_file_path, 'rb') as setting_file:
+                settings_checksum_dict[setting_file_path.split('config')[1]] = hashlib.md5(
+                    setting_file.read()).hexdigest()
+
+        logger.info(f'generating checksum for other files')
+        conf_checksum_dict = {}
+        for conf_file_name in conf_files:
+            with open(conf_file_name, 'rb') as conf_file:
+                # get the path after config and make it the key
+                conf_checksum_dict[conf_file_name.split('config')[1]] = hashlib.md5(
+                    conf_file.read()).hexdigest()
+
+        return settings_checksum_dict, conf_checksum_dict
+
+
     def test_for_change(self, last_deployed_dir, current_deployable_dir):
         '''
             Compare the checksums to see if something changed between existing deployment and ongoing deployment
             If something did change, write 'changed' to file /data/should_redeploy .
             Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
         '''
-        old_settings_checksum_dict, old_conf_checksum_dict = generate_checksum(
+        old_settings_checksum_dict, old_conf_checksum_dict = self.generate_checksum(
             last_deployed_dir)
-        new_settings_checksum_dict, new_conf_checksum_dict = generate_checksum(
+        new_settings_checksum_dict, new_conf_checksum_dict = self.generate_checksum(
             current_deployable_dir)
         changed = False
         if len(new_settings_checksum_dict.keys()) == len(old_settings_checksum_dict.keys()):
@@ -523,14 +569,9 @@ class LogstashHelper(object):
                     changed = True
                     break
             # check conf files checksum
-            selected_log_sources = self.get_selected_log_sources()
-            for log_path_name in selected_log_sources:
-                old_checksum = old_conf_checksum_dict.get(
-                    f'{log_path_name}.conf', '')
-                new_checksum = new_conf_checksum_dict.get(
-                    f'{log_path_name}.conf', '')
-                if old_checksum != new_checksum:
-                    logger.info(f'checksum different for {log_path_name}')
+            for k in new_conf_checksum_dict.keys():
+                if new_conf_checksum_dict[k] != old_conf_checksum_dict.get(k, ''):
+                    logger.info(f'checksum different for {k}')
                     changed = True
                     break
         else:
@@ -584,45 +625,6 @@ def setup_test_env():
     })
     os.environ['MY_INDEX'] = '1'
     os.environ['SUB_MY_IP'] = '10615222'
-
-
-def generate_checksum(dir_path):
-    '''
-        Generates checksums for all files in
-            dir_path/confs (logstash settings)
-            AND
-            dir_path (common setting files)
-        and returns dictonaries settings_checksum_dict and conf_checksum_dict respectively.
-        Each dict contains file name as key and it's md5 hash as value.
-    '''
-    confs_path = f'{dir_path}/confs'
-    Path(confs_path).mkdir(parents=True, exist_ok=True)
-    conf_list = os.listdir(confs_path)
-    conf_list = list(filter(lambda name: Path(
-        f'{confs_path}/{name}').is_file(), conf_list))
-
-    settings_path = dir_path
-    Path(settings_path).mkdir(parents=True, exist_ok=True)
-    setting_list = os.listdir(settings_path)
-    setting_list = list(filter(lambda name: Path(
-        f'{settings_path}/{name}').is_file(), setting_list))
-
-    logger.info(f'generating checksum for files in {confs_path}')
-    conf_checksum_dict = {}
-    for conf_file_name in conf_list:
-        with open(f'{confs_path}/{conf_file_name}', 'rb') as conf_file:
-            conf_checksum_dict[conf_file_name] = hashlib.md5(
-                conf_file.read()).hexdigest()
-
-    logger.info(f'generating checksum for files in {settings_path}')
-    settings_checksum_dict = {}
-    for setting_file_name in setting_list:
-        with open(f'{settings_path}/{setting_file_name}', 'rb') as setting_file:
-            settings_checksum_dict[setting_file_name] = hashlib.md5(
-                setting_file.read()).hexdigest()
-
-    return settings_checksum_dict, conf_checksum_dict
-
 
 def notify_teams(url, logstash_dir):
     '''
@@ -709,7 +711,7 @@ if __name__ == "__main__":
             url = sys.argv[1]
             notify_teams(url, logstash_dir)
             sys.exit(0)
-
+        
         if os.environ['DEPLOY_ENV'] == 'test':
             logger.info('setting up test env')
             setup_test_env()
@@ -725,9 +727,9 @@ if __name__ == "__main__":
         helper.generate_pipeline(pipeline_file_path)
         logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
 
-        last_deployed_dir = '/usr/share/logstash/config'
+        last_deployed_dir = '/usr/share/logstash'
         current_deployable_dir = logstash_dir
-        # helper.test_for_change(last_deployed_dir, current_deployable_dir)
+        helper.test_for_change(last_deployed_dir, current_deployable_dir)
     except KeyError as k:
         logger.error(f'Could not find key {k}')
         logger.exception(k)
