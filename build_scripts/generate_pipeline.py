@@ -82,7 +82,7 @@ class LogstashHelper(object):
     def __get_kafka_creds(self):
         kafka_creds_secret = os.environ['KAFKA_CREDS_SECRET']
         kafka_creds_json = jsonise(kafka_creds_secret)
-        return kafka_creds_json['ZOO_SERVER_USER'], kafka_creds_json['ZOO_SERVER_PASSWORD']
+        return kafka_creds_json['KAFKA_USER'], kafka_creds_json['KAFKA_PASSWORD']
 
     def __get_logstash_api_secret(self):
         logstash_api_sec = os.environ['LOGSTASH_API_SECRET']
