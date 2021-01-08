@@ -273,6 +273,16 @@
       "s3"
     ]
   },
+  "log_audit_cisco.aci_weekly": {
+    "log_source": "log_audit_cisco.aci_weekly",
+    "config": "log_audit_cisco.aci_weekly",
+    "elastic_index": "log_audit_cisco.aci_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
   "log_audit_cisco.dna_weekly": {
     "log_source": "log_audit_cisco.dna_weekly",
     "config": "log_audit_cisco.dna_weekly",
@@ -883,6 +893,16 @@
       "s3"
     ]
   },
+  "log_security_azure.graph_identity_protection_api_monthly": {
+    "log_source": "log_security_azure.graph_identity_protection_api_monthly",
+    "config": "log_security_azure.graph_identity_protection_api_monthly",
+    "elastic_index": "log_security_azure.graph_identity_protection_api_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
   "log_security_bomgar_monthly": {
     "log_source": "log_security_bomgar_monthly",
     "config": "log_security_bomgar_monthly",
@@ -1337,6 +1357,26 @@
     "log_source": "test_log_audit_sap_daily",
     "config": "test_log_audit_sap_daily",
     "elastic_index": "test_log_audit_sap_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  "test_log_audit_windows.events_server_na_daily": {
+    "log_source": "test_log_audit_windows.events_server_na_daily",
+    "config": "test_log_audit_windows.events_server_na_daily",
+    "elastic_index": "test_log_audit_windows.events_server_na_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elasticsearch",
+      "s3"
+    ]
+  },
+  "test_log_security_aws.guardduty_monthly": {
+    "log_source": "test_log_security_aws.guardduty_monthly",
+    "config": "test_log_security_aws.guardduty_monthly",
+    "elastic_index": "test_log_security_aws.guardduty_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
       "elasticsearch",
