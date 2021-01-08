@@ -594,8 +594,8 @@ def setup_test_env():
         'kafka_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
     })
     os.environ['KAFKA_CREDS_SECRET'] = json.dumps({
-        'ZOO_SERVER_USER': 'kafka_username',
-        'ZOO_SERVER_PASSWORD': 'kafka_password',
+        'KAFKA_USER': 'kafka_username',
+        'KAFKA_PASSWORD': 'kafka_password',
     })
     os.environ['LOGSTASH_API_SECRET'] = json.dumps({
         'azure_audit_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
