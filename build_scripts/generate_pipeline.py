@@ -249,6 +249,8 @@ class LogstashHelper(object):
         azure_inputs = os.listdir(azure_inputs_dir)
         for input_name in azure_inputs:
             config = settings[input_name[:-5]]  # stripping .conf
+            if self.deploy_env == 'dev' and config in self.prod_only_logs:
+                continue
             vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
             self.__add_custom_input_field(
                 f'{azure_inputs_dir}/{input_name}', config)
@@ -258,6 +260,8 @@ class LogstashHelper(object):
             if input_name in ['1_syslog_input.conf', '2_non_syslog_input.conf']:
                 continue
             config = settings[input_name[:-5]]  # stripping .conf
+            if self.deploy_env == 'dev' and config in self.prod_only_logs:
+                continue
             self.__add_custom_input_field(
                 f'{kafka_input_dir}/{input_name}', config)
             vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
@@ -265,6 +269,8 @@ class LogstashHelper(object):
         processsors = os.listdir(processor_dir)
         for processor_name in processsors:
             config = processor_name[:-5]  # stripping .conf
+            if self.deploy_env == 'dev' and config in self.prod_only_logs:
+                continue
             vars_dict['PIPELINE_NAME'] = '"' + config + '"'
             self.__replace_vars(f'{processor_dir}/{processor_name}', vars_dict)
         outputs = os.listdir(output_dir)
