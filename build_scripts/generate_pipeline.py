@@ -139,8 +139,9 @@ class LogstashHelper(object):
             'log_audit_o365.msg.trkg_weekly',
             'log_security_azure.event_hub_tcs',
             'log_audit_o365.activity_weekly',
-            'log_audit_okta_weekly',
-            'log_security_proofpoint.siem.api_daily'
+            'log_audit_okta_monthly',
+            'test_log_audit_o365.dlp_weekly',
+            'test_log_security_azure.event_hub_atp_weekly',
         ]
         return api_logs
 
