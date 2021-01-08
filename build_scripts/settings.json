@@ -1403,16 +1403,6 @@
       "s3"
     ]
   },
-  "test_log_security_azure.graph_aad2_api_monthly": {
-    "log_source": "test_log_security_azure.graph_aad2_api_monthly",
-    "config": "test_log_security_azure.graph_aad2_api_monthly",
-    "elastic_index": "test_log_security_azure.graph_aad2_api_monthly_%{+xxxx.MM}",
-    "ignore_enrichments": [],
-    "output_list": [
-      "elasticsearch",
-      "s3"
-    ]
-  },
   "test_log_security_azure.graph_api_monthly": {
     "log_source": "test_log_security_azure.graph_api_monthly",
     "config": "test_log_security_azure.graph_api_monthly",
