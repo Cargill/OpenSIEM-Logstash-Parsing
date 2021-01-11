@@ -108,7 +108,7 @@ class LogstashHelper(object):
             nodes_per_clear_log = 0
         # reversing the list as it is distributed in reverse order
         clear_lag_logs.reverse()
-        return nodes_per_clear_log, clear_lag_logs
+        return clear_lag_logs, nodes_per_clear_log
 
     def __get_high_volume_logs(self):
         general_settings = load_general_settings()
