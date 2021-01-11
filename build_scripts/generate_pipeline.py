@@ -82,7 +82,7 @@ class LogstashHelper(object):
     def __get_kafka_creds(self):
         kafka_creds_secret = os.environ['KAFKA_CREDS_SECRET']
         kafka_creds_json = jsonise(kafka_creds_secret)
-        return kafka_creds_json['KAFKA_USER'], kafka_creds_json['KAFKA_PASSWORD']
+        return kafka_creds_json['ZOO_SERVER_USER'], kafka_creds_json['ZOO_SERVER_PASSWORD']
 
     def __get_logstash_api_secret(self):
         logstash_api_sec = os.environ['LOGSTASH_API_SECRET']
@@ -601,8 +601,8 @@ def setup_test_env():
         'kafka_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
     })
     os.environ['KAFKA_CREDS_SECRET'] = json.dumps({
-        'KAFKA_USER': 'kafka_username',
-        'KAFKA_PASSWORD': 'kafka_password',
+        'ZOO_SERVER_USER': 'kafka_username',
+        'ZOO_SERVER_PASSWORD': 'kafka_password',
     })
     os.environ['LOGSTASH_API_SECRET'] = json.dumps({
         'azure_audit_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
