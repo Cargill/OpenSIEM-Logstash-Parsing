@@ -141,8 +141,8 @@ class LogstashHelper(object):
 
     def __replace_vars(self, conf_file_path, vars_dict):
         unknown_var_regexp = re.compile(r'VAR_.\w*')
-        # get index_name from settings json
-        config_name = conf_file_path.split('.conf')[0]
+        # get the part after last slash and then the part before .conf
+        config_name = conf_file_path.split('/')[-1].split('.conf')[0]
         log_type = config_name.split('_')[-1]
         max_poll_records = 500
         consumer_threads = 4
