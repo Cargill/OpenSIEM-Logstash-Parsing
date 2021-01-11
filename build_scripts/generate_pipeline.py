@@ -56,7 +56,7 @@ class LogstashHelper(object):
         self.bucket_name = self.__get_bucket_name()
         self.high_volume_logs = self.__get_high_volume_logs()
         self.prod_only_logs = self.__get_prod_only_logs()
-        self.clear_lag_logs = self.__clear_lag_logs()
+        self.clear_lag_logs, self.num_nodes_for_clear_lag = self.__clear_lag_logs()
 
     def __get_elastic_creds(self):
         elastic_master_secret = os.environ['ELASTIC_MASTER_SECRET']
@@ -97,53 +97,29 @@ class LogstashHelper(object):
             return 'acap-archives-test'
 
     def __clear_lag_logs(self):
-        '''
-        CAUTION: when you add config here, don't forget to update the value of
-        num_nodes_for_clear_lag
-        and consumer_threads for clear lag accordingly
-        '''
-        clear_lag_logs = [
-            'log_network_aws.vpcflow_daily',
-        ]
+        general_settings = load_general_settings()
+        try:
+            clear_lag_logs = general_settings['clear_lag']['logs']
+            # process each clear lag log on this many nodes
+            nodes_per_clear_log = general_settings['clear_lag']['nodes']
+        except KeyError:
+            logger.exception()
+            clear_lag_logs = []
+            nodes_per_clear_log = 0
         # reversing the list as it is distributed in reverse order
         clear_lag_logs.reverse()
-        return clear_lag_logs
+        return nodes_per_clear_log, clear_lag_logs
 
     def __get_high_volume_logs(self):
-        high_volume_log_names = [
-            'log_audit_checkpoint.fw_cnet_gl_vpn_daily',
-            'log_audit_citrix.netscaler_daily',
-            'log_audit_checkpoint.fw_cnet_na_internet_daily',
-            'log_security_mcafee.mcp_daily',
-            'log_security_mcafee.mwg_na_daily',
-            'log_security_mcafee.mwg_eu_daily',
-            'log_security_mcafee.mwg_la_daily',
-            'log_security_mcafee.mwg_ap_daily',
-            'log_audit_infoblox_daily',
-            'log_audit_checkpoint.fw_plant_daily',
-            'log_audit_windows.events_server_eu_daily',
-            'log_audit_windows.events_dc_na_daily',
-            'log_audit_windows.events_server_na_daily',
-            'log_audit_windows.events_dc_eu_daily',
-            'log_audit_cisco.router_weekly',
-        ]
+        general_settings = load_general_settings()
+        high_volume_log_names = general_settings['high_volume_logs']
         # reversing the list as it is distributed in reverse order
         high_volume_log_names.reverse()
         return high_volume_log_names
 
     def __get_prod_only_logs(self):
-        api_logs = [
-            'log_audit_azure.event_hub_audit_weekly',
-            'log_audit_azure.event_hub_operational_weekly',
-            'log_audit_azure.event_hub_signin_weekly',
-            'log_audit_o365.msg.trkg_weekly',
-            'log_security_azure.event_hub_tcs',
-            'log_audit_o365.activity_weekly',
-            'log_audit_okta_monthly',
-            'test_log_audit_o365.dlp_weekly',
-            'test_log_security_azure.event_hub_atp_weekly',
-        ]
-        return api_logs
+        general_settings = load_general_settings()
+        return general_settings['prod_only_logs']
 
     def __add_custom_input_field(self, conf_file: str, config):
         add_fields_block = 'add_field => {\n' + \
@@ -177,7 +153,9 @@ class LogstashHelper(object):
         if config_name in self.high_volume_logs:
             consumer_threads = 8
         if config_name in self.clear_lag_logs:
-            consumer_threads = 4
+            # 16 is the number of partitions for each log source
+            # if we want to process a log on 16 nodes we should have one consumer per node
+            consumer_threads = 16/self.num_nodes_for_clear_lag
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
@@ -331,10 +309,8 @@ class LogstashHelper(object):
         arr_idx = self.my_index - 1
         num_servers = len(self.logstash_servers)
 
-        # process each clear lag log on this many nodes
-        num_nodes_for_clear_lag = 4
         clear_number = len(self.clear_lag_logs)
-        num_servers_for_clear_lag = clear_number*num_nodes_for_clear_lag
+        num_servers_for_clear_lag = clear_number*self.num_nodes_for_clear_lag
         if num_servers < num_servers_for_clear_lag:
             # cannot process clear lag logs explicitly.
             # treat them like high volume logs
@@ -395,10 +371,12 @@ class LogstashHelper(object):
             # create a pipeline for input
             # if input is azure
             if log_source_input_conf in azure_input_list:
-                input_config_file_path = '${LOGSTASH_HOME}' + f'/config/inputs/azure/{log_source_input_conf}'
+                input_config_file_path = '${LOGSTASH_HOME}' + \
+                    f'/config/inputs/azure/{log_source_input_conf}'
             # if input is kafka
             elif log_source_input_conf in kafka_input_list:
-                input_config_file_path = '${LOGSTASH_HOME}' + f'/config/inputs/kafka/{log_source_input_conf}'
+                input_config_file_path = '${LOGSTASH_HOME}' + \
+                    f'/config/inputs/kafka/{log_source_input_conf}'
             else:
                 raise ValueError(
                     f'config {log_source_input_conf} does not have an input')
@@ -406,7 +384,8 @@ class LogstashHelper(object):
             input_pipeline_id = f'input_{log_source}'
             # create a pipeline for processor
             # use the config name for file path
-            processor_config_file_path = '${LOGSTASH_HOME}' + f'/config/processors/{log_source_processor_conf}'
+            processor_config_file_path = '${LOGSTASH_HOME}' + \
+                f'/config/processors/{log_source_processor_conf}'
             # and log_source name for id
             processor_pipeline_id = f'proc_{log_source}'
 
@@ -518,17 +497,19 @@ class LogstashHelper(object):
         '''
         selected_log_sources = self.get_selected_log_sources()
         settings = self.load_settings()
-        selected_log_processors = [settings[log_source]['config'] for log_source in selected_log_sources]
-        
+        selected_log_processors = [settings[log_source]['config']
+                                   for log_source in selected_log_sources]
+
         conf_files = []
         setting_files = []
         config_dir = os.path.join(dir_path, 'config')
         for root, _, files in os.walk(config_dir):
             if root == config_dir:
-                setting_files = [os.path.join(root,file_name) for file_name in files]
+                setting_files = [os.path.join(root, file_name)
+                                 for file_name in files]
                 continue
             for file_name in files:
-                file_path = str(os.path.join(root,file_name))
+                file_path = str(os.path.join(root, file_name))
                 if 'inputs' in root and file_name.split('.conf')[0] not in selected_log_sources:
                     continue
                 if 'processors' in root and file_name.split('.conf')[0] not in selected_log_processors:
@@ -551,7 +532,6 @@ class LogstashHelper(object):
                     conf_file.read()).hexdigest()
 
         return settings_checksum_dict, conf_checksum_dict
-
 
     def test_for_change(self, last_deployed_dir, current_deployable_dir):
         '''
@@ -629,6 +609,16 @@ def setup_test_env():
     os.environ['MY_INDEX'] = '1'
     os.environ['SUB_MY_IP'] = '10615222'
 
+
+def load_general_settings():
+    general_settings = {}
+    general_settings_path = os.path.join(
+        logstash_dir, 'build_scripts', 'general.json')
+    with open(general_settings_path, 'r') as general_settings_file:
+        general_settings = json.load(general_settings_file)
+    return general_settings
+
+
 def notify_teams(url, logstash_dir):
     '''
         Send nodes and confifs mappings to microsoft teams channel via provided webhook url
@@ -640,11 +630,7 @@ def notify_teams(url, logstash_dir):
     import requests
 
     # get value for number of logstash nodes in prod environment
-    general_settings = {}
-    general_settings_path = os.path.join(
-        logstash_dir, 'build_scripts', 'general.json')
-    with open(general_settings_path, 'r') as general_settings_file:
-        general_settings = json.load(general_settings_file)
+    general_settings = load_general_settings()
     num_indexers = general_settings['num_indexers']
 
     # generate dummy ip list for logstash servers
@@ -714,7 +700,7 @@ if __name__ == "__main__":
             url = sys.argv[1]
             notify_teams(url, logstash_dir)
             sys.exit(0)
-        
+
         if os.environ['DEPLOY_ENV'] == 'test':
             logger.info('setting up test env')
             setup_test_env()
