@@ -7,7 +7,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_a10.traffic_monthly": {
     "log_source": "log_audit_a10.traffic_monthly",
@@ -17,7 +20,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_accellion.sft_monthly": {
     "log_source": "log_audit_accellion.sft_monthly",
@@ -27,7 +33,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_apache.access_monthly": {
     "log_source": "log_audit_apache.access_monthly",
@@ -37,7 +46,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_apache.error_monthly": {
     "log_source": "log_audit_apache.error_monthly",
@@ -47,7 +59,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_apc.pdu_weekly": {
     "log_source": "log_audit_apc.pdu_weekly",
@@ -57,7 +72,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_armor.app.audit_monthly": {
     "log_source": "log_audit_armor.app.audit_monthly",
@@ -67,7 +85,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_aws.cloudtrail_daily": {
     "log_source": "log_audit_aws.cloudtrail_daily",
@@ -77,7 +98,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_azure.event_hub_audit_weekly": {
     "log_source": "log_audit_azure.event_hub_audit_weekly",
@@ -87,7 +111,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_azure.event_hub_operational_weekly": {
     "log_source": "log_audit_azure.event_hub_operational_weekly",
@@ -97,7 +124,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_azure.event_hub_signin_daily": {
     "log_source": "log_audit_azure.event_hub_signin_daily",
@@ -107,7 +137,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_checkpoint.auth_weekly": {
     "log_source": "log_audit_checkpoint.auth_weekly",
@@ -117,7 +150,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_ap_internet_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_ap_internet_daily",
@@ -127,7 +163,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_ap_partners_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_ap_partners_daily",
@@ -137,7 +176,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_eu_internet_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_eu_internet_daily",
@@ -149,7 +191,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_eu_partners_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_eu_partners_daily",
@@ -159,7 +204,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_fallback_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_fallback_daily",
@@ -169,7 +217,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_gl_madjv_weekly": {
     "log_source": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
@@ -179,7 +230,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_gl_plant_monthly": {
     "log_source": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
@@ -189,7 +243,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_gl_vpn_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_gl_vpn_daily",
@@ -201,7 +258,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_la_internet_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_la_internet_daily",
@@ -211,7 +271,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_la_partners_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_la_partners_daily",
@@ -221,7 +284,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_na_internet_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_na_internet_daily",
@@ -231,7 +297,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_na_lab_monthly": {
     "log_source": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
@@ -241,7 +310,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_cnet_na_partners_daily": {
     "log_source": "log_audit_checkpoint.fw_cnet_na_partners_daily",
@@ -251,7 +323,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.fw_plant_daily": {
     "log_source": "log_audit_checkpoint.fw_plant_daily",
@@ -261,7 +336,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_checkpoint.operations_daily": {
     "log_source": "log_audit_checkpoint.operations_daily",
@@ -271,7 +349,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.aci_weekly": {
     "log_source": "log_audit_cisco.aci_weekly",
@@ -281,7 +362,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.dna_weekly": {
     "log_source": "log_audit_cisco.dna_weekly",
@@ -291,7 +375,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.mso_monthly": {
     "log_source": "log_audit_cisco.mso_monthly",
@@ -301,7 +388,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.prime_monthly": {
     "log_source": "log_audit_cisco.prime_monthly",
@@ -311,7 +401,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.router_weekly": {
     "log_source": "log_audit_cisco.router_weekly",
@@ -321,7 +414,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.switch_weekly": {
     "log_source": "log_audit_cisco.switch_weekly",
@@ -331,7 +427,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.wireless.ap_monthly": {
     "log_source": "log_audit_cisco.wireless.ap_monthly",
@@ -341,7 +440,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.wireless.bridge_weekly": {
     "log_source": "log_audit_cisco.wireless.bridge_weekly",
@@ -351,7 +453,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco.wireless.control.system_weekly": {
     "log_source": "log_audit_cisco.wireless.control.system_weekly",
@@ -361,7 +466,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco_riverbed.amauth_monthly": {
     "log_source": "log_audit_cisco_riverbed.amauth_monthly",
@@ -371,7 +479,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_cisco_riverbed.audit_monthly": {
     "log_source": "log_audit_cisco_riverbed.audit_monthly",
@@ -381,7 +492,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco_riverbed.opnetreport_monthly": {
     "log_source": "log_audit_cisco_riverbed.opnetreport_monthly",
@@ -391,7 +505,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco_riverbed.scportal_monthly": {
     "log_source": "log_audit_cisco_riverbed.scportal_monthly",
@@ -401,7 +518,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco_riverbed.stdout_monthly": {
     "log_source": "log_audit_cisco_riverbed.stdout_monthly",
@@ -411,7 +531,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_cisco_riverbed.vnes_analytics_monthly": {
     "log_source": "log_audit_cisco_riverbed.vnes_analytics_monthly",
@@ -421,7 +544,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_citrix.netscaler_daily": {
     "log_source": "log_audit_citrix.netscaler_daily",
@@ -431,7 +557,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_citrix.session_monthly": {
     "log_source": "log_audit_citrix.session_monthly",
@@ -441,7 +570,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_exchange.2016.msg.trkg_weekly": {
     "log_source": "log_audit_exchange.2016.msg.trkg_weekly",
@@ -451,7 +583,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_f5.big.ip.gtm.dns_monthly": {
     "log_source": "log_audit_f5.big.ip.gtm.dns_monthly",
@@ -461,7 +596,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_f5.big.ip.ltm_monthly": {
     "log_source": "log_audit_f5.big.ip.ltm_monthly",
@@ -471,7 +609,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_forescout.host_monthly": {
     "log_source": "log_audit_forescout.host_monthly",
@@ -481,7 +622,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_infoblox_daily": {
     "log_source": "log_audit_infoblox_daily",
@@ -491,7 +635,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_lieberman.random.pass.mgr_monthly": {
     "log_source": "log_audit_lieberman.random.pass.mgr_monthly",
@@ -501,7 +648,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_linux.host_monthly": {
     "log_source": "log_audit_linux.host_monthly",
@@ -511,7 +661,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_linux.redhat_daily": {
     "log_source": "log_audit_linux.redhat_daily",
@@ -521,7 +674,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_meraki.router_weekly": {
     "log_source": "log_audit_meraki.router_weekly",
@@ -531,7 +687,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_microsoft.iis.w3c_monthly": {
     "log_source": "log_audit_microsoft.iis.w3c_monthly",
@@ -541,7 +700,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_mpki.cmpv2_weekly": {
     "log_source": "log_audit_mpki.cmpv2_weekly",
@@ -551,7 +713,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_mwg.proxy_monthly": {
     "log_source": "log_audit_mwg.proxy_monthly",
@@ -561,7 +726,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_nc4_monthly": {
     "log_source": "log_audit_nc4_monthly",
@@ -570,8 +738,12 @@
     "ignore_enrichments": [],
     "output_list": [
       "elasticsearch",
-      "s3"
-    ]
+      "s3",
+      "nc4_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_netgate.anira_weekly": {
     "log_source": "log_audit_netgate.anira_weekly",
@@ -581,7 +753,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_o365.msg.trkg_weekly": {
     "log_source": "log_audit_o365.msg.trkg_weekly",
@@ -591,7 +766,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_okta_monthly": {
     "log_source": "log_audit_okta_monthly",
@@ -601,7 +779,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_other_monthly": {
     "log_source": "log_audit_other_monthly",
@@ -611,7 +792,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_pingfederate_monthly": {
     "log_source": "log_audit_pingfederate_monthly",
@@ -621,7 +805,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_remote_console_weekly": {
     "log_source": "log_audit_remote_console_weekly",
@@ -631,7 +818,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_rsa.auth_monthly": {
     "log_source": "log_audit_rsa.auth_monthly",
@@ -641,7 +831,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_spectracom.ntp_monthly": {
     "log_source": "log_audit_spectracom.ntp_monthly",
@@ -651,7 +844,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_syncplicity.adm_monthly": {
     "log_source": "log_audit_syncplicity.adm_monthly",
@@ -661,7 +857,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_syncplicity.usr_monthly": {
     "log_source": "log_audit_syncplicity.usr_monthly",
@@ -671,7 +870,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_tenable.nessus_scanner_weekly": {
     "log_source": "log_audit_tenable.nessus_scanner_weekly",
@@ -681,7 +883,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_tenable.security_center_weekly": {
     "log_source": "log_audit_tenable.security_center_weekly",
@@ -691,7 +896,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_ubiquiti.controller_session_logs_monthly": {
     "log_source": "log_audit_ubiquiti.controller_session_logs_monthly",
@@ -701,7 +909,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_ubiquiti.wireless_bridge_monthly": {
     "log_source": "log_audit_ubiquiti.wireless_bridge_monthly",
@@ -711,7 +922,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_dc_ap_daily": {
     "log_source": "log_audit_windows.events_dc_ap_daily",
@@ -721,7 +935,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_dc_eu_daily": {
     "log_source": "log_audit_windows.events_dc_eu_daily",
@@ -731,7 +948,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_dc_la_daily": {
     "log_source": "log_audit_windows.events_dc_la_daily",
@@ -741,7 +961,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_dc_na_daily": {
     "log_source": "log_audit_windows.events_dc_na_daily",
@@ -751,7 +974,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_dc_plant_daily": {
     "log_source": "log_audit_windows.events_dc_plant_daily",
@@ -761,7 +987,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_monthly": {
     "log_source": "log_audit_windows.events_monthly",
@@ -771,7 +1000,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_audit_windows.events_plant_daily": {
     "log_source": "log_audit_windows.events_plant_daily",
@@ -781,7 +1013,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_server_ap_daily": {
     "log_source": "log_audit_windows.events_server_ap_daily",
@@ -791,7 +1026,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_server_eu_daily": {
     "log_source": "log_audit_windows.events_server_eu_daily",
@@ -801,7 +1039,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_server_la_daily": {
     "log_source": "log_audit_windows.events_server_la_daily",
@@ -811,7 +1052,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_server_na_daily": {
     "log_source": "log_audit_windows.events_server_na_daily",
@@ -821,7 +1065,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_audit_windows.events_server_plant_daily": {
     "log_source": "log_audit_windows.events_server_plant_daily",
@@ -831,7 +1078,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_network_aws.vpcflow_daily": {
     "log_source": "log_network_aws.vpcflow_daily",
@@ -841,7 +1091,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_ops_nortel.pbx_monthly": {
     "log_source": "log_ops_nortel.pbx_monthly",
@@ -851,7 +1104,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_relay_check_monthly": {
     "log_source": "log_relay_check_monthly",
@@ -861,7 +1117,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_a10.waf_monthly": {
     "log_source": "log_security_a10.waf_monthly",
@@ -871,7 +1130,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_aws.guardduty_monthly": {
     "log_source": "log_security_aws.guardduty_monthly",
@@ -881,7 +1143,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_azure.event_hub_tcs": {
     "log_source": "log_security_azure.event_hub_tcs",
@@ -891,7 +1156,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_azure.graph_identity_protection_api_monthly": {
     "log_source": "log_security_azure.graph_identity_protection_api_monthly",
@@ -901,7 +1169,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_bomgar_monthly": {
     "log_source": "log_security_bomgar_monthly",
@@ -911,7 +1182,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_cisco.apic_monthly": {
     "log_source": "log_security_cisco.apic_monthly",
@@ -921,7 +1195,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.ise_monthly": {
     "log_source": "log_security_cisco.ise_monthly",
@@ -931,7 +1208,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.meraki.wap_monthly": {
     "log_source": "log_security_cisco.meraki.wap_monthly",
@@ -941,7 +1221,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.meraki_monthly": {
     "log_source": "log_security_cisco.meraki_monthly",
@@ -951,7 +1234,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.satellite_monthly": {
     "log_source": "log_security_cisco.satellite_monthly",
@@ -961,7 +1247,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.stealthwatch_monthly": {
     "log_source": "log_security_cisco.stealthwatch_monthly",
@@ -971,7 +1260,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_cisco.waas_monthly": {
     "log_source": "log_security_cisco.waas_monthly",
@@ -981,7 +1273,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_forescout.counteract.nac_weekly": {
     "log_source": "log_security_forescout.counteract.nac_weekly",
@@ -991,7 +1286,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_guardium.db_monthly": {
     "log_source": "log_security_guardium.db_monthly",
@@ -1001,7 +1299,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_hp.network.node.mgr_monthly": {
     "log_source": "log_security_hp.network.node.mgr_monthly",
@@ -1011,7 +1312,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_juniper.fw_monthly": {
     "log_source": "log_security_juniper.fw_monthly",
@@ -1021,7 +1325,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_juniper.ssl.vpn_weekly": {
     "log_source": "log_security_juniper.ssl.vpn_weekly",
@@ -1031,7 +1338,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_layer7.securespan.soa.gw_monthly": {
     "log_source": "log_security_layer7.securespan.soa.gw_monthly",
@@ -1041,7 +1351,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_mcafee.atd_monthly": {
     "log_source": "log_security_mcafee.atd_monthly",
@@ -1051,7 +1364,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mcp_daily": {
     "log_source": "log_security_mcafee.mcp_daily",
@@ -1061,7 +1377,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_mcafee.mcp_madjv_monthly": {
     "log_source": "log_security_mcafee.mcp_madjv_monthly",
@@ -1071,7 +1390,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_mcafee.mcp_qa_monthly": {
     "log_source": "log_security_mcafee.mcp_qa_monthly",
@@ -1081,7 +1403,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_mcafee.mwg_ap_daily": {
     "log_source": "log_security_mcafee.mwg_ap_daily",
@@ -1091,7 +1416,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mwg_daily": {
     "log_source": "log_security_mcafee.mwg_daily",
@@ -1101,7 +1429,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mwg_eu_daily": {
     "log_source": "log_security_mcafee.mwg_eu_daily",
@@ -1111,7 +1442,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mwg_fallback_daily": {
     "log_source": "log_security_mcafee.mwg_fallback_daily",
@@ -1121,7 +1455,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mwg_la_daily": {
     "log_source": "log_security_mcafee.mwg_la_daily",
@@ -1131,7 +1468,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.mwg_na_daily": {
     "log_source": "log_security_mcafee.mwg_na_daily",
@@ -1141,7 +1481,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_mcafee.net.security.mgr_monthly": {
     "log_source": "log_security_mcafee.net.security.mgr_monthly",
@@ -1151,7 +1494,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_microsoft.ata_monthly": {
     "log_source": "log_security_microsoft.ata_monthly",
@@ -1161,7 +1507,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_palo.alto.fw_weekly": {
     "log_source": "log_security_palo.alto.fw_weekly",
@@ -1171,7 +1520,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_preempt_monthly": {
     "log_source": "log_security_preempt_monthly",
@@ -1181,7 +1533,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_proofpoint.pod_email_gateway_daily": {
     "log_source": "log_security_proofpoint.pod_email_gateway_daily",
@@ -1191,7 +1546,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_proofpoint.siem_api_clicks_monthly": {
     "log_source": "log_security_proofpoint.siem_api_clicks_monthly",
@@ -1201,7 +1559,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_proofpoint.siem_api_messages_monthly": {
     "log_source": "log_security_proofpoint.siem_api_messages_monthly",
@@ -1211,7 +1572,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_sap.onapsis_monthly": {
     "log_source": "log_security_sap.onapsis_monthly",
@@ -1221,7 +1585,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_sdwan.app_non_production_weekly": {
     "log_source": "log_security_sdwan.app_non_production_weekly",
@@ -1231,7 +1598,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_sdwan.app_production_weekly": {
     "log_source": "log_security_sdwan.app_production_weekly",
@@ -1241,7 +1611,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_sdwan.os_ubuntu_non_production_weekly": {
     "log_source": "log_security_sdwan.os_ubuntu_non_production_weekly",
@@ -1251,7 +1624,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_sdwan.os_ubuntu_production_weekly": {
     "log_source": "log_security_sdwan.os_ubuntu_production_weekly",
@@ -1261,7 +1637,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_sinkhole_monthly": {
     "log_source": "log_security_sinkhole_monthly",
@@ -1271,7 +1650,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "log_security_symantec.dlp_monthly": {
     "log_source": "log_security_symantec.dlp_monthly",
@@ -1281,7 +1663,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_symantec.endpoint_monthly": {
     "log_source": "log_security_symantec.endpoint_monthly",
@@ -1291,7 +1676,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_tanium_monthly": {
     "log_source": "log_security_tanium_monthly",
@@ -1301,17 +1689,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
-  },
-  "log_security_tap.api.siem.pp_weekly": {
-    "log_source": "log_security_tap.api.siem.pp_weekly",
-    "config": "log_security_tap.api.siem.pp_weekly",
-    "elastic_index": "log_security_tap.api.siem.pp_weekly_%{+xxxx.ww}",
-    "ignore_enrichments": [],
-    "output_list": [
-      "elasticsearch",
-      "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_security_tufin_monthly": {
     "log_source": "log_security_tufin_monthly",
@@ -1321,7 +1702,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_source_unidentified_weekly": {
     "log_source": "log_source_unidentified_weekly",
@@ -1331,7 +1715,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "log_tenable_securitycenter": {
     "log_source": "log_tenable_securitycenter",
@@ -1341,7 +1728,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "test_log_audit_o365.dlp_weekly": {
     "log_source": "test_log_audit_o365.dlp_weekly",
@@ -1351,7 +1741,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_audit_sap_daily": {
     "log_source": "test_log_audit_sap_daily",
@@ -1361,7 +1754,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "test_log_audit_windows.events_server_na_daily": {
     "log_source": "test_log_audit_windows.events_server_na_daily",
@@ -1371,7 +1767,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "test_log_security_aws.guardduty_monthly": {
     "log_source": "test_log_security_aws.guardduty_monthly",
@@ -1381,7 +1780,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
   },
   "test_log_security_azure.atp_api_monthly": {
     "log_source": "test_log_security_azure.atp_api_monthly",
@@ -1391,7 +1793,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_azure.event_hub_atp_weekly": {
     "log_source": "test_log_security_azure.event_hub_atp_weekly",
@@ -1401,7 +1806,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_azure.graph_api_monthly": {
     "log_source": "test_log_security_azure.graph_api_monthly",
@@ -1411,7 +1819,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_misp.metrics_daily": {
     "log_source": "test_log_security_misp.metrics_daily",
@@ -1421,7 +1832,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_misp.metrics_vetted_daily": {
     "log_source": "test_log_security_misp.metrics_vetted_daily",
@@ -1431,7 +1845,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_proofpoint.forensics_api_monthly": {
     "log_source": "test_log_security_proofpoint.forensics_api_monthly",
@@ -1441,7 +1858,10 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   },
   "test_log_security_proofpoint.trap_weekly": {
     "log_source": "test_log_security_proofpoint.trap_weekly",
@@ -1451,6 +1871,9 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ]
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
   }
 }

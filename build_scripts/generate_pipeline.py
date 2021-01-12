@@ -122,10 +122,12 @@ class LogstashHelper(object):
         return general_settings['prod_only_logs']
 
     def __add_custom_input_field(self, conf_file: str, config):
+        comma_separated_outputs = ','.join(config["output_list"])
         add_fields_block = 'add_field => {\n' + \
             f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
             f'      "[@metadata][config]" => "{config["config"]}"\n' + \
             f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
+            f'      "[@metadata][output_pipelines]" => [{comma_separated_outputs}]\n' + \
             '    }'
         file_contents = None
         with open(conf_file, encoding='UTF-8') as config:
@@ -235,7 +237,7 @@ class LogstashHelper(object):
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
         kafka_inputs = os.listdir(kafka_input_dir)
         for input_name in kafka_inputs:
-            if input_name in ['1_syslog_input.conf', '2_non_syslog_input.conf']:
+            if input_name == '1_kafka_input_template.conf':
                 continue
             config = settings[input_name[:-5]]  # stripping .conf
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
@@ -243,6 +245,13 @@ class LogstashHelper(object):
             self.__add_custom_input_field(
                 f'{kafka_input_dir}/{input_name}', config)
             vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
+            codec = 'plain'
+            try:
+                # overwrite default if provided
+                codec = config['kafka_input']['codec']
+            except KeyError:
+                pass
+            vars_dict['CODEC'] = codec
             self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
         processsors = os.listdir(processor_dir)
         for processor_name in processsors:
@@ -480,7 +489,7 @@ class LogstashHelper(object):
             log_source_conf = f'{setting["log_source"]}.conf'
             if log_source_conf not in azure_input_list:
                 # it's a kafka input, generate an input conf
-                with open(os.path.join(kafka_input_dir, '1_syslog_input.conf')) as base_input_file:
+                with open(os.path.join(kafka_input_dir, '1_kafka_input_template.conf')) as base_input_file:
                     input_file_path = os.path.join(
                         kafka_input_dir, log_source_conf)
                     with open(input_file_path, 'w') as kafka_input_file:
