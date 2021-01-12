@@ -111,10 +111,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "log_audit_azure.event_hub_operational_weekly": {
     "log_source": "log_audit_azure.event_hub_operational_weekly",
@@ -124,10 +121,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "log_audit_azure.event_hub_signin_daily": {
     "log_source": "log_audit_azure.event_hub_signin_daily",
@@ -137,10 +131,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "log_audit_checkpoint.auth_weekly": {
     "log_source": "log_audit_checkpoint.auth_weekly",
@@ -766,10 +757,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "log_audit_okta_monthly": {
     "log_source": "log_audit_okta_monthly",
@@ -1156,10 +1144,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "log_security_azure.graph_identity_protection_api_monthly": {
     "log_source": "log_security_azure.graph_identity_protection_api_monthly",
@@ -1741,10 +1726,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "test_log_audit_sap_daily": {
     "log_source": "test_log_audit_sap_daily",
@@ -1806,10 +1788,7 @@
     "output_list": [
       "elasticsearch",
       "s3"
-    ],
-    "kafka_input": {
-      "codec": "plain"
-    }
+    ]
   },
   "test_log_security_azure.graph_api_monthly": {
     "log_source": "test_log_security_azure.graph_api_monthly",
