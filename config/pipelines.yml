@@ -1,8 +1,8 @@
 ################# ENRICH #################
 - pipeline.id: enrichments
   path.config: "${LOGSTASH_HOME}/config/enrichments/{*}.conf"
-  queue.type: persisted
-  queue.max_bytes: 8192mb
+  # queue.type: persisted
+  # queue.max_bytes: 8192mb
 
 ################# OUTPUT #################
 - pipeline.id: elastic_output
