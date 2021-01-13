@@ -151,9 +151,6 @@ class LogstashHelper(object):
         if log_type == 'daily':
             consumer_threads = 16
 
-        # reduce consumer_threads for high volume logs as they would be processed on 2 nodes
-        if config_name in self.high_volume_logs:
-            consumer_threads = 8
         if config_name in self.clear_lag_logs:
             # 16 is the number of partitions for each log source
             # if we want to process a log on 16 nodes we should have one consumer per node
