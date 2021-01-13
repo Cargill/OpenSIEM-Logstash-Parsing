@@ -1,8 +1,11 @@
 ################# ENRICH #################
 - pipeline.id: enrichments
-  path.config: "${LOGSTASH_HOME}/config/enrichments/{*}.conf"
+  pipeline.batch.delay: 50
+  pipeline.batch.size: 1000
+  pipeline.workers: 64
   # queue.type: persisted
   # queue.max_bytes: 8192mb
+  path.config: "${LOGSTASH_HOME}/config/enrichments/{*}.conf"
 
 ################# OUTPUT #################
 - pipeline.id: elastic_output
