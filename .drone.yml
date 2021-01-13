@@ -38,13 +38,13 @@ pipeline:
       - /usr/share/logstash/bin/logstash --config.test_and_exit
 
   #3. Notify teams on the current locations of configs
-  # notify-teams:
-  #   image: python:3.7-alpine
-  #   secrets: [ teams_web_hook ]
-  #   when:
-  #     event: [ push ]
-  #     branch: [ master ]
-  #   commands:
-  #     - export DEPLOY_ENV=test
-  #     - pip install requests
-  #     - python build_scripts/generate_pipeline.py $${TEAMS_WEB_HOOK}
+  notify-teams:
+    image: python:3.7-alpine
+    secrets: [ teams_web_hook ]
+    when:
+      event: [ push ]
+      branch: [ master ]
+    commands:
+      - export DEPLOY_ENV=test
+      - pip install requests
+      - python build_scripts/generate_pipeline.py $${TEAMS_WEB_HOOK}
