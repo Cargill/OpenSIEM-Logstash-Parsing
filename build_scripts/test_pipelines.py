@@ -1,3 +1,6 @@
+'''
+Tests if generate_pipeline script works as intended
+'''
 import json
 import os
 

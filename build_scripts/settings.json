@@ -1077,8 +1077,7 @@
     "elastic_index": "log_network_aws.vpcflow_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
-      "elasticsearch",
-      "s3"
+      "elasticsearch"
     ],
     "kafka_input": {
       "codec": "plain"
