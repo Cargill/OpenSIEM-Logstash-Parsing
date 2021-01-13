@@ -97,7 +97,7 @@ class LogstashHelper(object):
             return 'acap-archives-test'
 
     def __clear_lag_logs(self):
-        general_settings = load_general_settings()
+        general_settings = load_general_settings(self.logstash_dir)
         try:
             clear_lag_logs = general_settings['clear_lag']['logs']
             # process each clear lag log on this many nodes
@@ -111,14 +111,14 @@ class LogstashHelper(object):
         return clear_lag_logs, nodes_per_clear_log
 
     def __get_high_volume_logs(self):
-        general_settings = load_general_settings()
+        general_settings = load_general_settings(self.logstash_dir)
         high_volume_log_names = general_settings['high_volume_logs']
         # reversing the list as it is distributed in reverse order
         high_volume_log_names.reverse()
         return high_volume_log_names
 
     def __get_prod_only_logs(self):
-        general_settings = load_general_settings()
+        general_settings = load_general_settings(self.logstash_dir)
         return general_settings['prod_only_logs']
 
     def __add_custom_input_field(self, conf_file: str, config):
@@ -619,10 +619,10 @@ def setup_test_env():
     os.environ['SUB_MY_IP'] = '10615222'
 
 
-def load_general_settings():
+def load_general_settings(root_dir):
     general_settings = {}
     general_settings_path = os.path.join(
-        logstash_dir, 'build_scripts', 'general.json')
+        root_dir, 'build_scripts', 'general.json')
     with open(general_settings_path, 'r') as general_settings_file:
         general_settings = json.load(general_settings_file)
     return general_settings
@@ -639,7 +639,7 @@ def notify_teams(url, logstash_dir):
     import requests
 
     # get value for number of logstash nodes in prod environment
-    general_settings = load_general_settings()
+    general_settings = load_general_settings(logstash_dir)
     num_indexers = general_settings['num_indexers']
 
     # generate dummy ip list for logstash servers
