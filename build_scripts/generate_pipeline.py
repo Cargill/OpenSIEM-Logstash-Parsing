@@ -157,7 +157,7 @@ class LogstashHelper(object):
         if config_name in self.clear_lag_logs:
             # 16 is the number of partitions for each log source
             # if we want to process a log on 16 nodes we should have one consumer per node
-            consumer_threads = 16/self.num_nodes_for_clear_lag
+            consumer_threads = int(16/self.num_nodes_for_clear_lag)
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
