@@ -14,6 +14,7 @@
         "log_audit_checkpoint.fw_cnet_gl_vpn_daily",
         "log_audit_citrix.netscaler_daily",
         "log_audit_checkpoint.fw_cnet_na_internet_daily",
+        "log_audit_checkpoint.fw_cnet_eu_internet_daily",
         "log_security_mcafee.mcp_daily",
         "log_security_mcafee.mwg_na_daily",
         "log_security_mcafee.mwg_eu_daily",
@@ -24,11 +25,10 @@
         "log_audit_windows.events_server_eu_daily",
         "log_audit_windows.events_dc_na_daily",
         "log_audit_windows.events_server_na_daily",
-        "log_audit_windows.events_dc_eu_daily",
-        "log_audit_cisco.router_weekly"
+        "log_audit_windows.events_dc_eu_daily"
     ],
     "clear_lag": {
-        "nodes" : 4,
+        "nodes" : 8,
         "logs" : [
             "log_network_aws.vpcflow_daily"
         ]

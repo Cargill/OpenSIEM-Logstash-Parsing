@@ -63,6 +63,7 @@ path.logs: /data/logs
 #
 # pipeline.unsafe_shutdown: false
 #
+pipeline.ordered: auto
 # ------------ Pipeline Configuration Settings --------------
 #
 # Where to fetch the pipeline configuration for the main pipeline

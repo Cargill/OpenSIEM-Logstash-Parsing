@@ -42,10 +42,16 @@ def setup():
     # logger.info('logger configuration substituted')
 
     # generate a pipelines{i}.yml file for each logstash indexer
+    base_pipeline_str = ''
+    base_pipeline = os.path.join(logstash_dir, 'config', 'pipelines.yml')
+    with open(base_pipeline, 'r') as base_pipeline_file:
+        base_pipeline_str = base_pipeline_file.read()
     for i in range(0, num_indexers):
         os.environ['MY_INDEX'] = str(i+1)
         helper = LogstashHelper(logstash_dir)
         pipeline_file_path = f'{pipeline_dir}/pipelines{i+1}.yml'
+        with open(pipeline_file_path, 'w') as pipeline_file:
+            pipeline_file.write(base_pipeline_str)
         helper.generate_pipeline(pipeline_file_path)
     print(f'{i+1} pipelines generated')
     # cleanup kafka inputs
