@@ -429,7 +429,7 @@ class LogstashHelper(object):
                 f'  pipeline.batch.delay: 50\n' + \
                 f'  pipeline.batch.size: 150\n' + \
                 f'  path.config: \"{input_config_file_path}\"\n' + \
-                f'  pipeline.workers: pipeline_workers\n'
+                f'  pipeline.workers: {pipeline_workers}\n'
 
             file_contents = file_contents + input_pipeline_entry + processor_pipeline_entry
 
