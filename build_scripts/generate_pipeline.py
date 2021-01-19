@@ -71,8 +71,8 @@ class LogstashHelper(object):
     def __get_elastic_servers(self):
         elastic_worker_secret = os.environ['ELASTIC_WORKERS_SECRET']
         elastic_worker_json = jsonise(elastic_worker_secret)
-        worker_hot_ips = elastic_worker_json['worker_hot_ips'].split(',')
-        return worker_hot_ips
+        hot_ips = elastic_worker_json['hot_ips'].split(',')
+        return hot_ips
 
     def __get_kafka_servers(self):
         kafka_ips_secret = os.environ['KAFKA_IPS_SECRET']
@@ -581,7 +581,7 @@ def setup_test_env():
         'admin': 'admin'
     })
     os.environ['ELASTIC_WORKERS_SECRET'] = json.dumps({
-        'worker_hot_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
+        'hot_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
     })
     os.environ['KAFKA_IPS_SECRET'] = json.dumps({
         'kafka_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
