@@ -43,7 +43,7 @@ pipeline:
     secrets: [ teams_web_hook ]
     when:
       event: [ push ]
-      branch: [ release-* ]
+      branch: [ master ]
     commands:
       - export DEPLOY_ENV=test
       - pip install requests
