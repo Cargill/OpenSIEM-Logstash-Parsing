@@ -159,7 +159,7 @@ class LogstashHelper(object):
         # get the part after last slash and then the part before .conf
         config_name = conf_file_path.split('/')[-1].split('.conf')[0]
         log_type = config_name.split('_')[-1]
-        max_poll_records = 500
+        max_poll_records = 1000
         consumer_threads = 4
         if log_type == 'daily':
             consumer_threads = 16
@@ -416,21 +416,17 @@ class LogstashHelper(object):
                 log_type = 'monthly'
             if log_type == 'daily':
                 pipeline_workers = 32
-                batch_size = 1000
             elif log_type == 'weekly':
                 pipeline_workers = 8
-                batch_size = 150
             elif log_type == 'monthly':
                 pipeline_workers = 4
-                batch_size = 150
             else:
                 pipeline_workers = 4
-                batch_size = 150
 
             if log_source in self.high_volume_logs or log_source in self.clear_lag_logs:
                 pipeline_workers = 64
-                batch_size = 1000
 
+            batch_size = 1000
             processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
                 f'  pipeline.batch.delay: 50\n' + \
                 f'  pipeline.batch.size: {batch_size}\n' + \
