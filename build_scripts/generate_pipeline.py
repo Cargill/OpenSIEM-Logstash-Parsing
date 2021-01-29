@@ -407,8 +407,8 @@ class LogstashHelper(object):
             # use the config name for file path
             processor_config_file_path = '${LOGSTASH_HOME}' + \
                 f'/config/processors/{log_source_processor_conf}'
-            # and log_source name for id
-            processor_pipeline_id = f'proc_{log_source}'
+            # and config name for id
+            processor_pipeline_id = f'proc_{setting["config"]}'
 
             log_type = log_source.split('_')[-1]
             # treat test settings as low volume, they are not a priority
@@ -427,11 +427,13 @@ class LogstashHelper(object):
                 pipeline_workers = 64
 
             batch_size = 1000
-            processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
-                f'  pipeline.batch.delay: 50\n' + \
-                f'  pipeline.batch.size: {batch_size}\n' + \
-                f'  path.config: \"{processor_config_file_path}\"\n' + \
-                f'  pipeline.workers: {pipeline_workers}\n'
+            processor_pipeline_entry = ''
+            if processor_pipeline_id not in file_contents:
+                processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
+                    f'  pipeline.batch.delay: 50\n' + \
+                    f'  pipeline.batch.size: {batch_size}\n' + \
+                    f'  path.config: \"{processor_config_file_path}\"\n' + \
+                    f'  pipeline.workers: {pipeline_workers}\n'
             input_pipeline_entry = f'- pipeline.id: {input_pipeline_id}\n' + \
                 f'  pipeline.batch.delay: 150\n' + \
                 f'  pipeline.batch.size: {batch_size}\n' + \
