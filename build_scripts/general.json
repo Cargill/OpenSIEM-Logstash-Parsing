@@ -25,7 +25,8 @@
         "log_audit_windows.events_server_eu_daily",
         "log_audit_windows.events_dc_na_daily",
         "log_audit_windows.events_server_na_daily",
-        "log_audit_windows.events_dc_eu_daily"
+        "log_audit_windows.events_dc_eu_daily",
+        "log_audit_cisco.mso_monthly"
     ],
     "clear_lag": {
         "nodes" : 8,
