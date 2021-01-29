@@ -56,6 +56,7 @@ class LogstashHelper(object):
         self.bucket_name = self.__get_bucket_name()
         self.high_volume_logs = self.__get_high_volume_logs()
         self.prod_only_logs = self.__get_prod_only_logs()
+        self.num_indexers = self.__get_num_indexers()
         self.clear_lag_logs, self.num_nodes_for_clear_lag = self.__clear_lag_logs()
 
     def __get_elastic_creds(self):
@@ -108,7 +109,19 @@ class LogstashHelper(object):
             nodes_per_clear_log = 0
         # reversing the list as it is distributed in reverse order
         clear_lag_logs.reverse()
+
+        # high volume logs are run on 2 nodes each
+        # try and see if the current configuration is feasible
+        num_clear_lag_nodes_required = nodes_per_clear_log * len(clear_lag_logs)
+        num_high_volume_nodes_required = len(self.high_volume_logs)*2
+        if num_clear_lag_nodes_required + num_high_volume_nodes_required  >= self.num_indexers:
+            raise Exception('Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs')
         return clear_lag_logs, nodes_per_clear_log
+
+    def __get_num_indexers(self):
+        general_settings = load_general_settings(self.logstash_dir)
+        indexers = general_settings['num_indexers']
+        return indexers
 
     def __get_high_volume_logs(self):
         general_settings = load_general_settings(self.logstash_dir)
@@ -151,10 +164,12 @@ class LogstashHelper(object):
         if log_type == 'daily':
             consumer_threads = 16
 
+        # 16 is the number of partitions for each log source
+        # if we want to process a log on 16 nodes we should have only one consumer per node
         if config_name in self.clear_lag_logs:
-            # 16 is the number of partitions for each log source
-            # if we want to process a log on 16 nodes we should have one consumer per node
             consumer_threads = int(16/self.num_nodes_for_clear_lag)
+        if config_name in self.high_volume_logs:
+            consumer_threads = 8
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
