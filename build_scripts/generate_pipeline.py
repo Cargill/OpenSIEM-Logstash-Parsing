@@ -487,6 +487,12 @@ class LogstashHelper(object):
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
         azure_input_list = os.listdir(azure_inputs_dir)
 
+        # cleanup kafka inputs if any
+        for root, _, files in os.walk(kafka_input_dir):
+            for file in files:
+                if file != '1_kafka_input_template.conf':
+                    os.remove(os.path.join(root, file))
+        
         settings = self.load_settings()
         for key in settings.keys():
             setting = settings[key]

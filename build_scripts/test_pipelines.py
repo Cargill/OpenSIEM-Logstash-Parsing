@@ -16,11 +16,6 @@ os.makedirs(pipeline_dir, exist_ok=True)
 
 
 def setup():
-    # remove exisiting generated kafka inputs
-    for root, _, files in os.walk(os.path.join(logstash_dir, 'config', 'inputs', 'kafka')):
-        for file in files:
-            if file != '1_kafka_input_template.conf':
-                os.remove(os.path.join(root, file))
     # remove exisiting generated pipelines
     for root, _, files in os.walk(pipeline_dir):
         for file in files:
