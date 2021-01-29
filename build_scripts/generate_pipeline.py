@@ -402,32 +402,28 @@ class LogstashHelper(object):
             if log_type == 'daily':
                 pipeline_workers = 32
                 batch_size = 1000
-                batch_delay = 50
             elif log_type == 'weekly':
                 pipeline_workers = 8
                 batch_size = 150
-                batch_delay = 50
             elif log_type == 'monthly':
                 pipeline_workers = 4
                 batch_size = 150
-                batch_delay = 50
             else:
                 pipeline_workers = 4
                 batch_size = 150
-                batch_delay = 50
 
             if log_source in self.high_volume_logs or log_source in self.clear_lag_logs:
                 pipeline_workers = 64
                 batch_size = 1000
 
             processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
-                f'  pipeline.batch.delay: {batch_delay}\n' + \
+                f'  pipeline.batch.delay: 50\n' + \
                 f'  pipeline.batch.size: {batch_size}\n' + \
                 f'  path.config: \"{processor_config_file_path}\"\n' + \
                 f'  pipeline.workers: {pipeline_workers}\n'
             input_pipeline_entry = f'- pipeline.id: {input_pipeline_id}\n' + \
-                f'  pipeline.batch.delay: 50\n' + \
-                f'  pipeline.batch.size: 150\n' + \
+                f'  pipeline.batch.delay: 150\n' + \
+                f'  pipeline.batch.size: {batch_size}\n' + \
                 f'  path.config: \"{input_config_file_path}\"\n' + \
                 f'  pipeline.workers: {pipeline_workers}\n'
 
