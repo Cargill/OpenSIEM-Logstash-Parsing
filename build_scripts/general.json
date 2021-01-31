@@ -31,7 +31,8 @@
     "clear_lag": {
         "nodes" : 8,
         "logs" : [
-            "log_network_aws.vpcflow_daily"
+            "log_network_aws.vpcflow_daily",
+            "log_audit_checkpoint.fw_cnet_gl_vpn_daily"
         ]
     }
 }

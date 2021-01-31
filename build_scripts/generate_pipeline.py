@@ -114,7 +114,7 @@ class LogstashHelper(object):
         # try and see if the current configuration is feasible
         num_clear_lag_nodes_required = nodes_per_clear_log * len(clear_lag_logs)
         num_high_volume_nodes_required = len(self.high_volume_logs)*2
-        if num_clear_lag_nodes_required + num_high_volume_nodes_required  >= self.num_indexers:
+        if num_clear_lag_nodes_required + num_high_volume_nodes_required  > self.num_indexers:
             raise Exception('Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs')
         return clear_lag_logs, nodes_per_clear_log
 
@@ -168,8 +168,11 @@ class LogstashHelper(object):
         # if we want to process a log on 16 nodes we should have only one consumer per node
         if config_name in self.clear_lag_logs:
             consumer_threads = int(16/self.num_nodes_for_clear_lag)
+            if config_name == 'log_audit_checkpoint.fw_cnet_gl_vpn_daily':
+                # this topic has 24 partitions
+                consumer_threads = int(24/self.num_nodes_for_clear_lag)
         if config_name in self.high_volume_logs:
-            consumer_threads = 8
+            consumer_threads = int(16/2)
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
