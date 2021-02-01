@@ -519,11 +519,14 @@ class LogstashHelper(object):
                         kafka_input_file.write(base_input_file.read())
             # generate required processors
             config = f'{setting["config"]}.conf'
-            with open(os.path.join(processor_dir, config), 'r', encoding='UTF-8') as config_file:
+            if config != log_source_conf:
+                file_contents = ''
+                with open(os.path.join(processor_dir, config), 'r', encoding='UTF-8') as config_file:
+                    file_contents = config_file.read()
                 processor_file_path = os.path.join(
                     processor_dir, log_source_conf)
                 with open(processor_file_path, 'w', encoding='UTF-8') as processor_file:
-                    processor_file.write(config_file.read())
+                    processor_file.write(file_contents)
 
     def generate_checksum(self, dir_path):
         '''
