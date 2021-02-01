@@ -27,7 +27,7 @@ def setup():
     setup_test_env()
     os.environ['LOGSTASH_SERVERS'] = ','.join(server_ips)
     helper = LogstashHelper(logstash_dir)
-    helper.generate_kafka_inputs()
+    helper.generate_files()
     # os.environ['MY_INDEX'] = str(1)
     # helper.replace_vars()
     # logger.info('Variables replaced')
@@ -54,7 +54,13 @@ def setup():
         for file in files:
             if file != '1_kafka_input_template.conf':
                 os.remove(os.path.join(root, file))
-
+    settings = helper.load_settings()
+    # cleanup generated processors if any
+    generated_processors = [k for k,v in settings.items() if v['config']!= v['log_source']]
+    for root, _, files in os.walk(os.path.join(logstash_dir, 'config', 'processors')):
+        for file in files:
+            if file[:-5] in generated_processors:
+                os.remove(os.path.join(root, file))
 
 def test_pipelines():
     helper = LogstashHelper(logstash_dir)

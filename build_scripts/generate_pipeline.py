@@ -246,7 +246,7 @@ class LogstashHelper(object):
             config = settings[input_name[:-5]]  # stripping .conf
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
                 continue
-            vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
+            vars_dict['PIPELINE_NAME'] = '"' + config['log_source'] + '"'
             self.__add_custom_input_field(
                 f'{azure_inputs_dir}/{input_name}', config)
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
@@ -259,7 +259,7 @@ class LogstashHelper(object):
                 continue
             self.__add_custom_input_field(
                 f'{kafka_input_dir}/{input_name}', config)
-            vars_dict['PIPELINE_NAME'] = '"' + config['config'] + '"'
+            vars_dict['PIPELINE_NAME'] = '"' + config['log_source'] + '"'
             codec = 'plain'
             try:
                 # overwrite default if provided
@@ -411,7 +411,7 @@ class LogstashHelper(object):
             processor_config_file_path = '${LOGSTASH_HOME}' + \
                 f'/config/processors/{log_source_processor_conf}'
             # and config name for id
-            processor_pipeline_id = f'proc_{setting["config"]}'
+            processor_pipeline_id = f'proc_{log_source}'
 
             log_type = log_source.split('_')[-1]
             # treat test settings as low volume, they are not a priority
@@ -431,12 +431,11 @@ class LogstashHelper(object):
 
             batch_size = 1000
             processor_pipeline_entry = ''
-            if processor_pipeline_id not in file_contents:
-                processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
-                    f'  pipeline.batch.delay: 50\n' + \
-                    f'  pipeline.batch.size: {batch_size}\n' + \
-                    f'  path.config: \"{processor_config_file_path}\"\n' + \
-                    f'  pipeline.workers: {pipeline_workers}\n'
+            processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
+                f'  pipeline.batch.delay: 50\n' + \
+                f'  pipeline.batch.size: {batch_size}\n' + \
+                f'  path.config: \"{processor_config_file_path}\"\n' + \
+                f'  pipeline.workers: {pipeline_workers}\n'
             input_pipeline_entry = f'- pipeline.id: {input_pipeline_id}\n' + \
                 f'  pipeline.batch.delay: 150\n' + \
                 f'  pipeline.batch.size: {batch_size}\n' + \
@@ -454,7 +453,7 @@ class LogstashHelper(object):
         '''
         jaas_file_path = f'{self.logstash_dir}/config/kafka_jaas.conf'
         jaas_file_str = ''
-        with open(jaas_file_path) as jaas_file:
+        with open(jaas_file_path, encoding='UTF-8') as jaas_file:
             jaas_file_str = jaas_file.read()
         jaas_file_str = jaas_file_str.replace(
             'VAR_KAFKA_USER', self.kafka_user)
@@ -469,7 +468,7 @@ class LogstashHelper(object):
         '''
         log_file_path = f'{self.logstash_dir}/config/log4j2.properties'
         log_file_str = ''
-        with open(log_file_path) as jaas_file:
+        with open(log_file_path, 'r', encoding='UTF-8') as jaas_file:
             log_file_str = jaas_file.read()
         import socket
         hostname = socket.gethostname()
@@ -482,14 +481,15 @@ class LogstashHelper(object):
         settings = {}
         settings_file_path = os.path.join(
             self.logstash_dir, 'build_scripts', 'settings.json')
-        with open(settings_file_path, 'r') as settings_file:
+        with open(settings_file_path, 'r', encoding='UTF-8') as settings_file:
             settings = json.load(settings_file)
         return settings
 
-    def generate_kafka_inputs(self):
+    def generate_files(self):
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
+        processor_dir = os.path.join(root_dir, 'config', 'processors')
         azure_input_list = os.listdir(azure_inputs_dir)
 
         # cleanup kafka inputs if any
@@ -499,16 +499,31 @@ class LogstashHelper(object):
                     os.remove(os.path.join(root, file))
         
         settings = self.load_settings()
+        # cleanup generated processors if any
+        generated_processors = [k for k,v in settings.items() if v['config']!= v['log_source']]
+        for root, _, files in os.walk(processor_dir):
+            for file in files:
+                if file[:-5] in generated_processors:
+                    os.remove(os.path.join(root, file))
+        
         for key in settings.keys():
             setting = settings[key]
             log_source_conf = f'{setting["log_source"]}.conf'
+            # generate inputs
             if log_source_conf not in azure_input_list:
                 # it's a kafka input, generate an input conf
-                with open(os.path.join(kafka_input_dir, '1_kafka_input_template.conf')) as base_input_file:
+                with open(os.path.join(kafka_input_dir, '1_kafka_input_template.conf'), 'r', encoding='UTF-8') as base_input_file:
                     input_file_path = os.path.join(
                         kafka_input_dir, log_source_conf)
-                    with open(input_file_path, 'w') as kafka_input_file:
+                    with open(input_file_path, 'w', encoding='UTF-8') as kafka_input_file:
                         kafka_input_file.write(base_input_file.read())
+            # generate required processors
+            config = f'{setting["config"]}.conf'
+            with open(os.path.join(processor_dir, config), 'r', encoding='UTF-8') as config_file:
+                processor_file_path = os.path.join(
+                    processor_dir, log_source_conf)
+                with open(processor_file_path, 'w', encoding='UTF-8') as processor_file:
+                    processor_file.write(config_file.read())
 
     def generate_checksum(self, dir_path):
         '''
@@ -730,7 +745,7 @@ if __name__ == "__main__":
             setup_test_env()
 
         helper = LogstashHelper(logstash_dir)
-        helper.generate_kafka_inputs()
+        helper.generate_files()
         helper.replace_vars()
         logger.info('Variables replaced')
         helper.substitute_jaas_with_values()
