@@ -391,7 +391,6 @@ class LogstashHelper(object):
         for log_source in selected_log_sources:
             setting = settings[log_source]
             log_source_input_conf = f'{log_source}.conf'
-            log_source_processor_conf = f'{setting["config"]}.conf'
             # create a pipeline for input
             # if input is azure
             if log_source_input_conf in azure_input_list:
@@ -409,7 +408,7 @@ class LogstashHelper(object):
             # create a pipeline for processor
             # use the config name for file path
             processor_config_file_path = '${LOGSTASH_HOME}' + \
-                f'/config/processors/{log_source_processor_conf}'
+                f'/config/processors/{log_source_input_conf}'
             # and config name for id
             processor_pipeline_id = f'proc_{log_source}'
 
