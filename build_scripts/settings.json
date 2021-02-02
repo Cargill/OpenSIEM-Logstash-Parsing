@@ -213,10 +213,10 @@
       "codec": "json"
     }
   },
-  "log_audit_checkpoint.fw_cnet_gl_madjv_weekly": {
-    "log_source": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly",
+  "log_audit_checkpoint.fw_cnet_gl_madjv_daily": {
+    "log_source": "log_audit_checkpoint.fw_cnet_gl_madjv_daily",
     "config": "log_audit_checkpoint.fw",
-    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_madjv_weekly_%{+xxxx.ww}",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_madjv_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
@@ -226,10 +226,10 @@
       "codec": "json"
     }
   },
-  "log_audit_checkpoint.fw_cnet_gl_plant_monthly": {
-    "log_source": "log_audit_checkpoint.fw_cnet_gl_plant_monthly",
+  "log_audit_checkpoint.fw_cnet_gl_plant_daily": {
+    "log_source": "log_audit_checkpoint.fw_cnet_gl_plant_daily",
     "config": "log_audit_checkpoint.fw",
-    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_plant_monthly_%{+xxxx.MM}",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_gl_plant_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
@@ -293,10 +293,10 @@
       "codec": "json"
     }
   },
-  "log_audit_checkpoint.fw_cnet_na_lab_monthly": {
-    "log_source": "log_audit_checkpoint.fw_cnet_na_lab_monthly",
+  "log_audit_checkpoint.fw_cnet_na_lab_daily": {
+    "log_source": "log_audit_checkpoint.fw_cnet_na_lab_daily",
     "config": "log_audit_checkpoint.fw",
-    "elastic_index": "log_audit_checkpoint.fw_cnet_na_lab_monthly_%{+xxxx.MM}",
+    "elastic_index": "log_audit_checkpoint.fw_cnet_na_lab_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
@@ -310,6 +310,19 @@
     "log_source": "log_audit_checkpoint.fw_cnet_na_partners_daily",
     "config": "log_audit_checkpoint.fw",
     "elastic_index": "log_audit_checkpoint.fw_cnet_na_partners_daily_%{+xxxx.MM.dd}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output",
+      "s3_output"
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
+  },
+  "log_audit_checkpoint.fw_fallback_daily": {
+    "log_source": "log_audit_checkpoint.fw_fallback_daily",
+    "config": "log_audit_checkpoint.fw",
+    "elastic_index": "log_audit_checkpoint.fw_fallback_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
