@@ -13,6 +13,7 @@
     "high_volume_logs" : [
         "log_audit_citrix.netscaler_daily",
         "log_audit_checkpoint.fw_cnet_na_internet_daily",
+        "log_audit_checkpoint.fw_cnet_la_internet_daily",
         "log_audit_checkpoint.fw_cnet_eu_internet_daily",
         "log_security_mcafee.mcp_daily",
         "log_security_mcafee.mwg_na_daily",
