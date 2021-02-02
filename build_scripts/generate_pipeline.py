@@ -389,7 +389,6 @@ class LogstashHelper(object):
         settings = self.load_settings()
         file_contents = ''
         for log_source in selected_log_sources:
-            setting = settings[log_source]
             log_source_input_conf = f'{log_source}.conf'
             # create a pipeline for input
             # if input is azure
@@ -530,7 +529,7 @@ class LogstashHelper(object):
     def generate_checksum(self, dir_path):
         '''
             Generates checksums for all files in
-                dir_path/confs (logstash settings)
+                dir_path/inputs/* & dir_path/processors/* (logstash configs)
                 AND
                 dir_path (common setting files)
             and returns dictonaries settings_checksum_dict and conf_checksum_dict respectively.
@@ -543,9 +542,8 @@ class LogstashHelper(object):
 
         conf_files = []
         setting_files = []
-        config_dir = os.path.join(dir_path, 'config')
-        for root, _, files in os.walk(config_dir):
-            if root == config_dir:
+        for root, _, files in os.walk(dir_path):
+            if root == dir_path:
                 setting_files = [os.path.join(root, file_name)
                                  for file_name in files]
                 continue
@@ -561,7 +559,7 @@ class LogstashHelper(object):
         settings_checksum_dict = {}
         for setting_file_path in setting_files:
             with open(setting_file_path, 'rb') as setting_file:
-                settings_checksum_dict[setting_file_path.split('config')[1]] = hashlib.md5(
+                settings_checksum_dict[setting_file_path.split(dir_path)[1]] = hashlib.md5(
                     setting_file.read()).hexdigest()
 
         logger.info(f'generating checksum for other files')
@@ -569,7 +567,7 @@ class LogstashHelper(object):
         for conf_file_name in conf_files:
             with open(conf_file_name, 'rb') as conf_file:
                 # get the path after config and make it the key
-                conf_checksum_dict[conf_file_name.split('config')[1]] = hashlib.md5(
+                conf_checksum_dict[conf_file_name.split(dir_path)[1]] = hashlib.md5(
                     conf_file.read()).hexdigest()
 
         return settings_checksum_dict, conf_checksum_dict
@@ -758,7 +756,7 @@ if __name__ == "__main__":
         logger.info(f'Pipeline generated in {os.getenv("DEPLOY_ENV")}')
 
         last_deployed_dir = '/usr/share/logstash'
-        current_deployable_dir = logstash_dir
+        current_deployable_dir = os.path.join(logstash_dir, 'config')
         helper.test_for_change(last_deployed_dir, current_deployable_dir)
     except KeyError as k:
         logger.error(f'Could not find key {k}')
@@ -766,7 +764,6 @@ if __name__ == "__main__":
         logger.error(f'Exiting abruptly')
         sys.exit(-1)
     except Exception as e:
-        logger.error(e)
         logger.exception(e)
         logger.error(f'Exiting abruptly')
         sys.exit(-1)
