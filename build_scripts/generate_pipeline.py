@@ -603,10 +603,8 @@ class LogstashHelper(object):
             with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
                 contents = change_file.read()
             with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
-                if contents == '0':
-                    change_file.write('1')
-                else:
-                    change_file.write('0')
+                new_content = '1' if contents == '0' else '0'
+                change_file.write('0')
             logger.info("settings changed")
 
 
@@ -732,6 +730,7 @@ if __name__ == "__main__":
         and generates pipelines.yml file for logstash
     '''
     try:
+        logger.info('##########################starting script##########################')
         cur_file_path = os.path.abspath(__file__)
         build_scripts_dir = os.path.dirname(cur_file_path)
         logstash_dir = os.path.dirname(build_scripts_dir)

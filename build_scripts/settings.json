@@ -273,6 +273,7 @@
     "elastic_index": "log_audit_checkpoint.fw_cnet_la_partners_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
+      bad json file
       "elastic_output",
       "s3_output"
     ],

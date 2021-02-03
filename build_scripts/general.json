@@ -1,5 +1,6 @@
 {
     "num_indexers" : 48,
+    bad json file
     "prod_only_logs": [
         "log_audit_azure.event_hub_signin_daily",
         "log_audit_azure.event_hub_audit_weekly",
