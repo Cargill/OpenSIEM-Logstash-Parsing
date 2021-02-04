@@ -1,40 +1,16 @@
 {
-    "num_indexers" : 48,
+    "num_indexers" : 4,
     "prod_only_logs": [
         "log_audit_azure.event_hub_signin_daily",
-        "log_audit_azure.event_hub_audit_weekly",
-        "log_audit_azure.event_hub_operational_weekly",
-        "log_audit_o365.msg.trkg_weekly",
-        "log_security_azure.event_hub_tcs",
-        "log_audit_okta_monthly",
-        "test_log_audit_o365.dlp_weekly",
-        "test_log_security_azure.event_hub_atp_weekly"
+        "log_audit_okta_monthly"
     ],
     "high_volume_logs" : [
-        "log_audit_citrix.netscaler_daily",
-        "log_audit_checkpoint.fw_cnet_gl_vpn_daily",
-        "log_audit_checkpoint.fw_cnet_na_internet_daily",
-        "log_audit_checkpoint.fw_cnet_la_internet_daily",
-        "log_audit_checkpoint.fw_cnet_eu_internet_daily",
-        "log_security_mcafee.mcp_daily",
-        "log_security_mcafee.mwg_eu_daily",
-        "log_security_mcafee.mwg_la_daily",
-        "log_security_mcafee.mwg_ap_daily",
-        "log_audit_infoblox_daily",
-        "log_audit_checkpoint.fw_plant_daily",
-        "log_audit_windows.events_server_eu_daily",
-        "log_audit_windows.events_dc_na_daily",
-        "log_audit_windows.events_server_na_daily",
-        "log_audit_windows.events_dc_eu_daily",
-        "log_audit_cisco.mso_monthly",
-        "log_security_forescout.counteract.nac_weekly",
-        "log_security_palo.alto.fw_weekly"
+        "log_audit_citrix.netscaler_daily"
     ],
     "clear_lag": {
-        "nodes" : 6,
+        "nodes" : 2,
         "logs" : [
-            "log_network_aws.vpcflow_daily",
-            "log_security_mcafee.mwg_na_daily"
+            "log_network_aws.vpcflow_daily"
         ]
     }
 }

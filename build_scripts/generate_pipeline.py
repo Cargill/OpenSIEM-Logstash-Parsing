@@ -386,7 +386,6 @@ class LogstashHelper(object):
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
         azure_input_list = os.listdir(azure_inputs_dir)
         kafka_input_list = os.listdir(kafka_input_dir)
-        settings = self.load_settings()
         file_contents = ''
         for log_source in selected_log_sources:
             log_source_input_conf = f'{log_source}.conf'
@@ -600,9 +599,13 @@ class LogstashHelper(object):
             changed = True
             logger.info('checksum settings dict are unequal in length')
         if changed:
-            with open('/data/should_redeploy', 'a', encoding='UTF-8') as change_file:
-                change_file.write('changed')
-                logger.info("settings changed")
+            contents = ''
+            with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
+                contents = change_file.read()
+            with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
+                new_content = '1' if contents == '0' else '0'
+                change_file.write('0')
+            logger.info("settings changed")
 
 
 def setup_test_env():
@@ -727,6 +730,7 @@ if __name__ == "__main__":
         and generates pipelines.yml file for logstash
     '''
     try:
+        logger.info('##########################starting script##########################')
         cur_file_path = os.path.abspath(__file__)
         build_scripts_dir = os.path.dirname(cur_file_path)
         logstash_dir = os.path.dirname(build_scripts_dir)
