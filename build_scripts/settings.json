@@ -631,6 +631,54 @@
       "codec": "plain"
     }
   },
+  "log_audit_iis.na_weekly": {
+    "log_source": "log_audit_iis.na_weekly",
+    "config": "log_audit_iis",
+    "elastic_index": "test_log_audit_iis.na_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
+  },
+  "log_audit_iis.la_weekly": {
+    "log_source": "log_audit_iis.la_weekly",
+    "config": "log_audit_iis",
+    "elastic_index": "test_log_audit_iis.la_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
+  },
+  "log_audit_iis.eu_weekly": {
+    "log_source": "log_audit_iis.eu_weekly",
+    "config": "log_audit_iis",
+    "elastic_index": "test_log_audit_iis.eu_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
+  },
+  "log_audit_iis.ap_weekly": {
+    "log_source": "log_audit_iis.ap_weekly",
+    "config": "log_audit_iis",
+    "elastic_index": "test_log_audit_iis.ap_weekly_%{+xxxx.ww}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
+  },
   "log_audit_infoblox_daily": {
     "log_source": "log_audit_infoblox_daily",
     "config": "log_audit_infoblox_daily",
