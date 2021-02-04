@@ -30,11 +30,8 @@ def setup():
     helper.generate_files()
     # os.environ['MY_INDEX'] = str(1)
     # helper.replace_vars()
-    # logger.info('Variables replaced')
     # helper.substitute_jaas_with_values()
-    # logger.info('Kafka jaas file substituted')
     # helper.substitute_logger_with_values()
-    # logger.info('logger configuration substituted')
 
     # generate a pipelines{i}.yml file for each logstash indexer
     base_pipeline_str = ''
