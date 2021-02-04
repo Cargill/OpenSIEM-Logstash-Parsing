@@ -1417,7 +1417,7 @@
   },
   "log_security_mcafee.mcp_daily": {
     "log_source": "log_security_mcafee.mcp_daily",
-    "config": "log_security_mcafee.mcp_daily",
+    "config": "log_security_mcafee.mcp",
     "elastic_index": "log_security_mcafee.mcp_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1430,7 +1430,7 @@
   },
   "log_security_mcafee.mcp_madjv_monthly": {
     "log_source": "log_security_mcafee.mcp_madjv_monthly",
-    "config": "log_security_mcafee.mcp_madjv_monthly",
+    "config": "log_security_mcafee.mcp",
     "elastic_index": "log_security_mcafee.mcp_madjv_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1443,7 +1443,7 @@
   },
   "log_security_mcafee.mcp_qa_monthly": {
     "log_source": "log_security_mcafee.mcp_qa_monthly",
-    "config": "log_security_mcafee.mcp_qa_monthly",
+    "config": "log_security_mcafee.mcp",
     "elastic_index": "log_security_mcafee.mcp_qa_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1456,7 +1456,7 @@
   },
   "log_security_mcafee.mwg_ap_daily": {
     "log_source": "log_security_mcafee.mwg_ap_daily",
-    "config": "log_security_mcafee.mwg_ap_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_ap_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1469,7 +1469,7 @@
   },
   "log_security_mcafee.mwg_daily": {
     "log_source": "log_security_mcafee.mwg_daily",
-    "config": "log_security_mcafee.mwg_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1482,7 +1482,7 @@
   },
   "log_security_mcafee.mwg_eu_daily": {
     "log_source": "log_security_mcafee.mwg_eu_daily",
-    "config": "log_security_mcafee.mwg_eu_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_eu_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1495,7 +1495,7 @@
   },
   "log_security_mcafee.mwg_fallback_daily": {
     "log_source": "log_security_mcafee.mwg_fallback_daily",
-    "config": "log_security_mcafee.mwg_fallback_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_fallback_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1508,7 +1508,7 @@
   },
   "log_security_mcafee.mwg_la_daily": {
     "log_source": "log_security_mcafee.mwg_la_daily",
-    "config": "log_security_mcafee.mwg_la_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_la_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
@@ -1521,7 +1521,7 @@
   },
   "log_security_mcafee.mwg_na_daily": {
     "log_source": "log_security_mcafee.mwg_na_daily",
-    "config": "log_security_mcafee.mwg_na_daily",
+    "config": "log_security_mcafee.mwg",
     "elastic_index": "log_security_mcafee.mwg_na_daily_%{+xxxx.MM.dd}",
     "ignore_enrichments": [],
     "output_list": [
