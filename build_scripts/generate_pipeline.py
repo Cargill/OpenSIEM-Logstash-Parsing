@@ -115,7 +115,11 @@ class LogstashHelper(object):
         num_clear_lag_nodes_required = nodes_per_clear_log * len(clear_lag_logs)
         num_high_volume_nodes_required = len(self.high_volume_logs)*2
         if num_clear_lag_nodes_required + num_high_volume_nodes_required  > self.num_indexers:
-            raise Exception('Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs')
+            message  = 'Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs'
+            if self.deploy_env == 'test':
+                raise Exception(message)
+            else:
+                logger.warn(message)
         return clear_lag_logs, nodes_per_clear_log
 
     def __get_num_indexers(self):

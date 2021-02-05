@@ -1,0 +1,13 @@
+[Unit]
+Description = PP POD SIEM job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/proofpoint_pod
+ExecStart = /root/miniconda/envs/pp_pod/bin/python kafka_client.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target
