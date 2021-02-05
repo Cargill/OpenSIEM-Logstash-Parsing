@@ -608,7 +608,7 @@ class LogstashHelper(object):
                 contents = change_file.read()
             with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
                 new_content = '1' if contents == '0' else '0'
-                change_file.write('0')
+                change_file.write(new_content)
             logger.info("settings changed")
 
 
