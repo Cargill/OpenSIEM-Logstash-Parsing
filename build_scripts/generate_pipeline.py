@@ -604,8 +604,11 @@ class LogstashHelper(object):
             logger.info('checksum settings dict are unequal in length')
         if changed:
             contents = ''
-            with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
-                contents = change_file.read()
+            try:
+                with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
+                    contents = change_file.read()
+            except FileNotFoundError:
+                pass
             with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
                 new_content = '1' if contents == '0' else '0'
                 change_file.write(new_content)
