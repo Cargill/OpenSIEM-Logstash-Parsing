@@ -1,0 +1,13 @@
+[Unit]
+Description = MCP job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/mcp
+ExecStart = /root/miniconda/envs/mcp/bin/python job_mcp.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target
