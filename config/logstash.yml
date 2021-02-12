@@ -211,7 +211,7 @@ queue.max_bytes: 16gb
 #   * debug
 #   * trace
 #
-log.level: info
+log.level: error
 # path.logs:
 #
 # ------------ Other Settings --------------

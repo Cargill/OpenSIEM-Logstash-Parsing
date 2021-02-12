@@ -115,7 +115,11 @@ class LogstashHelper(object):
         num_clear_lag_nodes_required = nodes_per_clear_log * len(clear_lag_logs)
         num_high_volume_nodes_required = len(self.high_volume_logs)*2
         if num_clear_lag_nodes_required + num_high_volume_nodes_required  > self.num_indexers:
-            raise Exception('Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs')
+            message  = 'Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs'
+            if self.deploy_env == 'test':
+                raise Exception(message)
+            else:
+                logger.warn(message)
         return clear_lag_logs, nodes_per_clear_log
 
     def __get_num_indexers(self):
@@ -242,6 +246,7 @@ class LogstashHelper(object):
 
         settings = self.load_settings()
         azure_inputs = os.listdir(azure_inputs_dir)
+        azure_inputs = list(filter(lambda file_name:file_name.endswith('.conf'), azure_inputs))
         for input_name in azure_inputs:
             config = settings[input_name[:-5]]  # stripping .conf
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
@@ -251,6 +256,7 @@ class LogstashHelper(object):
                 f'{azure_inputs_dir}/{input_name}', config)
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
         kafka_inputs = os.listdir(kafka_input_dir)
+        kafka_inputs = list(filter(lambda file_name:file_name.endswith('.conf'), kafka_inputs))
         for input_name in kafka_inputs:
             if input_name == '1_kafka_input_template.conf':
                 continue
@@ -269,6 +275,7 @@ class LogstashHelper(object):
             vars_dict['CODEC'] = codec
             self.__replace_vars(f'{kafka_input_dir}/{input_name}', vars_dict)
         processsors = os.listdir(processor_dir)
+        processsors = list(filter(lambda file_name:file_name.endswith('.conf'), processsors))
         for processor_name in processsors:
             config = processor_name[:-5]  # stripping .conf
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
@@ -276,6 +283,7 @@ class LogstashHelper(object):
             vars_dict['PIPELINE_NAME'] = '"' + config + '"'
             self.__replace_vars(f'{processor_dir}/{processor_name}', vars_dict)
         outputs = os.listdir(output_dir)
+        outputs = list(filter(lambda file_name:file_name.endswith('.conf'), outputs))
         for output_name in outputs:
             self.__replace_vars(f'{output_dir}/{output_name}', vars_dict)
 
@@ -385,7 +393,9 @@ class LogstashHelper(object):
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
         azure_input_list = os.listdir(azure_inputs_dir)
+        azure_input_list = list(filter(lambda file_name:file_name.endswith('.conf'), azure_input_list))
         kafka_input_list = os.listdir(kafka_input_dir)
+        kafka_input_list = list(filter(lambda file_name:file_name.endswith('.conf'), kafka_input_list))
         file_contents = ''
         for log_source in selected_log_sources:
             log_source_input_conf = f'{log_source}.conf'
@@ -488,6 +498,7 @@ class LogstashHelper(object):
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
         processor_dir = os.path.join(root_dir, 'config', 'processors')
         azure_input_list = os.listdir(azure_inputs_dir)
+        azure_input_list = list(filter(lambda file_name:file_name.endswith('.conf'), azure_input_list))
 
         # cleanup kafka inputs if any
         for root, _, files in os.walk(kafka_input_dir):
@@ -600,11 +611,14 @@ class LogstashHelper(object):
             logger.info('checksum settings dict are unequal in length')
         if changed:
             contents = ''
-            with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
-                contents = change_file.read()
+            try:
+                with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
+                    contents = change_file.read()
+            except FileNotFoundError:
+                pass
             with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
                 new_content = '1' if contents == '0' else '0'
-                change_file.write('0')
+                change_file.write(new_content)
             logger.info("settings changed")
 
 

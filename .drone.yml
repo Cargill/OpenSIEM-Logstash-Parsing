@@ -21,6 +21,7 @@ pipeline:
       branch: [ develop, master ]
     commands:
       - export DEPLOY_ENV=test
+      - python build_scripts/generate_settings.py
       - python build_scripts/generate_pipeline.py
 
   #2. Test configs for syntax errors
@@ -35,16 +36,19 @@ pipeline:
       - mkdir -p /mnt/s3fs_geoip
       - touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
       - touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
+      - touch /usr/share/logstash/config/kafka_client_truststore.jks
+      - touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
       - /usr/share/logstash/bin/logstash --config.test_and_exit
 
   #3. Notify teams on the current locations of configs
-  notify-teams:
-    image: python:3.7-alpine
-    secrets: [ teams_web_hook ]
-    when:
-      event: [ push ]
-      branch: [ master ]
-    commands:
-      - export DEPLOY_ENV=test
-      - pip install requests
-      - python build_scripts/generate_pipeline.py $${TEAMS_WEB_HOOK}
+  # Disbaling this because this repo does not have the details of configs and nodes
+  # notify-teams:
+  #   image: python:3.7-alpine
+  #   secrets: [ teams_web_hook ]
+  #   when:
+  #     event: [ push ]
+  #     branch: [ master ]
+  #   commands:
+  #     - export DEPLOY_ENV=test
+  #     - pip install requests
+  #     - python build_scripts/generate_pipeline.py $${TEAMS_WEB_HOOK}
