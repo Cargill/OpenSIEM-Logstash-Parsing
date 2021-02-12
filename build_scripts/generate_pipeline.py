@@ -236,6 +236,7 @@ class LogstashHelper(object):
             'NC4_API_URI': self.logstash_api_secrets['nc4_api_uri'],
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
+            'MEMCACHED_ADDRESS': self.logstash_api_secrets['memcached_address'],
         }
         azure_inputs_dir = os.path.join(
             self.logstash_dir, 'config', 'inputs', 'azure')
@@ -661,6 +662,7 @@ def setup_test_env():
         'nc4_api_uri': 'nc4_api_uri',
         'azure_atp_consumer': 'azure_atp_consumer',
         'azure_atp_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
+        'memcached_address' : 'localhost',
     })
     os.environ['MY_INDEX'] = '1'
     os.environ['SUB_MY_IP'] = '10615222'
