@@ -13,7 +13,7 @@ ssvc_aws_role_arn_extid: &ssvc_aws_role_arn_extid
 #--COMMON DECLARATIONS-- END
 
 pipeline:
-  #1. Generate pipelines.yml
+  # 1. Generate pipelines.yml
   generate-pipeline:
     image: python:3.7-alpine
     when:
