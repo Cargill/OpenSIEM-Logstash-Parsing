@@ -38,6 +38,7 @@ pipeline:
       - touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
       - touch /usr/share/logstash/config/kafka_client_truststore.jks
       - touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
+      - export MEMCACHED_ADDRESS=localhost
       - /usr/share/logstash/bin/logstash --config.test_and_exit
 
   #3. Notify teams on the current locations of configs
