@@ -1,0 +1,120 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Access map [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"geohash_grid\", \"params\": {\"field\": \"source.geo.location\", \"isFilteredByCollar\": true, \"autoPrecision\": true, \"precision\": 2, \"useGeocentroid\": true}}], \"title\": \"Access map [Filebeat IIS] ECS\", \"params\": {\"mapType\": \"Scaled Circle Markers\", \"heatClusterSize\": 1.5, \"legendPosition\": \"bottomright\", \"mapZoom\": 2, \"addTooltip\": true, \"wms\": {\"enabled\": false, \"options\": {\"format\": \"image/png\", \"transparent\": true}}, \"mapCenter\": [0, 0], \"isDesaturated\": true}, \"type\": \"tile_map\"}"
+            },
+            "id": "eb2db5b0-fe11-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T18:44:17.162Z",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Response codes over time [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"params\": {\"customInterval\": \"2h\", \"field\": \"@timestamp\", \"interval\": \"auto\", \"extended_bounds\": {}, \"min_doc_count\": 1}}, {\"enabled\": true, \"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"http.response.status_code\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Response codes over time [Filebeat IIS] ECS\", \"params\": {\"grid\": {\"categoryLines\": false, \"style\": {\"color\": \"#eee\"}}, \"addLegend\": true, \"addTooltip\": true, \"times\": [], \"legendPosition\": \"right\", \"categoryAxes\": [{\"id\": \"CategoryAxis-1\", \"show\": true, \"position\": \"bottom\", \"type\": \"category\", \"scale\": {\"type\": \"linear\"}, \"title\": {}, \"labels\": {\"truncate\": 100, \"show\": true}, \"style\": {}}], \"addTimeMarker\": false, \"seriesParams\": [{\"mode\": \"stacked\", \"show\": \"true\", \"valueAxis\": \"ValueAxis-1\", \"showCircles\": true, \"data\": {\"label\": \"Count\", \"id\": \"1\"}, \"drawLinesBetweenPoints\": true, \"type\": \"histogram\"}], \"type\": \"histogram\", \"valueAxes\": [{\"name\": \"LeftAxis-1\", \"id\": \"ValueAxis-1\", \"position\": \"left\", \"type\": \"value\", \"scale\": {\"mode\": \"normal\", \"type\": \"linear\"}, \"title\": {\"text\": \"Count\"}, \"show\": true, \"labels\": {\"rotate\": 0, \"truncate\": 100, \"filter\": false, \"show\": true}, \"style\": {}}]}, \"type\": \"histogram\"}"
+            },
+            "id": "f31414b0-fe14-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T19:05:58.905Z",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Browsers breakdown [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.name\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.version\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Browsers breakdown [Filebeat IIS] ECS\", \"params\": {\"isDonut\": true, \"addLegend\": true, \"type\": \"pie\", \"addTooltip\": true, \"legendPosition\": \"right\", \"labels\": {\"values\": true, \"truncate\": 100, \"show\": false, \"last_level\": true}}, \"type\": \"pie\"}"
+            },
+            "id": "63129c80-fe12-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T18:47:38.312Z",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Operating systems breakdown [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.os.name\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.os.version\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Operating systems breakdown [Filebeat IIS] ECS\", \"params\": {\"isDonut\": true, \"addLegend\": true, \"type\": \"pie\", \"addTooltip\": true, \"legendPosition\": \"right\", \"labels\": {\"values\": true, \"truncate\": 100, \"show\": false, \"last_level\": true}}, \"type\": \"pie\"}"
+            },
+            "id": "ccd3f9c0-fe12-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T18:51:54.619Z",
+            "version": 2
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Error logs over time [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"params\": {\"customInterval\": \"2h\", \"field\": \"@timestamp\", \"interval\": \"auto\", \"extended_bounds\": {}, \"min_doc_count\": 1}}, {\"enabled\": true, \"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"http.response.status_code\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Error logs over time [Filebeat IIS] ECS\", \"params\": {\"grid\": {\"categoryLines\": false, \"style\": {\"color\": \"#eee\"}}, \"addLegend\": true, \"addTooltip\": true, \"times\": [], \"legendPosition\": \"right\", \"categoryAxes\": [{\"id\": \"CategoryAxis-1\", \"show\": true, \"position\": \"bottom\", \"type\": \"category\", \"scale\": {\"type\": \"linear\"}, \"title\": {}, \"labels\": {\"truncate\": 100, \"show\": true}, \"style\": {}}], \"addTimeMarker\": false, \"seriesParams\": [{\"mode\": \"stacked\", \"show\": \"true\", \"valueAxis\": \"ValueAxis-1\", \"showCircles\": true, \"data\": {\"label\": \"Count\", \"id\": \"1\"}, \"drawLinesBetweenPoints\": true, \"type\": \"histogram\"}], \"type\": \"histogram\", \"valueAxes\": [{\"name\": \"LeftAxis-1\", \"id\": \"ValueAxis-1\", \"position\": \"left\", \"type\": \"value\", \"scale\": {\"mode\": \"normal\", \"type\": \"linear\"}, \"title\": {\"text\": \"Count\"}, \"show\": true, \"labels\": {\"rotate\": 0, \"truncate\": 100, \"filter\": false, \"show\": true}, \"style\": {}}]}, \"type\": \"histogram\"}"
+            },
+            "id": "41f38230-fe17-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T19:22:30.227Z",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "title": "Top URLs by response code [Filebeat IIS] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"split\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"size\": 5, \"order\": \"desc\", \"row\": false, \"field\": \"url.path\", \"customLabel\": \"URL\", \"orderBy\": \"1\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"http.response.status_code\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Top URLs by response code [Filebeat IIS] ECS\", \"params\": {\"isDonut\": false, \"addLegend\": true, \"type\": \"pie\", \"addTooltip\": true, \"legendPosition\": \"right\", \"labels\": {\"values\": true, \"truncate\": 100, \"show\": false, \"last_level\": true}}, \"type\": \"pie\"}"
+            },
+            "id": "c0d02cd0-fe1b-11e7-a3b0-d13028918f9f-ecs",
+            "type": "visualization",
+            "updated_at": "2018-01-20T19:58:24.005Z",
+            "version": 2
+        },
+        {
+            "attributes": {
+                "description": "Dashboard for the Filebeat IIS module",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"version\": true, \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"highlightAll\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false, \"useMargins\": true, \"hidePanelTitles\": false}",
+                "panelsJSON": "[{\"panelIndex\": \"1\", \"version\": \"6.1.2\", \"id\": \"eb2db5b0-fe11-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 0, \"i\": \"1\", \"x\": 0, \"w\": 12}}, {\"panelIndex\": \"2\", \"version\": \"6.1.2\", \"id\": \"f31414b0-fe14-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 3, \"i\": \"2\", \"x\": 0, \"w\": 7}}, {\"panelIndex\": \"4\", \"version\": \"6.1.2\", \"id\": \"63129c80-fe12-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 9, \"i\": \"4\", \"x\": 0, \"w\": 6}}, {\"panelIndex\": \"5\", \"version\": \"6.1.2\", \"id\": \"ccd3f9c0-fe12-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 9, \"i\": \"5\", \"x\": 6, \"w\": 6}}, {\"panelIndex\": \"6\", \"version\": \"6.1.2\", \"id\": \"41f38230-fe17-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 3, \"i\": \"6\", \"x\": 7, \"w\": 5}}, {\"panelIndex\": \"7\", \"version\": \"6.1.2\", \"id\": \"c0d02cd0-fe1b-11e7-a3b0-d13028918f9f-ecs\", \"type\": \"visualization\", \"gridData\": {\"h\": 3, \"y\": 6, \"i\": \"7\", \"x\": 0, \"w\": 12}}]",
+                "timeRestore": false,
+                "title": "[Filebeat IIS] Access and error logs ECS",
+                "uiStateJSON": "{}",
+                "version": 1
+            },
+            "id": "4278ad30-fe16-11e7-a3b0-d13028918f9f-ecs",
+            "type": "dashboard",
+            "updated_at": "2018-01-20T19:57:50.287Z",
+            "version": 4
+        }
+    ],
+    "version": "6.1.2"
+}

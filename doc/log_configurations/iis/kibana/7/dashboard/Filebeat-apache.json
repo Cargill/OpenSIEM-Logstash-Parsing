@@ -1,0 +1,167 @@
+{
+    "objects": [
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-access-logs-ecs",
+                "title": "Unique IPs map [Filebeat Apache] ECS",
+                "uiStateJSON": "{\"mapCenter\": [14.944784875088372, 5.09765625]}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"params\": {\"field\": \"source.address\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"geohash_grid\", \"params\": {\"field\": \"source.geo.location\", \"autoPrecision\": true}}], \"title\": \"Apache access unique IPs map ECS\", \"params\": {\"heatMinOpacity\": 0.1, \"heatBlur\": 15, \"heatNormalizeData\": true, \"heatRadius\": 25, \"mapCenter\": [15, 5], \"heatMaxZoom\": 16, \"legendPosition\": \"bottomright\", \"mapZoom\": 2, \"addTooltip\": true, \"wms\": {\"enabled\": false, \"url\": \"https://basemap.nationalmap.gov/arcgis/services/USGSTopo/MapServer/WMSServer\", \"options\": {\"layers\": \"0\", \"format\": \"image/png\", \"attribution\": \"Maps provided by USGS\", \"styles\": \"\", \"transparent\": true, \"version\": \"1.3.0\"}}, \"mapType\": \"Scaled Circle Markers\", \"isDesaturated\": true}, \"type\": \"tile_map\", \"listeners\": {}}"
+            },
+            "id": "Apache-access-unique-IPs-map-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-access-logs-ecs",
+                "title": "Top URLs by response code [Filebeat Apache] ECS",
+                "uiStateJSON": "{\"vis\": {\"colors\": {\"404\": \"#EF843C\", \"200\": \"#7EB26D\"}}}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"split\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"size\": 5, \"order\": \"desc\", \"row\": false, \"field\": \"url.original\", \"customLabel\": \"URL\", \"orderBy\": \"1\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"field\": \"http.response.status_code\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Apache response codes of top URLs ECS\", \"params\": {\"legendPosition\": \"right\", \"isDonut\": false, \"addLegend\": true, \"shareYAxis\": true, \"addTooltip\": true}, \"type\": \"pie\", \"listeners\": {}}"
+            },
+            "id": "Apache-response-codes-of-top-URLs-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-access-logs-ecs",
+                "title": "Browsers breakdown [Filebeat Apache] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"params\": {\"field\": \"source.address\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.name\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.version\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Apache browsers ECS\", \"params\": {\"legendPosition\": \"bottom\", \"isDonut\": true, \"addLegend\": true, \"shareYAxis\": true, \"addTooltip\": true}, \"type\": \"pie\", \"listeners\": {}}"
+            },
+            "id": "Apache-browsers-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-access-logs-ecs",
+                "title": "Operating systems breakdown [Filebeat Apache] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"cardinality\", \"params\": {\"field\": \"source.address\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.os.name\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"user_agent.os.version\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Apache operating systems ECS\", \"params\": {\"legendPosition\": \"bottom\", \"isDonut\": true, \"addLegend\": true, \"shareYAxis\": true, \"addTooltip\": true}, \"type\": \"pie\", \"listeners\": {}}"
+            },
+            "id": "Apache-operating-systems-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-errors-log-ecs",
+                "title": "Error logs over time [Filebeat Apache] ECS",
+                "uiStateJSON": "{}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"params\": {\"customInterval\": \"2h\", \"field\": \"@timestamp\", \"interval\": \"auto\", \"extended_bounds\": {}, \"min_doc_count\": 1}}, {\"enabled\": true, \"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"log.level\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Apache error logs over time ECS\", \"params\": {\"yAxis\": {}, \"mode\": \"stacked\", \"addTimeMarker\": false, \"addTooltip\": true, \"defaultYExtents\": false, \"times\": [], \"shareYAxis\": true, \"scale\": \"linear\", \"legendPosition\": \"right\", \"setYExtents\": false, \"addLegend\": true}, \"type\": \"histogram\", \"listeners\": {}}"
+            },
+            "id": "Apache-error-logs-over-time-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "",
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"filter\": []}"
+                },
+                "savedSearchId": "Apache-access-logs-ecs",
+                "title": "Response codes over time [Filebeat Apache] ECS",
+                "uiStateJSON": "{\"vis\": {\"colors\": {\"404\": \"#EF843C\", \"200\": \"#629E51\"}}}",
+                "version": 1,
+                "visState": "{\"aggs\": [{\"enabled\": true, \"schema\": \"metric\", \"id\": \"1\", \"type\": \"count\", \"params\": {}}, {\"enabled\": true, \"schema\": \"segment\", \"id\": \"2\", \"type\": \"date_histogram\", \"params\": {\"customInterval\": \"2h\", \"field\": \"@timestamp\", \"interval\": \"auto\", \"extended_bounds\": {}, \"min_doc_count\": 1}}, {\"enabled\": true, \"schema\": \"group\", \"id\": \"3\", \"type\": \"terms\", \"params\": {\"field\": \"http.response.status_code\", \"size\": 5, \"orderBy\": \"1\", \"order\": \"desc\"}}], \"title\": \"Apache response codes over time ECS\", \"params\": {\"yAxis\": {}, \"mode\": \"stacked\", \"addTimeMarker\": false, \"addTooltip\": true, \"defaultYExtents\": false, \"times\": [], \"shareYAxis\": true, \"scale\": \"linear\", \"legendPosition\": \"right\", \"setYExtents\": false, \"addLegend\": true}, \"type\": \"histogram\", \"listeners\": {}}"
+            },
+            "id": "Apache-response-codes-over-time-ecs",
+            "type": "visualization",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "columns": [
+                    "source.address",
+                    "log.level",
+                    "apache2.error.module",
+                    "message"
+                ],
+                "description": "",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"event.dataset:apache.error\", \"language\": \"kuery\"}, \"highlight\": {\"require_field_match\": false, \"fields\": {\"*\": {}}, \"pre_tags\": [\"@kibana-highlighted-field@\"], \"post_tags\": [\"@/kibana-highlighted-field@\"], \"fragment_size\": 2147483647}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "sort": [
+                    "@timestamp",
+                    "desc"
+                ],
+                "title": "Apache errors log [Filebeat Apache] ECS",
+                "version": 1
+            },
+            "id": "Apache-errors-log-ecs",
+            "type": "search",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "columns": [
+                    "source.address",
+                    "http.request.method",
+                    "url.original",
+                    "http.response.status_code"
+                ],
+                "description": "",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"query\": {\"query\": \"event.dataset:apache.access\", \"language\": \"kuery\"}, \"highlight\": {\"require_field_match\": false, \"fields\": {\"*\": {}}, \"pre_tags\": [\"@kibana-highlighted-field@\"], \"post_tags\": [\"@/kibana-highlighted-field@\"], \"fragment_size\": 2147483647}, \"filter\": [], \"index\": \"filebeat-*\"}"
+                },
+                "sort": [
+                    "@timestamp",
+                    "desc"
+                ],
+                "title": "Apache access logs [Filebeat Apache] ECS",
+                "version": 1
+            },
+            "id": "Apache-access-logs-ecs",
+            "type": "search",
+            "version": 1
+        },
+        {
+            "attributes": {
+                "description": "Filebeat Apache module dashboard",
+                "hits": 0,
+                "kibanaSavedObjectMeta": {
+                    "searchSourceJSON": "{\"version\": true, \"query\": {\"query\": \"\", \"language\": \"kuery\"}, \"filter\": [], \"highlightAll\": true}"
+                },
+                "optionsJSON": "{\"darkTheme\": false}",
+                "panelsJSON": "[{\"panelIndex\": 1, \"size_x\": 12, \"id\": \"Apache-access-unique-IPs-map-ecs\", \"row\": 1, \"size_y\": 3, \"col\": 1, \"type\": \"visualization\"}, {\"panelIndex\": 2, \"size_x\": 8, \"id\": \"Apache-response-codes-of-top-URLs-ecs\", \"row\": 6, \"size_y\": 3, \"col\": 1, \"type\": \"visualization\"}, {\"panelIndex\": 3, \"size_x\": 4, \"id\": \"Apache-browsers-ecs\", \"row\": 6, \"size_y\": 3, \"col\": 9, \"type\": \"visualization\"}, {\"panelIndex\": 4, \"size_x\": 2, \"id\": \"Apache-operating-systems-ecs\", \"row\": 4, \"size_y\": 2, \"col\": 11, \"type\": \"visualization\"}, {\"panelIndex\": 5, \"size_x\": 12, \"id\": \"Apache-error-logs-over-time-ecs\", \"row\": 9, \"size_y\": 2, \"col\": 1, \"type\": \"visualization\"}, {\"panelIndex\": 6, \"size_x\": 10, \"id\": \"Apache-response-codes-over-time-ecs\", \"row\": 4, \"size_y\": 2, \"col\": 1, \"type\": \"visualization\"}, {\"panelIndex\": 7, \"size_x\": 12, \"id\": \"Apache-errors-log-ecs\", \"columns\": [\"source.address\", \"log.level\", \"apache2.error.module\", \"message\"], \"row\": 11, \"size_y\": 3, \"sort\": [\"@timestamp\", \"desc\"], \"col\": 1, \"type\": \"search\"}]",
+                "timeRestore": false,
+                "title": "[Filebeat Apache] Access and error logs ECS",
+                "uiStateJSON": "{\"P-1\": {\"mapCenter\": [40.713955826286046, -0.17578125], \"mapBounds\": {\"top_left\": {\"lon\": -205.6640625, \"lat\": 67.7427590666639}, \"bottom_right\": {\"lon\": 205.3125, \"lat\": -3.864254615721396}}, \"mapZoom\": 2, \"mapCollar\": {\"top_left\": {\"lon\": -180, \"lat\": 90}, \"zoom\": 2, \"bottom_right\": {\"lon\": 180, \"lat\": -39.667755}}}}",
+                "version": 1
+            },
+            "id": "Filebeat-Apache-Dashboard-ecs",
+            "type": "dashboard",
+            "version": 2
+        }
+    ],
+    "version": "6.0.0-beta1-SNAPSHOT"
+}
