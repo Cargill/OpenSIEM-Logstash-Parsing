@@ -123,8 +123,10 @@ class LogstashHelper(object):
         return clear_lag_logs, nodes_per_clear_log
 
     def __get_num_indexers(self):
-        general_settings = load_general_settings(self.logstash_dir)
-        indexers = general_settings['num_indexers']
+        ''' num of logstash_servers defines it
+            num_indexers from general.json is just for notify_teams function
+        '''
+        indexers = len(self.logstash_servers)
         return indexers
 
     def __get_high_volume_logs(self):
