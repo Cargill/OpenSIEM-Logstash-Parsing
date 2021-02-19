@@ -1,5 +1,5 @@
 {
-    "num_indexers" : 6,
+    "num_indexers" : 4,
     "prod_only_logs": [
         "log_audit_azure.event_hub_signin_daily",
         "log_audit_okta_monthly"
