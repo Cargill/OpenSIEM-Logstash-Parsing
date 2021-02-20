@@ -12,12 +12,12 @@
   path.config: "${LOGSTASH_HOME}/config/outputs/elastic_output.conf"
   pipeline.batch.delay: 50
   pipeline.batch.size: 2000
-  pipeline.workers: 1
+  # pipeline.workers: 1
 - pipeline.id: s3_output
   path.config: "${LOGSTASH_HOME}/config/outputs/s3_output.conf"
   pipeline.batch.delay: 50
   pipeline.batch.size: 2000
-  pipeline.workers: 1
+  # pipeline.workers: 1
 - pipeline.id: nc4_output
   path.config: "${LOGSTASH_HOME}/config/outputs/nc4_output.conf"
   pipeline.workers: 1
