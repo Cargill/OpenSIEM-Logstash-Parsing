@@ -116,7 +116,6 @@ class LogstashHelper(object):
             f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
             f'      "[@metadata][config]" => "{config["config"]}"\n' + \
             f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
-            f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
             f'      "[@metadata][output_pipelines]" => [{comma_separated_outputs}]\n' + \
             '    }\n' +\
             f'   tags => {tags}'
