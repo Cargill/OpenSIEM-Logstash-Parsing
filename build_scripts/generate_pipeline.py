@@ -46,6 +46,7 @@ class LogstashHelper(object):
         self.logstash_dir = logstash_dir
         self.deploy_env = os.environ['DEPLOY_ENV']
         self.logstash_servers = os.environ['LOGSTASH_SERVERS'].split(',')
+        # index of this instance in the array of all logstash instances
         self.my_index = int(os.environ['MY_INDEX'])
         self.sub_my_ip = os.environ['SUB_MY_IP']
         self.elastic_user, self.elastic_pwd = self.__get_elastic_creds()
@@ -54,10 +55,8 @@ class LogstashHelper(object):
         self.kafka_user, self.kafka_pwd = self.__get_kafka_creds()
         self.logstash_api_secrets = self.__get_logstash_api_secret()
         self.bucket_name = self.__get_bucket_name()
-        self.high_volume_logs = self.__get_high_volume_logs()
         self.prod_only_logs = self.__get_prod_only_logs()
         self.num_indexers = self.__get_num_indexers()
-        self.clear_lag_logs, self.num_nodes_for_clear_lag = self.__clear_lag_logs()
 
     def __get_elastic_creds(self):
         elastic_master_secret = os.environ['ELASTIC_MASTER_SECRET']
@@ -97,42 +96,10 @@ class LogstashHelper(object):
         else:
             return 'acap-archives-test'
 
-    def __clear_lag_logs(self):
-        general_settings = load_general_settings(self.logstash_dir)
-        try:
-            clear_lag_logs = general_settings['clear_lag']['logs']
-            # process each clear lag log on this many nodes
-            nodes_per_clear_log = general_settings['clear_lag']['nodes']
-        except KeyError:
-            logger.exception()
-            clear_lag_logs = []
-            nodes_per_clear_log = 0
-        # reversing the list as it is distributed in reverse order
-        clear_lag_logs.reverse()
-
-        # high volume logs are run on 2 nodes each
-        # try and see if the current configuration is feasible
-        num_clear_lag_nodes_required = nodes_per_clear_log * len(clear_lag_logs)
-        num_high_volume_nodes_required = len(self.high_volume_logs)*2
-        if num_clear_lag_nodes_required + num_high_volume_nodes_required  > self.num_indexers:
-            message  = 'Invalid processing configuration. Try reducing number of clear logs/clear number/ high volume logs'
-            if self.deploy_env == 'test':
-                raise Exception(message)
-            else:
-                logger.warn(message)
-        return clear_lag_logs, nodes_per_clear_log
-
     def __get_num_indexers(self):
         general_settings = load_general_settings(self.logstash_dir)
         indexers = general_settings['num_indexers']
         return indexers
-
-    def __get_high_volume_logs(self):
-        general_settings = load_general_settings(self.logstash_dir)
-        high_volume_log_names = general_settings['high_volume_logs']
-        # reversing the list as it is distributed in reverse order
-        high_volume_log_names.reverse()
-        return high_volume_log_names
 
     def __get_prod_only_logs(self):
         general_settings = load_general_settings(self.logstash_dir)
@@ -168,15 +135,13 @@ class LogstashHelper(object):
         if log_type == 'daily':
             consumer_threads = 16
 
-        # 16 is the number of partitions for each log source
-        # if we want to process a log on 16 nodes we should have only one consumer per node
-        if config_name in self.clear_lag_logs:
-            consumer_threads = int(16/self.num_nodes_for_clear_lag)
-            if config_name == 'log_audit_checkpoint.fw_cnet_gl_vpn_daily':
-                # this topic has 24 partitions
-                consumer_threads = int(24/self.num_nodes_for_clear_lag)
-        if config_name in self.high_volume_logs:
-            consumer_threads = int(16/2)
+        general_settings = load_general_settings(self.logstash_dir)
+        processing_config = general_settings['processing_config']
+        if config_name in processing_config.keys():
+            # needs special treatment
+            num_partitions = int(processing_config[config_name]['kafka_partitions'])
+            num_nodes = int(processing_config[config_name]['nodes'])
+            consumer_threads = 1 if num_nodes > num_partitions else num_partitions/num_nodes
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
@@ -289,6 +254,12 @@ class LogstashHelper(object):
             self.__replace_vars(f'{output_dir}/{output_name}', vars_dict)
 
     def __get_log_distribution(self, num_logs: int, num_servers: int, arr_idx: int, logs: list):
+        '''
+        with the current approach first few servers get all the unfairly allocated logs
+        and last in the list get none
+        # TODO change the algo to keep track on different unfair logs and distribute them evenly
+        # this change is out of scope of this method so this has to go probably.
+        '''
         fair_allocation = int(num_logs / num_servers)
         unfair_allocation = num_logs % num_servers
         start_index = arr_idx*fair_allocation
@@ -307,21 +278,34 @@ class LogstashHelper(object):
     def get_selected_log_sources(self):
         settings = self.load_settings()
         conf_names = settings.keys()
+        general_settings = load_general_settings(self.logstash_dir)
+        processing_config = general_settings['processing_config']
 
         self.prod_only_logs = self.__get_matched_items(
             conf_names, self.prod_only_logs)
-        self.high_volume_logs = self.__get_matched_items(
-            conf_names, self.high_volume_logs)
-        self.clear_lag_logs = self.__get_matched_items(
-            conf_names, self.clear_lag_logs)
+        self.special_logs = self.__get_matched_items(
+            conf_names, processing_config.keys())
 
+        # calculating number of nodes needed for special logs
+        num_servers_for_special_logs = 0
+        for _,v in processing_config.items():
+            num_servers_for_special_logs += v['nodes']
+        
+        special_confs = []
+        num_servers = len(self.logstash_servers)
+        # if there are not enough servers for special logs process them like any other
+        if num_servers < num_servers_for_special_logs:
+            # cannot process clear lag logs explicitly.
+            # treat them like high volume logs
+            self.special_logs = []
+            num_servers_for_special_logs = 0
+        
         daily_logs = []
         weekly_logs = []
         monthly_logs = []
+        # filter daily, weekly and monthly logs which do not need special treatment
         for config_file in conf_names:
-            if config_file in self.high_volume_logs:
-                continue
-            if config_file in self.clear_lag_logs:
+            if config_file in self.special_logs:
                 continue
             if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
                 continue
@@ -338,29 +322,30 @@ class LogstashHelper(object):
             else:
                 monthly_logs.append(config_file)
 
+        # initialise selected config list for this node
         selected_log_sources = []
+        # subtract it by one as it starts from 1
         arr_idx = self.my_index - 1
-        num_servers = len(self.logstash_servers)
 
-        clear_number = len(self.clear_lag_logs)
-        num_servers_for_clear_lag = clear_number*self.num_nodes_for_clear_lag
-        if num_servers < num_servers_for_clear_lag:
-            # cannot process clear lag logs explicitly.
-            # treat them like high volume logs
-            num_servers_for_clear_lag = 0
-            self.high_volume_logs = self.high_volume_logs + self.clear_lag_logs
-            clear_number = 0
-        if clear_number > 0:
-            normalized_index = arr_idx % clear_number
-            clear_lag_conf = self.__get_log_distribution(
-                clear_number, num_servers, normalized_index, self.clear_lag_logs)
-        else:
-            clear_lag_conf = []
-        if arr_idx < num_servers_for_clear_lag:
-            selected_log_sources = clear_lag_conf
-        else:
-            num_servers = num_servers - num_servers_for_clear_lag
-            arr_idx = arr_idx - num_servers_for_clear_lag
+        # if list is non empty which means we have enough instances
+        if self.special_logs:
+            # Process special lag confs explicitly
+            # sequentially allocate a special log
+            special_confs = []
+            if arr_idx < num_servers_for_special_logs:
+                cumulative_nodes = 0
+                for k,v in processing_config.items():
+                    cumulative_nodes += v['nodes']
+                    if arr_idx < cumulative_nodes:
+                        special_confs.append(k)
+                        break
+            selected_log_sources = special_confs
+        
+        if not selected_log_sources:
+            # for rest of the instances that does not contain special confs
+            # adjust num_servers and arr_idx after fully using special lag servers
+            num_servers = num_servers - num_servers_for_special_logs
+            arr_idx = arr_idx - num_servers_for_special_logs
 
             for logs in [daily_logs, weekly_logs, monthly_logs]:
                 num_logs = len(logs)
@@ -368,18 +353,6 @@ class LogstashHelper(object):
                     self.__get_log_distribution(
                         num_logs, num_servers, arr_idx, logs)
 
-            # distribute high volume logs on this many nodes
-            high_number = len(self.high_volume_logs)
-            if high_number > 0:
-                normalized_index = arr_idx % high_number
-                high_vol_conf = self.__get_log_distribution(
-                    high_number, num_servers, normalized_index, self.high_volume_logs)
-            else:
-                high_vol_conf = []
-            if arr_idx+1 > high_number*2:
-                # don't process high volume logs on more than 2 nodes
-                high_vol_conf = []
-            selected_log_sources = selected_log_sources + high_vol_conf
         return selected_log_sources
 
     def generate_pipeline(self, pipeline_file_path):
@@ -390,6 +363,7 @@ class LogstashHelper(object):
             while generated pipelines file.
         '''
         selected_log_sources = self.get_selected_log_sources()
+
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
@@ -434,7 +408,7 @@ class LogstashHelper(object):
             else:
                 pipeline_workers = 4
 
-            if log_source in self.high_volume_logs or log_source in self.clear_lag_logs:
+            if log_source in self.special_logs:
                 pipeline_workers = 64
 
             batch_size = 1000
@@ -766,6 +740,7 @@ if __name__ == "__main__":
 
         helper = LogstashHelper(logstash_dir)
         helper.generate_files()
+
         helper.replace_vars()
         logger.info('Variables replaced')
         helper.substitute_jaas_with_values()

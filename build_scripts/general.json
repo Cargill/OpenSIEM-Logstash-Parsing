@@ -4,13 +4,18 @@
         "log_audit_azure.event_hub_signin_daily",
         "log_audit_okta_monthly"
     ],
-    "high_volume_logs" : [
-        "log_audit_citrix.netscaler_daily"
-    ],
-    "clear_lag": {
-        "nodes" : 2,
-        "logs" : [
-            "log_network_aws.vpcflow_daily"
-        ]
+    "processing_config" : {
+        "log_audit_checkpoint.fw_cnet_gl_vpn_daily" : {
+            "kafka_partitions" : 24,
+            "nodes" : 4
+        },
+        "log_network_aws.vpcflow_daily" : {
+            "kafka_partitions" : 16,
+            "nodes" : 16
+        },
+        "log_audit_citrix.netscaler_daily" : {
+            "kafka_partitions" : 16,
+            "nodes" : 2
+        }
     }
 }
