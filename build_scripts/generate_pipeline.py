@@ -141,7 +141,7 @@ class LogstashHelper(object):
             # needs special treatment
             num_partitions = int(processing_config[config_name]['kafka_partitions'])
             num_nodes = int(processing_config[config_name]['nodes'])
-            consumer_threads = 1 if num_nodes > num_partitions else num_partitions/num_nodes
+            consumer_threads = 1 if num_nodes > num_partitions else int(num_partitions/num_nodes)
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
