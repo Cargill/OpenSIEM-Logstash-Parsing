@@ -63,6 +63,8 @@ def test_pipelines():
     helper = LogstashHelper(logstash_dir)
     settings = helper.load_settings()
     conf_names = settings.keys()
+    general_settings = load_general_settings(logstash_dir)
+    processing_config = general_settings['processing_config']
 
     pipeline_file_names = os.listdir(pipeline_dir)
     pipeline_file_names = list(
@@ -99,11 +101,10 @@ def test_pipelines():
     high_volume_ids = dict(
         filter(lambda item: item[1] > 1, id_count_map.items()))
 
-    if len(high_volume_ids) != len(helper.high_volume_logs) + len(helper.clear_lag_logs):
+    special_logs = processing_config.keys()
+    if len(high_volume_ids) != len(special_logs):
         print('Warning: not all configured high volume logs are processed on more than one nodes')
-    for log_name in helper.high_volume_logs:
-        print(f'{log_name} is parsed on {id_count_map[log_name]} nodes')
-    for log_name in helper.clear_lag_logs:
+    for log_name in special_logs:
         print(f'{log_name} is parsed on {id_count_map[log_name]} nodes')
 
 
