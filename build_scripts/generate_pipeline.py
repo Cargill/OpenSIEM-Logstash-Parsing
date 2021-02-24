@@ -107,12 +107,20 @@ class LogstashHelper(object):
 
     def __add_custom_input_field(self, conf_file: str, config):
         comma_separated_outputs = ','.join(config["output_list"])
+        if config["ignore_enrichments"]:
+            tags = '[ "{}" ]'.format('", "'.join(config["ignore_enrichments"]))
+            # if the list is empty it produces [""] which might break config
+        else:
+            tags = '[ ]'
         add_fields_block = 'add_field => {\n' + \
             f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
             f'      "[@metadata][config]" => "{config["config"]}"\n' + \
             f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
+            f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
             f'      "[@metadata][output_pipelines]" => [{comma_separated_outputs}]\n' + \
-            '    }'
+            '    }\n' +\
+            f'   tags => {tags}'
+
         file_contents = None
         with open(conf_file, encoding='UTF-8') as config:
             file_contents = config.read()
