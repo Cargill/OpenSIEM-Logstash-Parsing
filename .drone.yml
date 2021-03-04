@@ -39,6 +39,8 @@ pipeline:
       - touch /usr/share/logstash/config/kafka_client_truststore.jks
       - touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
       - export MEMCACHED_ADDRESS=localhost
+      - export PUBLIC_DNS="127.0.0.1 127.0.0.2"
+      - export PRIVATE_DNS="127.0.0.3 127.0.0.4"
       - /usr/share/logstash/bin/logstash --config.test_and_exit
 
   #3. Notify teams on the current locations of configs
