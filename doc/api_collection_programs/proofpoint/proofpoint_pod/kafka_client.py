@@ -47,11 +47,11 @@ class KafkaClient(Client):
 class Producer():
     def __init__(self, topic):
         kafka_secrets = secret.get_secret(
-            'ngsiem-aca-kafka-config', ['username', 'password'])
+            'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
 
         kafka_uname = kafka_secrets['username']
         kafka_pwd = kafka_secrets['password']
-        kafka_hosts = 'kafka1.tgrc.cargill.com:9092,kafka2.tgrc.cargill.com:9092,kafka3.tgrc.cargill.com:9092,kafka4.tgrc.cargill.com:9092,kafka5.tgrc.cargill.com:9092'
+        kafka_hosts = kafka_secrets['kafka_hosts']
         ssl_truststore_file = '/opt/scripts/ca-cert.cer'
 
         self.topic_name = topic
@@ -92,7 +92,7 @@ def run_kafka_producer_job(log, producer):
 
 if __name__ == '__main__':
     pod_secrets = secret.get_secret('ngsiem-aca-logstash-api',
-                                    ['proofpoint_pod_api_key_original_prod', 'proofpoint_websocket_key'])
+                                    ['proofpoint_pod_api_key_original_prod', 'proofpoint_websocket_key', 'proofpoint_pod_hosted_name'])
 
     PRODUCTION_HOST = 'logstream.proofpoint.com'
     compression = 'permessage-deflate; client_no_context_takeover; server_no_context_takeover'
@@ -100,5 +100,5 @@ if __name__ == '__main__':
     config = Config(PRODUCTION_HOST, websocket_extensions=compression,
         ping_interval=5,
         msg_type="message", trace=True)
-    client = KafkaClient(config, ["cargill_hosted2", pod_secrets["proofpoint_pod_api_key_original_prod"]], logger)
+    client = KafkaClient(config, [pod_secrets["proofpoint_pod_hosted_name"], pod_secrets["proofpoint_pod_api_key_original_prod"]], logger)
     client.run()

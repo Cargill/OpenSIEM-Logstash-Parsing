@@ -6,6 +6,7 @@ import time
 import json
 
 import prod
+import secret
 from logging.handlers import RotatingFileHandler
 import requests
 import sns
@@ -60,10 +61,11 @@ class Producer():
 
 
 def set_creds():
-    os.environ['KAFKA_USERNAME'] = prod.kafka_username
-    os.environ['KAFKA_PASSWORD'] = prod.kafka_password
-    os.environ[
-        'KAFKA_HOSTS'] = 'kafka1.tgrc.cargill.com:9092,kafka2.tgrc.cargill.com:9092,kafka3.tgrc.cargill.com:9092,kafka4.tgrc.cargill.com:9092,kafka5.tgrc.cargill.com:9092'
+    secrets = secret.get_secret(
+        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
+    os.environ['KAFKA_USERNAME'] = secrets['username']
+    os.environ['KAFKA_PASSWORD'] = secrets['password']
+    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
 
 
 def run_kafka_producer_job(logs, topic_name):
