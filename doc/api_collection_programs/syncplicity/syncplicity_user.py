@@ -57,7 +57,7 @@ class Producer():
 
 def set_creds():
     secrets = secret.get_secret(
-        'ngsiem-aca-kafka-config', ['username', 'password'])
+        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
     os.environ['KAFKA_USERNAME'] = secrets['username']
     os.environ['KAFKA_PASSWORD'] = secrets['password']
     os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
