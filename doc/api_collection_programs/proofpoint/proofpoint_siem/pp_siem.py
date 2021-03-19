@@ -59,11 +59,11 @@ class Producer():
 
 
 def set_creds():
-    mcp_secrets = secret.get_secret(
+    secrets = secret.get_secret(
         'ngsiem-aca-kafka-config', ['username', 'password'])
-    os.environ['KAFKA_USERNAME'] = mcp_secrets['username']
-    os.environ['KAFKA_PASSWORD'] = mcp_secrets['password']
-    os.environ['KAFKA_HOSTS'] = 'kafka1.tgrc.cargill.com:9092,kafka2.tgrc.cargill.com:9092,kafka3.tgrc.cargill.com:9092,kafka4.tgrc.cargill.com:9092,kafka5.tgrc.cargill.com:9092'
+    os.environ['KAFKA_USERNAME'] = secrets['username']
+    os.environ['KAFKA_PASSWORD'] = secrets['password']
+    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
 
 
 def run_kafka_producer_job(logs, topic_name):
