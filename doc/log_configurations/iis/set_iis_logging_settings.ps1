@@ -270,7 +270,7 @@ Else
       flush.timeout: 1000ms
       flush.min_events: 2000
       fields:
-        organization.name: "<Add organization here>"
+        organization.name: "Add your org here"
     output.kafka:
       hosts: ["10.6.101.249:9092","10.6.103.232:9092","10.6.101.250:9092","10.6.99.250:9092","10.6.99.249:9092"]
       topic: "' + $topic + '"
