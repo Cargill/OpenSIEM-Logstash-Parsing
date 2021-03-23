@@ -1,0 +1,13 @@
+[Unit]
+Description = Okta job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/okta
+ExecStart = /root/miniconda/envs/okta/bin/python job_okta.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description = PP TRAP job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/proofpoint_trap
+ExecStart = /root/miniconda/envs/pp_trap/bin/python pp_trap.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target

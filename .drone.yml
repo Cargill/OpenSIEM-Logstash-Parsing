@@ -1,0 +1,57 @@
+#--COMMON DECLARATIONS -- START
+##-- CONTAINER IMAGES
+drone-plugin-cgl-docker: &drone-plugin-cgl-docker
+  image: docker-utilities.binrepo.cglcloud.in/drone-plugin-cgl-docker:3.4.2
+##--
+
+##-- PERMISSIONS & ROLES
+ssvc_aws_role_arn_extid: &ssvc_aws_role_arn_extid
+  ssvc_aws_role_arn: arn:aws:iam::869111227120:role/cglcloud/sharedservices/cloudplatform/drone-agent/drone-agent00e9cac10a60ea2ddf92bbc719
+  ssvc_aws_role_extid: mzvkotc1zwfjmjhlogfjogrizjqymwfkn2i1ywm5zt
+##--
+
+#--COMMON DECLARATIONS-- END
+
+pipeline:
+  # 1. Generate pipelines.yml
+  generate-pipeline:
+    image: python:3.7-alpine
+    when:
+      event: [ pull_request, push ]
+      branch: [ develop, master ]
+    commands:
+      - export DEPLOY_ENV=test
+      - python build_scripts/generate_settings.py
+      - python build_scripts/generate_pipeline.py
+
+  #2. Test configs for syntax errors
+  test-configs:
+    image: docker.binrepo.cglcloud.in/tgrc-logstash:ubuntu
+    pull: true
+    when:
+      event: [ pull_request, push ]
+      branch: [ develop, master ]
+    commands:
+      - cp -r config/* /usr/share/logstash/config/
+      - mkdir -p /mnt/s3fs_geoip
+      - touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
+      - touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
+      - touch /usr/share/logstash/config/kafka_client_truststore.jks
+      - touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
+      - export MEMCACHED_ADDRESS=localhost
+      - export PUBLIC_DNS="127.0.0.1 127.0.0.2"
+      - export PRIVATE_DNS="127.0.0.3 127.0.0.4"
+      - /usr/share/logstash/bin/logstash --config.test_and_exit
+
+  #3. Notify teams on the current locations of configs
+  # Disbaling this because this repo does not have the details of configs and nodes
+  # notify-teams:
+  #   image: python:3.7-alpine
+  #   secrets: [ teams_web_hook ]
+  #   when:
+  #     event: [ push ]
+  #     branch: [ master ]
+  #   commands:
+  #     - export DEPLOY_ENV=test
+  #     - pip install requests
+  #     - python build_scripts/generate_pipeline.py $${TEAMS_WEB_HOOK}

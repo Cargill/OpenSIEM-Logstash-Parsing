@@ -1,0 +1,6 @@
+For configuring IIS:
+If there are servers running IIS version lower than 8.5, then you will need to download
+this Advanced Logging dependency. Your windows admins will need to install this alongside
+the powershell program.
+
+https://www.microsoft.com/en-us/download/details.aspx?id=7211
