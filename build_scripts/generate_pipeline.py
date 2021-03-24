@@ -658,65 +658,8 @@ def load_general_settings(root_dir):
     return general_settings
 
 
-def notify_teams(url, logstash_dir):
-    '''
-        Send nodes and confifs mappings to microsoft teams channel via provided webhook url
-
-        MS Teams API Doc:
-         https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/connectors-using
-    '''
-    # importing requests module here as it is not needed for general usage of this script
-    import requests
-
-    # get value for number of logstash nodes in prod environment
-    general_settings = load_general_settings(logstash_dir)
-    num_indexers = general_settings['num_indexers']
-
-    # generate dummy ip list for logstash servers
-    server_ips = [f'192.168.15.{i}' for i in range(0, num_indexers)]
-    # setup other dummy environment variables
-    setup_test_env()
-    os.environ['LOGSTASH_SERVERS'] = ','.join(server_ips)
-
-    # facts is the list of name value pairs that teams API understands
-    # We'll be using a fact to represent a node and assigned settings to it
-    facts = []
-    # iterate over num_indexers and generate pipelines.yml for each of them
-    for i in range(0, num_indexers):
-        os.environ['MY_INDEX'] = str(i+1)
-        helper = LogstashHelper(logstash_dir)
-        log_sources = helper.get_selected_log_sources()
-        # get the list of settings assigned to the current node and code this information into fact name value pair
-        facts.append({
-            'name': f'node{os.environ["MY_INDEX"]}',
-            'value': ', '.join(log_sources)
-        })
-    # print the fact list (can be seen in drone build step)
-    logger.info(json.dumps(facts))
-    # the format that ms teams understands
-    json_data = {
-        '@type': 'MessageCard',
-        '@context': 'http://schema.org/extensions',
-        'themeColor': '0076D7',
-        'summary': 'Pipeline locations',
-        'sections': [{
-            'markdown': False,
-            'activityTitle': 'Prod deployment',
-            'activitySubtitle': 'Current pipeline locations',
-            'facts': facts
-        }]
-    }
-    requests.post(url=url, json=json_data)
-
-
 if __name__ == "__main__":
-    '''
-        SPECIAL CASE
-        (in drone build step when changes are pushed to master branch)
-        This script can be run with an optional ms teams webhook url argument,
-        it posts node and settings mappings to that ms teams channel and exits.
-
-        GENERAL CASE
+    '''        
         Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
 
         On every node the git repo is downloded in /opt/logstash
@@ -733,13 +676,6 @@ if __name__ == "__main__":
         logstash_dir = os.path.dirname(build_scripts_dir)
         pipeline_file_path = os.path.join(
             logstash_dir, 'config', 'pipelines.yml')
-
-        # sys.argv[0] is by default the python script name
-        # check if notify was passed, then notify on ms teams
-        if len(sys.argv) > 1:
-            url = sys.argv[1]
-            notify_teams(url, logstash_dir)
-            sys.exit(0)
 
         if os.environ['DEPLOY_ENV'] == 'test':
             logger.info('setting up test env')
