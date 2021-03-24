@@ -1,0 +1,10 @@
+[Unit]
+Description = Azure Graph job daemon
+Wants=job_azure_graph_aad2.timer
+
+
+[Service]
+Type=oneshot
+WorkingDirectory = /opt/scripts/azure_graph_aad2
+ExecStart = /root/miniconda/envs/azure/bin/python identity_protection_risk_detections.py
+WantedBy = multi-user.target
