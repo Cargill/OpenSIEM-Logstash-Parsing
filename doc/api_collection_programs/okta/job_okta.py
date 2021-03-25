@@ -86,7 +86,7 @@ def run_kafka_producer_job(logs):
 def pull_okta_logs(minutes_before):
     logger.info('retrieving secrets for Okta')
     secrets = secret.get_secret('ngsiem-aca-logstash-api',
-                                    ['okta_auth', 'sns_api_error_arn'])
+                                    ['okta_auth', 'sns_api_error_arn', 'okta_url'])
     current_time = datetime.datetime.utcnow()
     if minutes_before > 0:
         current_time = current_time - \
@@ -95,7 +95,7 @@ def pull_okta_logs(minutes_before):
     fifteen_minutes_ago = (current_time - datetime.timedelta(minutes=15)).isoformat()
     twenty_minutes_ago = (current_time - datetime.timedelta(minutes=20)).isoformat()
 
-    url = f"https://cargillcustomer-uat-admin.oktapreview.com/api/v1/logs?since={twenty_minutes_ago}&until={fifteen_minutes_ago}"
+    url = f"{secrets['okta_url']}/api/v1/logs?since={twenty_minutes_ago}&until={fifteen_minutes_ago}"
     auth_token = f'SSWS {secrets["okta_auth"]}'
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': auth_token}
     try:
