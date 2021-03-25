@@ -22,6 +22,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
+
 class Producer():
     def __init__(self, topic):
         kafka_uname = os.environ['KAFKA_USERNAME']
