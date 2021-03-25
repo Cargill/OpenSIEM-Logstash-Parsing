@@ -1,0 +1,10 @@
+[Unit]
+Description=Run identity_protection_risk_detections.service every 10 minutes
+Requires=identity_protection_risk_detections.service
+
+[Timer]
+Unit=identity_protection_risk_detections.service
+OnCalendar=*:0/10
+
+[Install]
+WantedBy=timers.target

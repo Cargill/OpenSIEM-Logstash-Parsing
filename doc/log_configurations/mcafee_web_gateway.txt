@@ -1,0 +1,72 @@
+Logs are sent SIEM using the syslog functionality of MWG.
+To send logs to MWG, the rsyslogd.conf file must be modified.  The most current version of this is documented in the installation process managed by the operations team.
+The maximum message size needs to be set at 6k ($MaxMessagesize 6k) and the remote server to send the logs must also be defined (daemon.notice@@ip.of.siem.server)
+Access logs are sent in the current format to SIEM for proper processing as identified in the Syslog rule in MWG.
+Below is what the logs in the Rule
+
+Also needed is to configure a Log Handler Rule Set with two rules.  Currently called Syslog.  The first rule creates the syslog message, the second sends the log.
+"Generate Syslog message"
+  Always (Criteria)
+  Continue (Action)
+  Event:
+			Set User-Defined.logLine(2) = String.Concat (" sip=", String.Concat (IP.ToString (Client.IP), ", "))
+			String.Concat (" usr=", String.Concat (Authentication.UserName, ", "))
+			String.Concat (" sprt=", String.Concat (Number.ToString (Connection.Port), ", "))
+			String.Concat (" stat=", String.Concat (Number.ToString (Response.StatusCode), ", "))
+			String.Concat (" cat=", String.Concat (List.OfCategory.ToString (URL.Categories), ", "))
+			String.Concat (" sev=", String.Concat (URL.ReputationString, ", "))
+			String.Concat (" media=", String.Concat (MediaType.ToString (MediaType.FromHeader), ", "))
+			String.Concat (" rbytes=", String.Concat (Number.ToString (BytesToClient), ", "))
+			String.Concat (" sbytes=", String.Concat (Number.ToString (BytesFromClient), ", "))
+			String.Concat (" agent=", String.Concat (Header.Request.Get ("User-Agent"), ", "))
+			String.Concat (" virus=", String.Concat (Header.Request.Get (List.OfString.ToString (Antimalware.VirusNames, "")), ", "))
+			String.Concat (" blockid=", String.Concat (Number.ToString (Block.ID), ", "))
+			String.Concat (" block=", String.Concat (Block.Reason, ", "))
+			String.Concat (" app=", String.Concat (Application.ToString (Application.Name), ", "))
+			String.Concat (" dip=", String.Concat (IP.ToString (URL.Destination.IP), ", "))
+			String.Concat (" dprt=", String.Concat (Number.ToString (URL.Port), ", "))
+			String.Concat (" sslcertserialclient=", String.Concat (SSL.Client.Certificate.Serial, ", "))
+			String.Concat (" sslcipherclient=", String.Concat (SSL.Client.Cipher, ", "))
+			String.Concat (" sslversionclient=", String.Concat (SSL.Client.Protocol, ", "))
+			String.Concat (" sslcnsrvr=", String.Concat (SSL.Server.Certificate.CN, ", "))
+			String.Concat (" sslsha1digestsrvr=", String.Concat (SSL.Server.Certificate.SHA1Digest, ", "))
+			String.Concat (" sslsha2digestsrvr=", String.Concat (SSL.Server.Certificate.SHA2-256Digest, ", "))
+			String.Concat (" sslsigmethodserver=", String.Concat (SSL.Server.Certificate.SignatureMethod, ", "))
+			String.Concat (" sslciphersrvrt=", String.Concat (SSL.Server.Cipher, ", "))
+			String.Concat (" sslversionsrvr=", String.Concat (SSL.Server.Protocol, ", "))
+			String.Concat (" method=", String.Concat (Request.Header.FirstLine, ", "))
+			String.Concat (" ref=", String.Concat (Header.Request.Get ("Referer"), " "))
+
+Below is what each field represents
+	  ts=timestamp in WebReporter format
+	sip=Client/User IP
+	  usr=username
+	sprt=Source Port (Connection Port)
+	  cat=URL Categories
+	sev=Reputation
+	  media=Media Type From Header
+	rbytes=Bytes Received
+	  sbytes=Bytes Sent
+	agent=User Agent string
+	  virus=Virusname
+	blockid=Block ID
+	  block=Block Reason
+	app=Application Name
+	  dip=Destination IP
+	dprt=Destination Port
+	  src=Status Code
+	sslcertserialclient=SSL Certificate Serial Number
+	  sslcipherclient=Client Cipher Suite
+	sslversionclient=Client TLS Protocol
+	  sslcnsrvr=Server Certificate Common Name (CN)
+	sslsha1digestsrvr=Server Certificate SHA1Digest
+	  sslsha2digestsrvr=Server Certificate 256Digest
+  sslsigmethodserver=Server Certificate Signature Method
+  sslciphersrvrt=Server Cipher Suite
+  sslversionsrvr=Server TLS Protocol
+  method=Method (i.e. PUT, GET, POST, etc)
+    url=URL
+    ver=Protocol and Version
+  ref=Referer field
+
+The second rule in the rules set sends the log generated above to syslog as a level 5 message.

@@ -1,0 +1,28 @@
+{
+  "log_audit_a10.proxy_monthly": {
+    "log_source": "log_audit_a10.proxy_monthly",
+    "config": "log_audit_a10.proxy_monthly",
+    "elastic_index": "log_audit_a10.proxy_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output",
+      "s3_output"
+    ],
+    "kafka_input": {
+      "codec": "json"
+    }
+  },
+  "log_audit_a10.traffic_monthly": {
+    "log_source": "log_audit_a10.traffic_monthly",
+    "config": "log_audit_a10.traffic_monthly",
+    "elastic_index": "log_audit_a10.traffic_monthly_%{+xxxx.MM}",
+    "ignore_enrichments": [],
+    "output_list": [
+      "elastic_output",
+      "s3_output"
+    ],
+    "kafka_input": {
+      "codec": "plain"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description = PP SIEM job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/proofpoint_siem
+ExecStart = /root/miniconda/envs/pp_siem/bin/python pp_siem.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target
