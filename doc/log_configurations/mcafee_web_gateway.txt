@@ -1,3 +1,7 @@
+To prevent long URLs and URI's from truncating logs Under rsyslog.conf in File Editor of proxy appliance increase the $MaxMessageSize in order to ensure long URLs do not truncate log
+
+
+Custom log format
 Logs are sent SIEM using the syslog functionality of MWG.
 To send logs to MWG, the rsyslogd.conf file must be modified.  The most current version of this is documented in the installation process managed by the operations team.
 The maximum message size needs to be set at 6k ($MaxMessagesize 6k) and the remote server to send the logs must also be defined (daemon.notice@@ip.of.siem.server)
