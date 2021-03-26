@@ -1,3 +1,6 @@
+'''
+Generates a sample settings.json file with all configs so tha they can be tested for syntax errors in a CI environment
+'''
 import os, json
 
 cur_file_path = os.path.abspath(__file__)
