@@ -1,3 +1,8 @@
+'''
+This script sets up the configs and creates pipelines.yml based on settings.json.
+It's intended to be used on each of the logstash instance so they can get fair share of processing. 
+You are supposed to write your own logic to generate pipelines.yml if this strategy does not works well for you.
+'''
 import hashlib
 import json
 import os
