@@ -8,7 +8,7 @@ system logs can be a large drawback when using Elasticsearch as a SIEM (Security
 Cargill SIEM team has spent significant time on developing quality Logstash parsing processors for many well-known log
 vendors and wants to share this work with the community. In addition to Logstash processors, we have also included log 
 collection programs for API-based log collection, as well as the setup scripts used to generate our [pipeline-to-pipeline
-architecture](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html). 
+architecture] (https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html). 
 
 
 ## Quick start Instructions
