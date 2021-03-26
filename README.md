@@ -28,6 +28,6 @@ Please create an issue and someone will **try** to respond to your issue within 
 noted that while we will try revisit the repository semi-regularly, we are not held beholden to this response time (life happens).
 We welcome other individuals' answers and input as well.
 
-
+ 
 ## Licensing
 Apache-2.0
