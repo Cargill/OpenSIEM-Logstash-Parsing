@@ -4,15 +4,13 @@ import logging
 import os
 import time
 from logging.handlers import RotatingFileHandler
-
 import requests
-
+import kafka_producer
 import secret
-from kafka import KafkaProducer
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
@@ -21,48 +19,6 @@ formatter = logging.Formatter(
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-
-class Producer():
-    def __init__(self, topic):
-        kafka_uname = os.environ['KAFKA_USERNAME']
-        kafka_pwd = os.environ['KAFKA_PASSWORD']
-        kafka_hosts = os.environ['KAFKA_HOSTS']
-        ssl_truststore_file = '/opt/scripts/ca-cert.cer'
-
-        self.topic_name = topic
-
-        self.producer = KafkaProducer(
-            bootstrap_servers=kafka_hosts,
-            acks=1,
-            compression_type='snappy',
-            retries=5,
-            linger_ms=200,
-            batch_size=1000,
-            sasl_plain_username=kafka_uname,
-            sasl_plain_password=kafka_pwd,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="PLAIN",
-            # sasl_mechanism="SCRAM-SHA-512",
-            ssl_cafile=ssl_truststore_file,
-            api_version=(0, 10, 1)
-        )
-
-    def produce_message(self, message):
-        self.producer.send(self.topic_name, message)
-
-    def close(self):
-        self.producer.flush()
-        self.producer.close()
-        logger.info('closed')
-
-
-def set_creds():
-    secrets = secret.get_secret(
-        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
-    os.environ['KAFKA_USERNAME'] = secrets['username']
-    os.environ['KAFKA_PASSWORD'] = secrets['password']
-    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
 
 
 def delete_files(directory):
@@ -74,30 +30,6 @@ def delete_files(directory):
         path_to_file = os.path.join(logs_directory, file)
         logger.info(f"deleting {path_to_file}")
         os.remove(path_to_file)
-
-
-def produce_csv_to_kafka(topic_name, directory):
-    logs_directory = os.getcwd() + directory
-    producer = Producer(topic=topic_name)
-    logger.info('producer created')
-    try:
-        for file in os.listdir(logs_directory):
-            if file.endswith('.csv') and os.path.getsize(logs_directory + file) > 0:
-                logger.info(f'opening file {file}')
-                with open(logs_directory + file, 'r') as csv_file:
-                    # skip the csv header
-                    header = csv_file.readline()
-                    for row in csv_file:
-                        producer.produce_message(row.encode())
-                logger.info(f"completed read of file {file}")
-                logger.info('renaming file to _read')
-                os.rename(logs_directory + file, logs_directory + file + "_read")
-    except Exception as e:
-        logger.info(f"Error gathering the file or producing to Kafka: {e}")
-        raise e
-
-    finally:
-        producer.close()
 
 
 def download_mcp_log(username, password, customer_id, directory, minutes_before):
@@ -156,21 +88,6 @@ def run_mcp_download_job(minutes_before):
         logger.error(f"Error: {str(e)}")
 
 
-def run_kafka_producer_job():
-    set_creds()
-
-    # MCP daily
-    produce_csv_to_kafka("log_security_mcafee.mcp_daily", '/mcp/')
-    delete_files('/mcp/')
-    # MCP MADJV
-    produce_csv_to_kafka(
-        "log_security_mcafee.mcp_madjv_monthly", '/mcp_madjv/')
-    delete_files('/mcp_madjv/')
-    # MCP QA
-    produce_csv_to_kafka("log_security_mcafee.mcp_qa_monthly", '/mcp_qa/')
-    delete_files('/mcp_qa/')
-
-
 if __name__ == "__main__":
     '''
     This program will download mcp logs
@@ -203,7 +120,17 @@ if __name__ == "__main__":
         minutes_before = minutes_before - 5
 
         logger.info('mcp_produce started')
-        run_kafka_producer_job()
+        kafka_producer.set_creds()
+        # MCP daily
+        kafka_producer.produce_csv_to_kafka("log_security_mcafee.mcp_daily", '/mcp/')
+        delete_files('/mcp/')
+        # MCP MADJV
+        kafka_producer.produce_csv_to_kafka(
+            "log_security_mcafee.mcp_madjv_monthly", '/mcp_madjv/')
+        delete_files('/mcp_madjv/')
+        # MCP QA
+        kafka_producer.produce_csv_to_kafka("log_security_mcafee.mcp_qa_monthly", '/mcp_qa/')
+        delete_files('/mcp_qa/')
         logger.info('mcp_produce finished')
         with open(minutes_before_file, 'w') as minutes_file:
             minutes_before = 0 if minutes_before < 0 else minutes_before

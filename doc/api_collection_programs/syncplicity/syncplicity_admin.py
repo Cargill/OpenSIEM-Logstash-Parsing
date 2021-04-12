@@ -7,12 +7,12 @@ from logging.handlers import RotatingFileHandler
 import requests
 
 import secret
-from kafka import KafkaProducer
+import kafka_producer
 import base64
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
@@ -21,48 +21,6 @@ formatter = logging.Formatter(
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-
-class Producer():
-    def __init__(self, topic):
-        kafka_uname = os.environ['KAFKA_USERNAME']
-        kafka_pwd = os.environ['KAFKA_PASSWORD']
-        kafka_hosts = os.environ['KAFKA_HOSTS']
-        ssl_truststore_file = '/opt/scripts/ca-cert.cer'
-
-        self.topic_name = topic
-
-        self.producer = KafkaProducer(
-            bootstrap_servers=kafka_hosts,
-            acks=1,
-            compression_type='snappy',
-            retries=5,
-            linger_ms=200,
-            batch_size=1000,
-            sasl_plain_username=kafka_uname,
-            sasl_plain_password=kafka_pwd,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="PLAIN",
-            # sasl_mechanism="SCRAM-SHA-512",
-            ssl_cafile=ssl_truststore_file,
-            api_version=(0, 10, 1)
-        )
-
-    def produce_message(self, message):
-        self.producer.send(self.topic_name, message)
-
-    def close(self):
-        self.producer.flush()
-        self.producer.close()
-        logger.info('closed')
-
-
-def set_creds():
-    secrets = secret.get_secret(
-        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
-    os.environ['KAFKA_USERNAME'] = secrets['username']
-    os.environ['KAFKA_PASSWORD'] = secrets['password']
-    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
 
 
 def delete_files(directory):
@@ -74,34 +32,6 @@ def delete_files(directory):
         path_to_file = os.path.join(logs_directory, file)
         logger.info(f"deleting {path_to_file}")
         os.remove(path_to_file)
-
-
-def produce_csv_to_kafka(topic_name, directory):
-    set_creds()
-    logs_directory = os.getcwd() + directory
-    producer = Producer(topic=topic_name)
-    logger.info('producer created')
-    try:
-        for file in os.listdir(logs_directory):
-            if file.endswith('.csv') and os.path.getsize(logs_directory + file) > 0:
-                logger.info(f'opening file {file}')
-                # read in the file, for each line in CSV, encode in message batch
-                with open(logs_directory + file, 'r') as csv_file:
-                    # skip the csv header
-                    header = csv_file.readline()
-                    for row in csv_file:
-                        producer.produce_message(row.encode())
-                logger.info(f"completed read of file {file}")
-                # rename code
-                logger.info('renaming file to _read')
-                os.rename(logs_directory + file, logs_directory + file + "_read")
-    except Exception as e:
-        logger.info(f"Error gathering the file or producing to Kafka: {e}")
-        raise e
-
-    finally:
-        producer.close()
-
 
 
 def get_logs(token, file, directory, date):
@@ -163,6 +93,7 @@ def get_access_token(syncplicity_secrets):
 
 
 if __name__ == "__main__":
+    kafka_producer.set_creds()
     yesterday = datetime.date.today() - datetime.timedelta(days=1)
     yesterday.strftime('%yyyy-%mm-%dd')
     syncplicity_secrets = secret.get_secret(
@@ -179,5 +110,5 @@ if __name__ == "__main__":
             if "Audit administrator actions" in file["Filename"] and str(yesterday) in file["Filename"]:
                 logger.info(f"Found this file: {file['Filename']}")
                 get_logs(token, file, directory, yesterday)
-                produce_csv_to_kafka("log_audit_syncplicity.adm_monthly", directory)
+                kafka_producer.produce_csv_to_kafka("log_audit_syncplicity.adm_monthly", directory)
                 delete_files(directory)
