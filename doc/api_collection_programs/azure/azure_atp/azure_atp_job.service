@@ -1,0 +1,13 @@
+[Unit]
+Description = Azure ATP job daemon
+After = network.target auditd.service
+
+[Service]
+Type = simple
+WorkingDirectory = /opt/scripts/azure_graph
+ExecStart = /root/miniconda/envs/azure_atp/bin/python job_azure_atp.py
+ExecReload = /bin/kill -HUP $MAINPID
+SuccessExitStatus = 3
+Restart = always
+[Install]
+WantedBy = multi-user.target
