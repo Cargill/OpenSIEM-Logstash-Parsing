@@ -10,11 +10,11 @@ import secret
 from logging.handlers import RotatingFileHandler
 import requests
 import sns
-from kafka import KafkaProducer
+import kafka_producer
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
@@ -25,66 +25,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-class Producer():
-    def __init__(self, topic):
-        kafka_uname = os.environ['KAFKA_USERNAME']
-        kafka_pwd = os.environ['KAFKA_PASSWORD']
-        kafka_hosts = os.environ['KAFKA_HOSTS']
-        ssl_truststore_file = '/opt/scripts/ca-cert.cer'
-
-        self.topic_name = topic
-
-        self.producer = KafkaProducer(
-            bootstrap_servers=kafka_hosts,
-            acks=1,
-            compression_type='snappy',
-            retries=5,
-            linger_ms=200,
-            batch_size=1000,
-            request_timeout_ms=100000,
-            sasl_plain_username=kafka_uname,
-            sasl_plain_password=kafka_pwd,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="PLAIN",
-            # sasl_mechanism="SCRAM-SHA-512",
-            ssl_cafile=ssl_truststore_file,
-            api_version=(0, 10, 1)
-        )
-
-    def produce_message(self, message):
-        self.producer.send(self.topic_name, message)
-
-    def close(self):
-        self.producer.flush()
-        self.producer.close()
-        logger.info('closed')
-
-
-def set_creds():
-    secrets = secret.get_secret(
-        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
-    os.environ['KAFKA_USERNAME'] = secrets['username']
-    os.environ['KAFKA_PASSWORD'] = secrets['password']
-    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
-
-
-def run_kafka_producer_job(logs, topic_name):
-    set_creds()
-    producer = Producer(topic=topic_name)
-    logger.info('producer created')
-    try:
-        for l in logs:
-            to_send = json.dumps(l)
-            producer.produce_message(to_send.encode())
-    except Exception as e:
-        logger.info(f'Error gathering the file or producing to Kafka: {str(e)}')
-        raise e
-
-    finally:
-        producer.close()
-
-
-def pull_pp_trap_logs(minutes_before):
+def pull_pp_trap_logs(minutes_before, cluster):
     logger.info('retrieving secrets for pp_trap')
     current_time = datetime.datetime.utcnow()
     if minutes_before > 0:
@@ -96,7 +37,7 @@ def pull_pp_trap_logs(minutes_before):
 
     qs = {"created_after": twenty_minutes_ago, "created_before": fifteen_minutes_ago, "expand_events": "false"}
     try:
-        r = requests.get('https://10.47.172.28/api/incidents', params=qs,
+        r = requests.get(f'{cluster}/api/incidents', params=qs,
                          headers={'Authorization': prod.pp_trap_api_key}, verify=False)
         print(r.status_code)
 
@@ -132,13 +73,16 @@ if __name__ == "__main__":
             time.sleep(300)
 
         logger.info('TRAP query started')
-        logs = pull_pp_trap_logs(minutes_before)
+        secrets = secret.get_secret('ngsiem-aca-logstash-api',
+                                    ['pp_trap_cluster'])
+        logs = pull_pp_trap_logs(minutes_before, secrets['pp_trap_cluster'])
         logger.info('TRAP query finished')
         minutes_before = minutes_before - 5
 
         if logs:
             logger.info('TRAP_produce started')
-            run_kafka_producer_job(logs, 'test_log_security_proofpoint.trap_weekly')
+            kafka_producer.run_kafka_producer_job()
+            kafka_producer.run_kafka_producer_job(logs, 'test_log_security_proofpoint.trap_weekly')
             logger.info('TRAP_produce finished')
         else:
             logger.info("No logs for TRAP call.")
