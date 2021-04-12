@@ -12,7 +12,7 @@ import kafka_producer
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = 'log' + os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log_' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
