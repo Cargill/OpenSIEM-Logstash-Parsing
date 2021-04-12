@@ -4,15 +4,14 @@ import os
 import time
 import json
 from logging.handlers import RotatingFileHandler
-
+import kafka_producer
 import requests
 import secret
-from kafka import KafkaProducer
 
 
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
@@ -21,64 +20,6 @@ formatter = logging.Formatter(
 handler.setLevel(logging.DEBUG)
 handler.setFormatter(formatter)
 logger.addHandler(handler)
-
-
-class Producer():
-    def __init__(self, topic):
-        kafka_uname = os.environ['KAFKA_USERNAME']
-        kafka_pwd = os.environ['KAFKA_PASSWORD']
-        kafka_hosts = os.environ['KAFKA_HOSTS']
-        ssl_truststore_file = '/opt/scripts/ca-cert.cer'
-
-        self.topic_name = topic
-
-        self.producer = KafkaProducer(
-            bootstrap_servers=kafka_hosts,
-            acks=1,
-            compression_type='snappy',
-            retries=5,
-            linger_ms=200,
-            batch_size=1000,
-            sasl_plain_username=kafka_uname,
-            sasl_plain_password=kafka_pwd,
-            security_protocol="SASL_SSL",
-            sasl_mechanism="PLAIN",
-            # sasl_mechanism="SCRAM-SHA-512",
-            ssl_cafile=ssl_truststore_file,
-            api_version=(0, 10, 1)
-        )
-
-    def produce_message(self, message):
-        self.producer.send(self.topic_name, message)
-
-    def close(self):
-        self.producer.flush()
-        self.producer.close()
-        logger.info('closed')
-
-
-def set_creds():
-    secrets = secret.get_secret(
-        'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
-    os.environ['KAFKA_USERNAME'] = secrets['username']
-    os.environ['KAFKA_PASSWORD'] = secrets['password']
-    os.environ['KAFKA_HOSTS'] = secrets["kafka_hosts"]
-
-
-def run_kafka_producer_job(logs, topic_name):
-    set_creds()
-    producer = Producer(topic=topic_name)
-    logger.info('producer created')
-    try:
-        for l in logs:
-            to_send = json.dumps(l)
-            producer.produce_message(to_send.encode())
-    except Exception as e:
-        logger.info(f'Error gathering the file or producing to Kafka: {str(e)}')
-        raise e
-    finally:
-        producer.close()
-
 
 
 def query_forensics_api(principal, password, list_threatIds):
@@ -141,5 +82,5 @@ if __name__ == "__main__":
         unique_ids = tuple(threat_ids)
         forensics_logs = query_forensics_api(secrets["proofpoint_tap_user"], secrets["proofpoint_tap_password"], unique_ids)
         if forensics_logs["forensics"]:
-            run_kafka_producer_job(forensics_logs, "test_log_security_proofpoint.forensics_api_monthly")
+            kafka_producer.run_kafka_producer_job(forensics_logs, "test_log_security_proofpoint.forensics_api_monthly")
         logger.info(f"pp_forensics produce finished")
