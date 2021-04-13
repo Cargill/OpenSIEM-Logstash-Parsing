@@ -106,7 +106,9 @@ if __name__ == "__main__":
         Query pp_siem API (JSON format) from last 5 minutes
         send logs to kafka
         """
+        print("sleeping")
         time.sleep(299)
+        print("Done sleeping")
         logs = pull_pp_siem_logs()
         if logs["clicksPermitted"]:
             endpoint = "test_log_security_proofpoint.siem_api_clicks_monthly"
