@@ -79,7 +79,7 @@ def get_access_token(syncplicity_secrets):
     url = "https://api.syncplicity.com/oauth/token"
     auth = base64.b64encode((syncplicity_secrets["syncplicity_client_id"] + ":" + syncplicity_secrets["syncplicity_secret"]).encode('ascii')).decode('utf8')
 
-    headers = {'Authorization': 'Basic INSERT_TOKEN_HERE',
+    headers = {'Authorization': f'Basic {syncplicity_secrets["syncplicity_token"]}',
                'Sync-App-Token': syncplicity_secrets['syncplicity_app_key'],
                 'Content-Type': 'application/x-www-form-urlencoded'
                 }
@@ -98,8 +98,7 @@ if __name__ == "__main__":
     yesterday.strftime('%yyyy-%mm-%dd')
     syncplicity_secrets = secret.get_secret(
         'ngsiem-aca-logstash-api',
-        ['syncplicity_app_key', 'syncplicity_client_id', 'syncplicity_secret'])
-    # while True:
+        ['syncplicity_app_key', 'syncplicity_client_id', 'syncplicity_secret', 'syncplicity_token'])
 
     directory = '/syncplicity_admin/'
     token = get_access_token(syncplicity_secrets)
