@@ -7,10 +7,10 @@ from kafka import KafkaProducer
 from logging.handlers import RotatingFileHandler
 import os
 import logging
-import ssl
+from kafka.producer.future import RecordMetadata
 logger = logging.getLogger()
 logger.setLevel('INFO')
-log_path = os.path.basename(__file__).split('.')[0] + '.log'
+log_path = 'log_' + os.path.basename(__file__).split('.')[0] + '.log'
 
 handler = RotatingFileHandler(
     log_path, maxBytes=1000000, backupCount=5)
@@ -44,15 +44,30 @@ class KafkaClient(Client):
                 logger.error('I/O error: %s', e)
 
 
+def get_absolute_path(relative_path):
+    cwd = os.getcwd()
+    file_path = os.path.join(cwd, relative_path)
+    if not os.path.exists(file_path):
+        raise Exception('cannot find file', file_path)
+    return file_path
+
+
+def on_send_success(record_meta_data:RecordMetadata):
+    logger.info('success')
+    logger.info(record_meta_data)
+
+
+def on_send_error(arg):
+    logger.info('fail')
+    logger.info(arg)
+
+
 class Producer():
     def __init__(self, topic):
-        kafka_secrets = secret.get_secret(
-            'ngsiem-aca-kafka-config', ['username', 'password', 'kafka_hosts'])
-
-        kafka_uname = kafka_secrets['username']
-        kafka_pwd = kafka_secrets['password']
-        kafka_hosts = kafka_secrets['kafka_hosts']
-        ssl_truststore_file = '/opt/scripts/ca-cert.cer'
+        kafka_uname = os.environ['KAFKA_USERNAME']
+        kafka_pwd = os.environ['KAFKA_PASSWORD']
+        kafka_hosts = os.environ['KAFKA_HOSTS']
+        ssl_truststore_file = get_absolute_path('ca-cert.cer')
 
         self.topic_name = topic
 
@@ -60,18 +75,20 @@ class Producer():
             bootstrap_servers=kafka_hosts,
             acks=1,
             compression_type='snappy',
-            retries=5,
-            linger_ms=200,
-            batch_size=1000,
+            retries=1,
             sasl_plain_username=kafka_uname,
             sasl_plain_password=kafka_pwd,
             security_protocol="SASL_SSL",
-            sasl_mechanism="PLAIN",
-            # sasl_mechanism="SCRAM-SHA-512",
+            sasl_mechanism="SCRAM-SHA-512",
             ssl_cafile=ssl_truststore_file,
-            api_version=(0, 10, 1),
-            ssl_context=ssl._create_unverified_context()
+            ssl_check_hostname=True,
+            api_version=(2,)
         )
+
+    def send_batch(self, messages):
+        for message in messages:
+            self.producer.send(self.topic_name, message).add_callback(
+                on_send_success).add_errback(on_send_error)
 
     def produce_message(self, message):
         self.producer.send(self.topic_name, message)
@@ -90,7 +107,22 @@ def run_kafka_producer_job(log, producer):
         raise e
 
 
+def set_creds():
+    secrets = secret.get_secret('kafka_tgrc_team_producer',
+                                    ['KAFKA_USERNAME', 'KAFKA_PASSWORD', 'BOOTSTRAP_URL'])
+    os.environ['KAFKA_USERNAME'] = secrets['KAFKA_USERNAME']
+    os.environ['KAFKA_PASSWORD'] = secrets['KAFKA_PASSWORD']
+    os.environ['KAFKA_HOSTS'] = secrets['BOOTSTRAP_URL']
+
+
+class PollingException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+
 if __name__ == '__main__':
+    set_creds()
     pod_secrets = secret.get_secret('ngsiem-aca-logstash-api',
                                     ['proofpoint_pod_api_key_original_prod', 'proofpoint_websocket_key', 'proofpoint_pod_hosted_name'])
 
