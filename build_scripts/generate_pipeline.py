@@ -54,52 +54,19 @@ class LogstashHelper(object):
         # index of this instance in the array of all logstash instances
         self.my_index = int(os.environ['MY_INDEX'])
         self.sub_my_ip = os.environ['SUB_MY_IP']
-        self.elastic_user, self.elastic_pwd = self.__get_elastic_creds()
-        self.elastic_servers = self.__get_elastic_servers()
-        self.kafka_servers = self.__get_kafka_servers()
-        self.kafka_user, self.kafka_pwd = self.__get_kafka_creds()
+        self.elastic_user, self.elastic_pwd = os.environ['ELASTIC_USER'], os.environ['ELASTIC_PASSWORD']
+        self.elastic_connection_str = os.environ['ELASTIC_CONNECTION_STRING']
+        self.kafka_connection_str = os.environ['KAFKA_CONNECTION_STRING']
+        self.kafka_user, self.kafka_pwd = os.environ['KAFKA_USER'], os.environ['KAFKA_PASSWORD']
+        self.rack_id = os.environ['RACK_ID']
         self.logstash_api_secrets = self.__get_logstash_api_secret()
-        self.bucket_name = self.__get_bucket_name()
+        self.bucket_name = os.environ['S3_BUCKET_NAME']
         self.prod_only_logs = self.__get_prod_only_logs()
         self.num_indexers = self.__get_num_indexers()
-
-    def __get_elastic_creds(self):
-        elastic_master_secret = os.environ['ELASTIC_MASTER_SECRET']
-        elastic_master_json = jsonise(elastic_master_secret)
-        elastic_user = 'admin'
-        if self.deploy_env == 'dev':
-            elastic_pwd = elastic_master_json['admin_no_encryption']
-        else:
-            elastic_pwd = elastic_master_json['admin']
-        return elastic_user, elastic_pwd
-
-    def __get_elastic_servers(self):
-        elastic_worker_secret = os.environ['ELASTIC_WORKERS_SECRET']
-        elastic_worker_json = jsonise(elastic_worker_secret)
-        hot_ips = elastic_worker_json['hot_ips'].split(',')
-        return hot_ips
-
-    def __get_kafka_servers(self):
-        kafka_ips_secret = os.environ['KAFKA_IPS_SECRET']
-        kafka_ips_json = jsonise(kafka_ips_secret)
-        return kafka_ips_json['kafka_ips'].split(',')
-
-    def __get_kafka_creds(self):
-        kafka_creds_secret = os.environ['KAFKA_CREDS_SECRET']
-        kafka_creds_json = jsonise(kafka_creds_secret)
-        return kafka_creds_json['KAFKA_USER'], kafka_creds_json['KAFKA_PASSWORD']
 
     def __get_logstash_api_secret(self):
         logstash_api_sec = os.environ['LOGSTASH_API_SECRET']
         return jsonise(logstash_api_sec)
-
-    def __get_bucket_name(self):
-        if self.deploy_env == 'dev':
-            return 'acap-archives-dev'
-        elif self.deploy_env == 'prod':
-            return 'acap-archives-prod'
-        else:
-            return 'acap-archives-test'
 
     def __get_num_indexers(self):
         general_settings = load_general_settings(self.logstash_dir)
@@ -112,18 +79,18 @@ class LogstashHelper(object):
 
     def __add_custom_input_field(self, conf_file: str, config):
         comma_separated_outputs = ','.join(config["output_list"])
+        tags_line = ''
         if config["ignore_enrichments"]:
             tags = '[ "{}" ]'.format('", "'.join(config["ignore_enrichments"]))
             # if the list is empty it produces [""] which might break config
-        else:
-            tags = '[ ]'
+            tags_line = f'\n   add_tag => {tags}'
         add_fields_block = 'add_field => {\n' + \
             f'      "[@metadata][index]" => "{config["log_source"]}"\n' + \
             f'      "[@metadata][config]" => "{config["config"]}"\n' + \
             f'      "[@metadata][output]" => "{config["elastic_index"]}"\n' + \
             f'      "[@metadata][output_pipelines]" => [{comma_separated_outputs}]\n' + \
-            '    }\n' +\
-            f'   tags => {tags}'
+            '    }' +\
+            f'{tags_line}'
 
         file_contents = None
         with open(conf_file, encoding='UTF-8') as config:
@@ -142,18 +109,25 @@ class LogstashHelper(object):
         # get the part after last slash and then the part before .conf
         config_name = conf_file_path.split('/')[-1].split('.conf')[0]
         log_type = config_name.split('_')[-1]
-        max_poll_records = 1000
-        consumer_threads = 4
+        max_poll_records = 200
+        consumer_threads = 2
         if log_type == 'daily':
-            consumer_threads = 16
+            # default consumer threads to 18 partitions being processed on one node each in 3 regions
+            #   18/3=6
+            consumer_threads = 6
 
         general_settings = load_general_settings(self.logstash_dir)
         processing_config = general_settings['processing_config']
         if config_name in processing_config.keys():
             # needs special treatment
-            num_partitions = int(processing_config[config_name]['kafka_partitions'])
             num_nodes = int(processing_config[config_name]['nodes'])
-            consumer_threads = 1 if num_nodes > num_partitions else int(num_partitions/num_nodes)
+            try:
+                # kafka_partitions key won't exist for non kafka logs
+                # for a kafka log use default consumer_threads value if the key is not found
+                num_partitions = int(processing_config[config_name]['kafka_partitions'])
+                consumer_threads = 1 if num_nodes > num_partitions else int(num_partitions/num_nodes)
+            except KeyError:
+                pass
 
         vars_dict['KAFKA_TOPIC'] = config_name
         vars_dict['KAFKA_GROUP_ID'] = config_name
@@ -180,16 +154,14 @@ class LogstashHelper(object):
             config.write(file_contents)
 
     def replace_vars(self):
-        kafka_servers_str = ':9092,'.join(self.kafka_servers) + ':9092'
-        elastic_servers_str = '"' + \
-            ':9200", "'.join(self.elastic_servers) + ':9200"'
         vars_dict = {
             'KAFKA_JAAS_PATH': '/usr/share/logstash/config/kafka_jaas.conf',
             'KAFKA_CLIENT_TRUSTSTORE': '/usr/share/logstash/config/kafka_client_truststore.jks',
             'KAFKA_TRUSTSTORE_PASSWORD': 'changeit',
-            'KAFKA_BOOTSTRAP_SERVERS': kafka_servers_str,
+            'KAFKA_BOOTSTRAP_SERVERS': self.kafka_connection_str,
+            'RACK_ID': self.rack_id,
             'LOGSTASH_PLUGIN_ID': f'logstash_kafka-{self.sub_my_ip}',
-            'ELASTIC_SERVERS': elastic_servers_str,
+            'ELASTIC_SERVERS': self.elastic_connection_str,
             'ELASTIC_USER': self.elastic_user,
             'ELASTIC_PASSWORD': self.elastic_pwd,
             'AZURE_AUDIT_CONN': self.logstash_api_secrets['azure_audit_conn'],
@@ -205,10 +177,7 @@ class LogstashHelper(object):
             'AZURE_O365_CONSUMER': self.logstash_api_secrets['azure_o365_consumer'],
             'AZURE_TCS_SECURITY_CONSUMER': self.logstash_api_secrets['azure_tcs_security_consumer'],
             'AZURE_O365_DLP_CONSUMER': self.logstash_api_secrets['azure_o365_dlp_consumer'],
-            'PROOFPOINT_AUTH': self.logstash_api_secrets['proofpoint_auth'],
-            'OKTA_AUTH': self.logstash_api_secrets['okta_auth'],
             'BUCKET_NAME': self.bucket_name,
-            'BITSIGHT_AUTH': self.logstash_api_secrets['bitsight_auth'],
             'NC4_API_KEY': self.logstash_api_secrets['nc4_api_key'],
             'NC4_API_URI': self.logstash_api_secrets['nc4_api_uri'],
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
@@ -221,12 +190,17 @@ class LogstashHelper(object):
             self.logstash_dir, 'config', 'inputs', 'kafka')
         processor_dir = os.path.join(self.logstash_dir, 'config', 'processors')
         output_dir = os.path.join(self.logstash_dir, 'config', 'outputs')
+        enrichment_dir = os.path.join(self.logstash_dir, 'config', 'enrichments')
 
         settings = self.load_settings()
         azure_inputs = os.listdir(azure_inputs_dir)
         azure_inputs = list(filter(lambda file_name:file_name.endswith('.conf'), azure_inputs))
         for input_name in azure_inputs:
-            config = settings[input_name[:-5]]  # stripping .conf
+            try:
+                config = settings[input_name[:-5]]  # stripping .conf
+            except KeyError:
+                # User doesn't want to process that log and that's okay
+                continue
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
                 continue
             vars_dict['PIPELINE_NAME'] = '"' + config['log_source'] + '"'
@@ -264,6 +238,10 @@ class LogstashHelper(object):
         outputs = list(filter(lambda file_name:file_name.endswith('.conf'), outputs))
         for output_name in outputs:
             self.__replace_vars(f'{output_dir}/{output_name}', vars_dict)
+        enrichments = os.listdir(enrichment_dir)
+        enrichments = list(filter(lambda file_name:file_name.endswith('.conf'), enrichments))
+        for enrichment_name in enrichments:
+            self.__replace_vars(f'{enrichment_dir}/{enrichment_name}', vars_dict)
 
     def __get_log_distribution(self, num_logs: int, num_servers: int, arr_idx: int, logs: list):
         '''
@@ -412,18 +390,18 @@ class LogstashHelper(object):
             if log_source.startswith('test_'):
                 log_type = 'monthly'
             if log_type == 'daily':
-                pipeline_workers = 32
-            elif log_type == 'weekly':
                 pipeline_workers = 8
+            elif log_type == 'weekly':
+                pipeline_workers = 4
             elif log_type == 'monthly':
-                pipeline_workers = 4
+                pipeline_workers = 2
             else:
-                pipeline_workers = 4
+                pipeline_workers = 2
 
             if log_source in self.special_logs:
-                pipeline_workers = 64
+                pipeline_workers = 16
 
-            batch_size = 1000
+            batch_size = 200
             processor_pipeline_entry = ''
             processor_pipeline_entry = f'- pipeline.id: {processor_pipeline_id}\n' + \
                 f'  pipeline.batch.delay: 50\n' + \
@@ -462,14 +440,17 @@ class LogstashHelper(object):
         '''
         log_file_path = f'{self.logstash_dir}/config/log4j2.properties'
         log_file_str = ''
-        with open(log_file_path, 'r', encoding='UTF-8') as jaas_file:
-            log_file_str = jaas_file.read()
+        # return if user does not want to use custom log4j2.properties
+        if not os.path.exists(log_file_path):
+            return
+        with open(log_file_path, 'r', encoding='UTF-8') as log_settings:
+            log_file_str = log_settings.read()
         import socket
         hostname = socket.gethostname()
         log_file_str = log_file_str.replace(
             'VAR_HOSTNAME', hostname)
-        with open(log_file_path, 'w', encoding='UTF-8') as jaas_file:
-            jaas_file.write(log_file_str)
+        with open(log_file_path, 'w', encoding='UTF-8') as log_settings:
+            log_settings.write(log_file_str)
 
     def load_settings(self):
         settings = {}
@@ -608,52 +589,6 @@ class LogstashHelper(object):
                 change_file.write(new_content)
             logger.info("settings changed")
 
-
-def setup_test_env():
-    '''
-        Setup dummy values in environment variables.
-    '''
-    os.environ['LOGSTASH_SERVERS'] = ','.join(['1'])
-    os.environ['ELASTIC_MASTER_SECRET'] = json.dumps({
-        'admin': 'admin'
-    })
-    os.environ['ELASTIC_WORKERS_SECRET'] = json.dumps({
-        'hot_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
-    })
-    os.environ['KAFKA_IPS_SECRET'] = json.dumps({
-        'kafka_ips': '0.0.0.1,0.0.0.2,0.0.0.3,0.0.0.4'
-    })
-    os.environ['KAFKA_CREDS_SECRET'] = json.dumps({
-        'KAFKA_USER': 'kafka_username',
-        'KAFKA_PASSWORD': 'kafka_password',
-    })
-    os.environ['LOGSTASH_API_SECRET'] = json.dumps({
-        'azure_audit_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_operational_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_signin_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_o365_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_tcs_security_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_o365_dlp_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'azure_audit_consumer': 'azure_audit_consumer',
-        'azure_operational_consumer': 'azure_operational_consumer',
-        'azure_signin_consumer': 'azure_signin_consumer',
-        'azure_o365_consumer': 'azure_o365_consumer',
-        'azure_tcs_security_consumer': 'azure_o365_consumer',
-        'azure_o365_dlp_consumer': 'cg-production-operation',
-        'azure_storage_conn': 'DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net',
-        'proofpoint_auth': 'proofpoint_auth',
-        'okta_auth': 'okta_auth',
-        'bitsight_auth': 'byeKS!!',
-        'nc4_api_key': 'nc4_api_key',
-        'nc4_api_uri': 'nc4_api_uri',
-        'azure_atp_consumer': 'azure_atp_consumer',
-        'azure_atp_conn': 'Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path',
-        'memcached_address' : 'localhost',
-    })
-    os.environ['MY_INDEX'] = '1'
-    os.environ['SUB_MY_IP'] = '10615222'
-
-
 def load_general_settings(root_dir):
     general_settings = {}
     general_settings_path = os.path.join(
@@ -681,10 +616,6 @@ if __name__ == "__main__":
         logstash_dir = os.path.dirname(build_scripts_dir)
         pipeline_file_path = os.path.join(
             logstash_dir, 'config', 'pipelines.yml')
-
-        if os.environ['DEPLOY_ENV'] == 'test':
-            logger.info('setting up test env')
-            setup_test_env()
 
         helper = LogstashHelper(logstash_dir)
         helper.generate_files()
