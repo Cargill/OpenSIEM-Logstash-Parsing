@@ -31,8 +31,8 @@ def pull_atp_alerts(token):
     default_headers = {'Authorization': f'Bearer {token}', 'Content-Type': 'application/json',
                        'Accept': 'application/json'}
     current_time = datetime.datetime.utcnow()
-    fifteen_minutes_ago = (current_time - datetime.timedelta(minutes=15)).isoformat() + "Z"
-    url = f"https://api.securitycenter.microsoft.com/api/alerts?$filter=alertCreationTime+ge+{fifteen_minutes_ago}"
+    ten_minutes_ago = (current_time - datetime.timedelta(minutes=10)).isoformat() + "Z"
+    url = f"https://api.securitycenter.microsoft.com/api/alerts?$filter=alertCreationTime+ge+{ten_minutes_ago}"
     logs = requests.get(url, headers=default_headers)
     logger.info(f"Logs: {logs.json()}")
     return logs.json()
