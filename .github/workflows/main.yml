@@ -36,6 +36,8 @@ jobs:
 
     steps:
     - name: Set logstash variables to be used accross steps
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         export LOGSTASH_VERSION=7.12.0
         export LOGSTASH_HOME="/usr/share/logstash"
