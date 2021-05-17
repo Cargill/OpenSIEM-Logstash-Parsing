@@ -75,5 +75,6 @@ jobs:
         \
         rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
     - name: List contents of logstash home dir
+      if: steps.cache-logstash.outputs.cache-hit == 'true'
       run: |
         sudo ls -al ${LOGSTASH_HOME}
