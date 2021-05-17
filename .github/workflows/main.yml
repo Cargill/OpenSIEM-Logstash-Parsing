@@ -76,4 +76,4 @@ jobs:
         rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
     - name: List contents of logstash home dir
       run: |
-        ls -l /usr/share/logstash
+        sudo ls -al ${LOGSTASH_HOME}
