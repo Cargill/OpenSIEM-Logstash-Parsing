@@ -37,6 +37,7 @@ jobs:
     steps:
     - name: download logstash
       run: |
+        export LOGSTASH_VERSION=7.12.0
         export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
         export LOGSTASH_HOME="/usr/share/logstash"
         sudo apt-get install -qqy --no-install-recommends ca-certificates curl
