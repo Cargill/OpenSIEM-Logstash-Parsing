@@ -36,13 +36,13 @@ jobs:
 
     steps:
     - name: Set logstash variables to be used accross steps
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+      # env:
+      #   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         export LOGSTASH_VERSION=7.12.0
         export LOGSTASH_HOME="/usr/share/logstash"
-        echo "::set-env name=LOGSTASH_VERSION::$LOGSTASH_VERSION"
-        echo "::set-env name=LOGSTASH_HOME::$LOGSTASH_HOME"
+        echo "LOGSTASH_VERSION=$LOGSTASH_VERSION" >> $GITHUB_ENV
+        echo "LOGSTASH_HOME=$LOGSTASH_HOME" >> $GITHUB_ENV
     - name: Cache logstash directory
       id: cache-logstash
       uses: actions/cache@v2.1.5
@@ -74,3 +74,6 @@ jobs:
         tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
         \
         rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
+    - name: List contents of logstash home dir
+      run: |
+        ls -l /usr/share/logstash
