@@ -39,7 +39,7 @@ jobs:
       run: |
         export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
         export LOGSTASH_HOME="/usr/share/logstash"
-        apt-get install -qqy --no-install-recommends ca-certificates curl
+        sudo apt-get install -qqy --no-install-recommends ca-certificates curl
         set -x\
         && mkdir ${LOGSTASH_HOME} \
         && export DOWNLOAD_URL=https://artifacts.elastic.co/downloads/logstash \
@@ -56,10 +56,6 @@ jobs:
           gpg --batch --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
         \
         tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
-        \
-        groupadd -r logstash -g ${LOGSTASH_GID} \
-        && useradd -r -s /usr/sbin/nologin -d ${LOGSTASH_HOME} -c "Logstash service user" -u ${LOGSTASH_UID} -g logstash logstash \
-        && chown -R logstash:logstash ${LOGSTASH_HOME}; \
         \
         rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
 
