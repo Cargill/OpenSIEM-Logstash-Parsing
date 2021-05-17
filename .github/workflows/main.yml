@@ -32,7 +32,6 @@ jobs:
     - name: Generate pipelines
       env:
         DEPLOY_ENV: test
-        DEPLOY_ENV: test
         LOGSTASH_SERVERS: 127.0.0.1
         MY_INDEX: '1'
         SUB_MY_IP: abc
