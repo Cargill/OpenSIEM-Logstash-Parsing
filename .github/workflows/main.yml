@@ -9,35 +9,52 @@ on:
     branches: [ github-actions ]
 
 jobs:
-  # pylint:
+  python:
+    runs-on: ubuntu-latest
 
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python 3.9
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: 3.9
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install flake8 pytest
-  #       if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-  #   - name: Lint with flake8
-  #     run: |
-  #       # stop the build if there are Python syntax errors or undefined names
-  #       flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-  #       # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-  #       flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+    # - name: Install dependencies
+    #   run: |
+    #     python -m pip install --upgrade pip
+    #     pip install flake8 pytest
+    #     if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    # - name: Lint with flake8
+    #   run: |
+    #     # stop the build if there are Python syntax errors or undefined names
+    #     flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+    #     # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+    #     flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Generate pipelines
+    env:
+      DEPLOY_ENV: test
+      DEPLOY_ENV: test
+      LOGSTASH_SERVERS: 127.0.0.1
+      MY_INDEX: '1'
+      SUB_MY_IP: abc
+      ELASTIC_USER: elastic_user
+      ELASTIC_PASSWORD: elastic_pass
+      ELASTIC_CONNECTION_STRING: '"127.0.0.1:9200", "127.0.0.2:9200"'
+      KAFKA_CONNECTION_STRING: kafkahost:9000
+      KAFKA_USER: kafka_uname
+      KAFKA_PASSWORD: kafka_pwd
+      RACK_ID: some_id
+      S3_BUCKET_NAME: some_name
+      LOGSTASH_API_SECRET: '{"azure_audit_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_operational_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_signin_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_tcs_security_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_dlp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_audit_consumer" : "azure_audit_consumer",  "azure_operational_consumer" : "azure_operational_consumer",  "azure_signin_consumer" : "azure_signin_consumer",  "azure_o365_consumer" : "azure_o365_consumer",  "azure_tcs_security_consumer" : "azure_o365_consumer",  "azure_o365_dlp_consumer" : "cg-production-operation",  "azure_storage_conn" : "DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net",  "nc4_api_key" : "nc4_api_key",  "nc4_api_uri" : "nc4_api_uri",  "azure_atp_consumer" : "azure_atp_consumer",  "azure_atp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "memcached_address"  :"\"127.0.0.1\",\"127.0.0.2\""}'
+    run: |
+      ls -l
+      python build_scripts/generate_settings.py
+      python build_scripts/generate_pipeline.py
   
   logstash-setup:
     runs-on: ubuntu-latest
 
     steps:
     - name: Set logstash variables to be used accross steps
-      # env:
-      #   ACTIONS_ALLOW_UNSECURE_COMMANDS: true
       run: |
         export LOGSTASH_VERSION=7.12.0
         export LOGSTASH_HOME="/usr/share/logstash"
@@ -47,11 +64,10 @@ jobs:
       id: cache-logstash
       uses: actions/cache@v2.1.5
       with:
-        # A list of files, directories, and wildcard patterns to cache and restore
         path: ${LOGSTASH_HOME}
-        # An explicit key for restoring and saving the cache
         key: ${LOGSTASH_VERSION}
     - name: Download logstash if not cached already
+      # Unable to use cached directory. Setting up every time for now. Shall revisit later.
       # if: steps.cache-logstash.outputs.cache-hit != 'true'
       run: |
         export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
@@ -74,7 +90,17 @@ jobs:
         tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
         \
         rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
+        ${LOGSTASH_HOME}/bin/logstash-plugin install --no-verify \
+        && ${LOGSTASH_HOME}/bin/logstash-plugin install \
+        logstash-input-okta_system_log \
+        logstash-filter-json_encode
     - name: List contents of logstash home dir
-      if: steps.cache-logstash.outputs.cache-hit == 'true'
       run: |
         sudo ls -al ${LOGSTASH_HOME}
+        cp -r config/* /usr/share/logstash/config/
+        mkdir -p /mnt/s3fs_geoip
+        touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
+        touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
+        touch /usr/share/logstash/config/kafka_client_truststore.jks
+        touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
+        ${LOGSTASH_HOME}/bin/logstash --config.test_and_exit
