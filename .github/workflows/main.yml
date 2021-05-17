@@ -52,7 +52,7 @@ jobs:
         # An explicit key for restoring and saving the cache
         key: ${LOGSTASH_VERSION}
     - name: Download logstash if not cached already
-      if: steps.cache-logstash.outputs.cache-hit != 'true'
+      # if: steps.cache-logstash.outputs.cache-hit != 'true'
       run: |
         export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
         sudo apt-get install -qqy --no-install-recommends ca-certificates curl
