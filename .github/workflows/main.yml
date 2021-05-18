@@ -49,58 +49,54 @@ jobs:
         sudo chmod -R 777 /data
         python build_scripts/generate_settings.py
         python build_scripts/generate_pipeline.py
-  
-  logstash-setup:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Set logstash variables to be used accross steps
+      - name: Set logstash variables to be used accross steps
       run: |
         export LOGSTASH_VERSION=7.12.0
         export LOGSTASH_HOME="/usr/share/logstash"
         echo "LOGSTASH_VERSION=$LOGSTASH_VERSION" >> $GITHUB_ENV
         echo "LOGSTASH_HOME=$LOGSTASH_HOME" >> $GITHUB_ENV
-    - name: Cache logstash directory
-      id: cache-logstash
-      uses: actions/cache@v2.1.5
-      with:
-        path: ${LOGSTASH_HOME}
-        key: ${LOGSTASH_VERSION}
-    - name: Download logstash if not cached already
-      # Unable to use cached directory. Setting up every time for now. Shall revisit later.
-      # if: steps.cache-logstash.outputs.cache-hit != 'true'
-      run: |
-        export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
-        sudo apt-get install -qqy --no-install-recommends ca-certificates curl
-        set -x\
-        && mkdir ${LOGSTASH_HOME} \
-        && export DOWNLOAD_URL=https://artifacts.elastic.co/downloads/logstash \
-        && export LOGSTASH_BINARY=logstash-oss-${LOGSTASH_VERSION}-linux-x86_64.tar.gz \
-        && cd /tmp \
-        && curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}" \
-        && curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}.sha512" \
-        && sha512sum --check "${LOGSTASH_BINARY}.sha512"; \
-        curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}.asc" \
-          && export GNUPGHOME="$(mktemp -d)"; \
-          ( gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver pgp.mit.edu --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver keyserver.pgp.com --recv-keys "$LOGSTASH_GPG_KEY" ); \
-          gpg --batch --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
-        \
-        tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
-        \
-        rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
-        ${LOGSTASH_HOME}/bin/logstash-plugin install --no-verify \
-        && ${LOGSTASH_HOME}/bin/logstash-plugin install \
-        logstash-input-okta_system_log \
-        logstash-filter-json_encode
-    - name: List contents of logstash home dir
-      run: |
-        sudo ls -al ${LOGSTASH_HOME}
-        cp -r config/* /usr/share/logstash/config/
-        mkdir -p /mnt/s3fs_geoip
-        touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
-        touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
-        touch /usr/share/logstash/config/kafka_client_truststore.jks
-        touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
-        ${LOGSTASH_HOME}/bin/logstash --config.test_and_exit
+      # - name: Cache logstash directory
+      #   id: cache-logstash
+      #   uses: actions/cache@v2.1.5
+      #   with:
+      #     path: ${LOGSTASH_HOME}
+      #     key: ${LOGSTASH_VERSION}
+      - name: Download logstash if not cached already
+        # Unable to use cached directory. Setting up every time for now. Shall revisit later.
+        # if: steps.cache-logstash.outputs.cache-hit != 'true'
+        run: |
+          export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
+          sudo apt-get install -qqy --no-install-recommends ca-certificates curl
+          set -x\
+          && mkdir ${LOGSTASH_HOME} \
+          && export DOWNLOAD_URL=https://artifacts.elastic.co/downloads/logstash \
+          && export LOGSTASH_BINARY=logstash-oss-${LOGSTASH_VERSION}-linux-x86_64.tar.gz \
+          && cd /tmp \
+          && curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}" \
+          && curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}.sha512" \
+          && sha512sum --check "${LOGSTASH_BINARY}.sha512"; \
+          curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}.asc" \
+            && export GNUPGHOME="$(mktemp -d)"; \
+            ( gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$LOGSTASH_GPG_KEY" \
+            || gpg --keyserver pgp.mit.edu --recv-keys "$LOGSTASH_GPG_KEY" \
+            || gpg --keyserver keyserver.pgp.com --recv-keys "$LOGSTASH_GPG_KEY" ); \
+            gpg --batch --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
+          \
+          tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
+          \
+          rm -rf "$GNUPGHOME" "${LOGSTASH_BINARY}" "${LOGSTASH_BINARY}.sha512" "${LOGSTASH_BINARY}.asc" || true;
+          ${LOGSTASH_HOME}/bin/logstash-plugin install --no-verify \
+          && ${LOGSTASH_HOME}/bin/logstash-plugin install \
+          logstash-input-okta_system_log \
+          logstash-filter-json_encode
+      - name: List contents of logstash home dir
+        run: |
+          ls -al ./
+          ls -al ${LOGSTASH_HOME}
+          cp -r config/* /usr/share/logstash/config/
+          mkdir -p /mnt/s3fs_geoip
+          touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
+          touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
+          touch /usr/share/logstash/config/kafka_client_truststore.jks
+          touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
+          ${LOGSTASH_HOME}/bin/logstash --config.test_and_exit
