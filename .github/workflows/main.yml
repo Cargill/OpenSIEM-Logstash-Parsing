@@ -9,7 +9,7 @@ on:
     branches: [ github-actions ]
 
 jobs:
-  python:
+  syntax-check:
     runs-on: ubuntu-latest
 
     steps:
@@ -91,10 +91,9 @@ jobs:
         logstash-filter-json_encode
     - name: List contents of logstash home dir
       run: |
-        ls -al ./
-        ls -al ${LOGSTASH_HOME}
         cp -r config/* /usr/share/logstash/config/
-        mkdir -p /mnt/s3fs_geoip
+        sudo mkdir -p /mnt/s3fs_geoip
+        sudo chmod -R 777 /mnt/s3fs_geoip
         touch /mnt/s3fs_geoip/GeoLite2-City.mmdb
         touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
         touch /usr/share/logstash/config/kafka_client_truststore.jks
