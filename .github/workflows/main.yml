@@ -100,5 +100,8 @@ jobs:
         touch /usr/share/logstash/config/kafka_client_truststore.jks
         touch /usr/share/logstash/config/Cargill_Internal_Root_CA_2.cer
     - name: Test configs for syntax errors
+      env:
+        PUBLIC_DNS: 127.0.0.1 127.0.0.2
+        PRIVATE_DNS: 127.0.0.3 127.0.0.4
       run: |
         ${LOGSTASH_HOME}/bin/logstash --config.test_and_exit
