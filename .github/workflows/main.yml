@@ -4,9 +4,11 @@ name: OpenSIEM
 
 on:
   push:
-    branches: [ github-actions ]
+    paths:
+      - 'config/**'
+      - 'build_scripts/**'
   pull_request:
-    branches: [ github-actions ]
+    branches: [ master, develop ]
 
 jobs:
   syntax-check:
