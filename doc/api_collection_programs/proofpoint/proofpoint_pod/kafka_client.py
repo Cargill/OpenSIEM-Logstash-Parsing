@@ -6,6 +6,7 @@ import secret
 from kafka import KafkaProducer
 from logging.handlers import RotatingFileHandler
 import os
+import time
 import logging
 from kafka.producer.future import RecordMetadata
 logger = logging.getLogger()
@@ -133,4 +134,5 @@ if __name__ == '__main__':
         ping_interval=5,
         msg_type="message", trace=True)
     client = KafkaClient(config, [pod_secrets["proofpoint_pod_hosted_name"], pod_secrets["proofpoint_pod_api_key_original_prod"]], logger)
+ #   time.sleep(30)
     client.run()

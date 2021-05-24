@@ -32,7 +32,7 @@ def delete_files(directory):
         os.remove(path_to_file)
 
 
-def download_mcp_log(username, password, customer_id, directory, minutes_before):
+def download_mcp_log(username, password, customer_id, directory, minutes_before, api_version):
     current_time = datetime.datetime.now()
     if minutes_before > 0:
         current_time = current_time - \
@@ -44,7 +44,7 @@ def download_mcp_log(username, password, customer_id, directory, minutes_before)
     twenty_minutes_ago = current_time - datetime.timedelta(minutes=20)
     CYCLE_FROM = int(twenty_minutes_ago.timestamp())
     FILTERS = f"filter.requestTimestampFrom={CYCLE_FROM}&filter.requestTimestampTo={CYCLE_TO}&order.0.requestTimestamp=asc"
-    headers = {'Accept': 'text/csv', 'X-MWG-API-Version': '3'}
+    headers = {'Accept': 'text/csv', 'X-MWG-API-Version': f'{api_version}'}
     url = f"https://msg.mcafeesaas.com/mwg/api/reporting/forensic/{customer_id}?{FILTERS}"
 
     try:
@@ -71,19 +71,19 @@ def run_mcp_download_job(minutes_before):
     try:
         # normal mcp
         download_mcp_log(
-            mcp_secrets['mcp_username'], mcp_secrets['mcp_password'], mcp_secrets['mcp_customer_id'], '/mcp/', minutes_before)
+            mcp_secrets['mcp_username'], mcp_secrets['mcp_password'], mcp_secrets['mcp_customer_id'], '/mcp/', minutes_before, 5)
     except Exception as e:
         logger.error(f"Error: {str(e)}")
     try:
         # madjv mcp
         download_mcp_log(mcp_secrets['mcp_madjv_username'], mcp_secrets['mcp_madjv_password'],
-                         mcp_secrets['mcp_madjv_customer_id'], '/mcp_madjv/', minutes_before)
+                         mcp_secrets['mcp_madjv_customer_id'], '/mcp_madjv/', minutes_before, 5)
     except Exception as e:
         logger.error(f"Error: {str(e)}")
     try:
         # qa mcp
         download_mcp_log(mcp_secrets['mcp_qa_username'], mcp_secrets['mcp_qa_password'],
-                         mcp_secrets['mcp_qa_customer_id'], '/mcp_qa/', minutes_before)
+                         mcp_secrets['mcp_qa_customer_id'], '/mcp_qa/', minutes_before, 5)
     except Exception as e:
         logger.error(f"Error: {str(e)}")
 
