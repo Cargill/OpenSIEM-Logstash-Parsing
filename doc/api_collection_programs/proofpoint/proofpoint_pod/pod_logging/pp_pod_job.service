@@ -4,8 +4,8 @@ After = network.target auditd.service
 
 [Service]
 Type = simple
-WorkingDirectory = /opt/scripts/proofpoint_pod
-ExecStart = /root/miniconda/envs/pp_pod/bin/python kafka_client.py
+WorkingDirectory = /opt/scripts/pod_test
+ExecStart = /root/miniconda/envs/proofpoint/bin/python kafka_client.py
 ExecReload = /bin/kill -HUP $MAINPID
 SuccessExitStatus = 3
 Restart = always
