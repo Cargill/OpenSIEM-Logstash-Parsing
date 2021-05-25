@@ -32,353 +32,308 @@ filter {
       remove_tag => ["disable_dns_enrichment"]
     }
   } else {
-    if [host.hostname] and [host.hostname] =~ "^\d+\.\d+\.\d+\.\d+$" and ![host.ip] {
+    ### Reverse lookup
+    if [client.ip] and ![client.ip][0] and ![client.address] {
       mutate {
-        copy => { "host.hostname" =>  "host.ip" }
-        remove_field => [ "host.hostname" ]
+        add_field => { "client.address" => "%{client.ip}" }
       }
-    }
-    ### DNS lookup
-    if [host.ip] and ![host.hostname] {
-      ### Exclude loopback address
-      if [host.ip] != "^127\.\d+\.\d+\.\d+$" {
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["client.address"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [client.address] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
         mutate {
-          add_field => { "host.hostname" => "%{host.ip}" }
-        }
-        ### Private vs Public
-        if [host.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [host.ip] =~ "^10\.\d+\.\d+\.\d+$" or [host.ip] =~ "^192.168\.\d+\.\d+$" or [host.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["host.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["host.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        }
-        if ![host.domain] and [host.domain] !~ "^\d+\.\d+\.\d+\.\d+$" {
-          dissect {
-            mapping => {
-              "host.hostname" => "%{host.hostname}.%{host.domain}"
-            }
-          }
+          remove_field => ["client.address"]
         }
       }
     }
-    if [client.address] and [client.address] =~ "^\d+\.\d+\.\d+\.\d+$" and ![client.ip] {
+    if [host.ip] and ![host.ip][0] and ![host.hostname] {
       mutate {
-        copy => { "client.address" =>  "client.ip" }
-        remove_field => [ "client.address" ]
+        add_field => { "host.hostname" => "%{host.ip}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["host.hostname"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
       }
     }
-    ### DNS lookup
-    if [client.ip] and ![client.address] {
-      ### Exclude loopback address
-      if [client.ip] != "^127\.\d+\.\d+\.\d+$" {
-        mutate {
-          add_field => { "client.address" => "%{client.ip}" }
-        }
-        ### Private vs Public
-        if [client.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [client.ip] =~ "^10\.\d+\.\d+\.\d+$" or [client.ip] =~ "^192.168\.\d+\.\d+$" or [client.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["client.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["client.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        }
-        if ![client.domain] and [client.domain] !~ "^\d+\.\d+\.\d+\.\d+$" {
-          dissect {
-            mapping => {
-              "client.address" => "%{client.address}.%{client.domain}"
-            }
-          }
-        }
-      }
-    }
-    if [destination.address] and [destination.address] =~ "^\d+\.\d+\.\d+\.\d+$" and ![destination.ip] {
+    if [server.ip] and ![server.ip][0] and ![server.address] {
       mutate {
-        copy => { "destination.address" =>  "destination.ip" }
-        remove_field => [ "destination.address" ]
+        add_field => { "server.address" => "%{server.ip}" }
       }
-    }
-    ### DNS lookup
-    if [destination.ip] and ![destination.address] {
-      ### Exclude loopback address
-      if [destination.ip] != "^127\.\d+\.\d+\.\d+$" {
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["server.address"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [server.address] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
         mutate {
-          add_field => { "destination.address" => "%{destination.ip}" }
-        }
-        ### Private vs Public
-        if [destination.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [destination.ip] =~ "^10\.\d+\.\d+\.\d+$" or [destination.ip] =~ "^192.168\.\d+\.\d+$" or [destination.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["destination.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["destination.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        }
-        if ![destination.domain] and [destination.domain] !~ "^\d+\.\d+\.\d+\.\d+$" {
-          dissect {
-            mapping => {
-              "destination.address" => "%{destination.address}.%{destination.domain}"
-            }
-          }
+          remove_field => ["server.address"]
         }
       }
     }
-    if [server.address] and [server.address] =~ "^\d+\.\d+\.\d+\.\d+$" and ![server.ip] {
+    if [source.ip] and ![source.ip][0] and ![source.address] {
       mutate {
-        copy => { "server.address" =>  "server.ip" }
-        remove_field => [ "server.address" ]
+        add_field => { "source.address" => "%{source.ip}" }
       }
-    }
-    ### DNS lookup
-    if [server.ip] and ![server.address] {
-      ### Exclude loopback address
-      if [server.ip] != "^127\.\d+\.\d+\.\d+$" {
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["source.address"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [source.address] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
         mutate {
-          add_field => { "server.address" => "%{server.ip}" }
-        }
-        ### Private vs Public
-        if [server.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [server.ip] =~ "^10\.\d+\.\d+\.\d+$" or [server.ip] =~ "^192.168\.\d+\.\d+$" or [server.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["server.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["server.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        }
-        if ![server.domain] and [server.domain] !~ "^\d+\.\d+\.\d+\.\d+$" {
-          dissect {
-            mapping => {
-              "server.address" => "%{server.address}.%{server.domain}"
-            }
-          }
+          remove_field => ["source.address"]
         }
       }
     }
-    if [source.address] and [source.address] =~ "^\d+\.\d+\.\d+\.\d+$" and ![source.ip] {
+    if [destination.ip] and ![destination.ip][0] and ![destination.address] {
       mutate {
-        copy => { "source.address" =>  "source.ip" }
-        remove_field => [ "source.address" ]
+        add_field => { "destination.address" => "%{destination.ip}" }
       }
-    }
-    ### DNS lookup
-    if [source.ip] and ![source.address] {
-      ### Exclude loopback address
-      if [source.ip] != "^127\.\d+\.\d+\.\d+$" {
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["destination.address"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [destination.address] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
         mutate {
-          add_field => { "source.address" => "%{source.ip}" }
-        }
-        ### Private vs Public
-        if [source.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [source.ip] =~ "^10\.\d+\.\d+\.\d+$" or [source.ip] =~ "^192.168\.\d+\.\d+$" or [source.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["source.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["source.address"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        }
-        if ![source.domain] and [source.domain] !~ "^\d+\.\d+\.\d+\.\d+$" {
-          dissect {
-            mapping => {
-              "source.address" => "%{source.address}.%{source.domain}"
-            }
-          }
+          remove_field => ["destination.address"]
         }
       }
     }
-    if [observer.hostname] and [observer.hostname] =~ "^\d+\.\d+\.\d+\.\d+$" and ![observer.ip] {
+    if [log.source.ip] and ![log.source.ip][0] and ![log.source.hostname] {
       mutate {
-        copy => { "observer.hostname" =>  "observer.ip" }
-        remove_field => [ "observer.hostname" ]
+        add_field => { "log.source.hostname" => "%{log.source.ip}" }
       }
-    }
-    ### DNS lookup
-    if [observer.ip] and ![observer.hostname] {
-      ### Exclude loopback address
-      if [observer.ip] != "^127\.\d+\.\d+\.\d+$" {
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["log.source.hostname"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [log.source.hostname] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
         mutate {
-          add_field => { "observer.hostname" => "%{observer.ip}" }
-        }
-        ### Private vs Public
-        if [observer.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [observer.ip] =~ "^10\.\d+\.\d+\.\d+$" or [observer.ip] =~ "^192.168\.\d+\.\d+$" or [observer.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["observer.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["observer.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
+          remove_field => ["log.source.hostname"]
         }
       }
     }
-    if [log.source.hostname] and [log.source.hostname] =~ "^\d+\.\d+\.\d+\.\d+$" and ![log.source.ip] {
+    if [observer.ip] and ![observer.ip][0] and ![observer.hostname] {
       mutate {
-        copy => { "log.source.hostname" =>  "log.source.ip" }
-        remove_field => [ "log.source.hostname" ]
+        add_field => { "observer.hostname" => "%{observer.ip}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["observer.hostname"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [observer.hostname] =~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["observer.hostname"]
+        }
       }
     }
-    ### DNS lookup
-    if [log.source.ip] and ![log.source.hostname] {
-      ### Exclude loopback address
-      if [log.source.ip] != "^127\.\d+\.\d+\.\d+$" {
-        mutate {
-          add_field => { "log.source.hostname" => "%{log.source.ip}" }
+    ### resolve
+    if [client.address] and ![client.address][0] and ![client.ip] {
+      mutate {
+        add_field => { "client.ip" => "%{client.address}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
         }
-        ### Private vs Public
-        if [log.source.ip] =~ "^100\.(64|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.\d+\.\d+$" or [log.source.ip] =~ "^10\.\d+\.\d+\.\d+$" or [log.source.ip] =~ "^192.168\.\d+\.\d+$" or [log.source.ip] =~ "^172\.([1][6-9]|[2][0-9]|[3][0-1])\.\d+\.\d+$" {
-          # PRIVATE_DNS
-          dns {
-            nameserver => {
-              address => "${PRIVATE_DNS}"
-            }
-            reverse => ["log.source.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
-        } else {
-          # PUBLIC_DNS
-          dns {
-            nameserver => {
-              address => "${PUBLIC_DNS}"
-            }
-            reverse => ["log.source.hostname"]
-            action => "replace"
-            max_retries => 0
-            hit_cache_size => 500000
-            hit_cache_ttl => 3600
-            failed_cache_size => 500000
-            failed_cache_ttl => 3600
-          }
+        resolve => ["client.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [client.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["client.ip"]
+        }
+      }
+    }
+    if [host.hostname] and ![host.hostname][0] and ![host.ip] {
+      mutate {
+        add_field => { "host.ip" => "%{host.hostname}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        resolve => ["host.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [host.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["host.ip"]
+        }
+      }
+    }
+    if [server.address] and ![server.address][0] and ![server.ip] {
+      mutate {
+        add_field => { "server.ip" => "%{server.address}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        resolve => ["server.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [server.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["server.ip"]
+        }
+      }
+    }
+    if [source.address] and ![source.address][0] and ![source.ip] {
+      mutate {
+        add_field => { "source.ip" => "%{source.address}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["source.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [source.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["source.ip"]
+        }
+      }
+    }
+    if [destination.address] and ![destination.address][0] and ![destination.ip] {
+      mutate {
+        add_field => { "destination.ip" => "%{destination.address}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        resolve => ["destination.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [destination.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["destination.ip"]
+        }
+      }
+    }
+    if [log.source.hostname] and ![log.source.hostname][0] and ![log.source.ip] {
+      mutate {
+        add_field => { "log.source.ip" => "%{log.source.hostname}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["log.source.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [log.source.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["log.source.ip"]
+        }
+      }
+    }
+    if [observer.hostname] and ![observer.hostname][0] and ![observer.ip] {
+      mutate {
+        add_field => { "observer.ip" => "%{observer.hostname}" }
+      }
+      dns {
+        nameserver => {
+          address => "${PUBLIC_DNS}"
+        }
+        reverse => ["observer.ip"]
+        action => "replace"
+        max_retries => 0
+        hit_cache_size => 500000
+        hit_cache_ttl => 3600
+        failed_cache_size => 500000
+        failed_cache_ttl => 3600
+      }
+      if [observer.ip] !~ "^(\d+\.\d+\.\d+\.\d+|[0-9a-zA-Z]+:.*?:.*?:.*?:.*?:.*?:.*?:[0-9a-zA-Z]+)$" {
+        mutate {
+          remove_field => ["observer.ip"]
         }
       }
     }
