@@ -31,11 +31,14 @@ filter {
     mutate {
       remove_tag => ["disable_dns_enrichment"]
     }
-  } else {
+  }
+  else {
     ### Reverse lookup
     if [client.ip] and ![client.ip][0] and ![client.address] {
       mutate {
-        add_field => { "client.address" => "%{client.ip}" }
+        add_field => {
+          "client.address" => "%{client.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -57,7 +60,9 @@ filter {
     }
     if [host.ip] and ![host.ip][0] and ![host.hostname] {
       mutate {
-        add_field => { "host.hostname" => "%{host.ip}" }
+        add_field => {
+          "host.hostname" => "%{host.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -74,7 +79,9 @@ filter {
     }
     if [server.ip] and ![server.ip][0] and ![server.address] {
       mutate {
-        add_field => { "server.address" => "%{server.ip}" }
+        add_field => {
+          "server.address" => "%{server.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -96,7 +103,9 @@ filter {
     }
     if [source.ip] and ![source.ip][0] and ![source.address] {
       mutate {
-        add_field => { "source.address" => "%{source.ip}" }
+        add_field => {
+          "source.address" => "%{source.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -118,7 +127,9 @@ filter {
     }
     if [destination.ip] and ![destination.ip][0] and ![destination.address] {
       mutate {
-        add_field => { "destination.address" => "%{destination.ip}" }
+        add_field => {
+          "destination.address" => "%{destination.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -140,7 +151,9 @@ filter {
     }
     if [log.source.ip] and ![log.source.ip][0] and ![log.source.hostname] {
       mutate {
-        add_field => { "log.source.hostname" => "%{log.source.ip}" }
+        add_field => {
+          "log.source.hostname" => "%{log.source.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -162,7 +175,9 @@ filter {
     }
     if [observer.ip] and ![observer.ip][0] and ![observer.hostname] {
       mutate {
-        add_field => { "observer.hostname" => "%{observer.ip}" }
+        add_field => {
+          "observer.hostname" => "%{observer.ip}"
+        }
       }
       dns {
         nameserver => {
@@ -185,7 +200,9 @@ filter {
     ### resolve
     if [client.address] and ![client.address][0] and ![client.ip] {
       mutate {
-        add_field => { "client.ip" => "%{client.address}" }
+        add_field => {
+          "client.ip" => "%{client.address}"
+        }
       }
       dns {
         nameserver => {
@@ -207,7 +224,9 @@ filter {
     }
     if [host.hostname] and ![host.hostname][0] and ![host.ip] {
       mutate {
-        add_field => { "host.ip" => "%{host.hostname}" }
+        add_field => {
+          "host.ip" => "%{host.hostname}"
+        }
       }
       dns {
         nameserver => {
@@ -229,7 +248,9 @@ filter {
     }
     if [server.address] and ![server.address][0] and ![server.ip] {
       mutate {
-        add_field => { "server.ip" => "%{server.address}" }
+        add_field => {
+          "server.ip" => "%{server.address}"
+        }
       }
       dns {
         nameserver => {
@@ -251,7 +272,9 @@ filter {
     }
     if [source.address] and ![source.address][0] and ![source.ip] {
       mutate {
-        add_field => { "source.ip" => "%{source.address}" }
+        add_field => {
+          "source.ip" => "%{source.address}"
+        }
       }
       dns {
         nameserver => {
@@ -273,7 +296,9 @@ filter {
     }
     if [destination.address] and ![destination.address][0] and ![destination.ip] {
       mutate {
-        add_field => { "destination.ip" => "%{destination.address}" }
+        add_field => {
+          "destination.ip" => "%{destination.address}"
+        }
       }
       dns {
         nameserver => {
@@ -295,7 +320,9 @@ filter {
     }
     if [log.source.hostname] and ![log.source.hostname][0] and ![log.source.ip] {
       mutate {
-        add_field => { "log.source.ip" => "%{log.source.hostname}" }
+        add_field => {
+          "log.source.ip" => "%{log.source.hostname}"
+        }
       }
       dns {
         nameserver => {
@@ -317,7 +344,9 @@ filter {
     }
     if [observer.hostname] and ![observer.hostname][0] and ![observer.ip] {
       mutate {
-        add_field => { "observer.ip" => "%{observer.hostname}" }
+        add_field => {
+          "observer.ip" => "%{observer.hostname}"
+        }
       }
       dns {
         nameserver => {
