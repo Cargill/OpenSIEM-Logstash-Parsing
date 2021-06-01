@@ -183,6 +183,7 @@ class LogstashHelper(object):
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
             'MEMCACHED_ADDRESS': self.logstash_api_secrets['memcached_address'],
+            'DNS_SERVER': self.logstash_api_secrets['dns_server'],
         }
         azure_inputs_dir = os.path.join(
             self.logstash_dir, 'config', 'inputs', 'azure')
