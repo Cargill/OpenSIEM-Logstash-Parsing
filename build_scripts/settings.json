@@ -1,8 +1,8 @@
 {
-  "log_audit_a10.proxy_monthly": {
-    "log_source": "log_audit_a10.proxy_monthly",
-    "config": "log_audit_a10.proxy_monthly",
-    "elastic_index": "log_audit_a10.proxy_monthly_%{+xxxx.MM}",
+  "syslog_log_audit_a10.proxy": {
+    "log_source": "syslog_log_audit_a10.proxy",
+    "config": "syslog_log_audit_a10.proxy",
+    "elastic_index": "syslog_log_audit_a10.proxy_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
@@ -12,10 +12,10 @@
       "codec": "json"
     }
   },
-  "log_audit_a10.traffic_monthly": {
-    "log_source": "log_audit_a10.traffic_monthly",
-    "config": "log_audit_a10.traffic_monthly",
-    "elastic_index": "log_audit_a10.traffic_monthly_%{+xxxx.MM}",
+  "syslog_log_audit_a10.traffic_monthly": {
+    "log_source": "syslog_log_audit_a10.traffic_monthly",
+    "config": "syslog_log_audit_a10.traffic_monthly",
+    "elastic_index": "syslog_log_audit_a10.traffic_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],
     "output_list": [
       "elastic_output",
