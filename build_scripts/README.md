@@ -297,28 +297,57 @@ When the script runs. It does the following.
 4. Generate pipelines.yml file.
 5. Checks if changes were made between deployed directory `/usr/share/logstash` and the current directory. And changes the file `/data/should_redeploy` file. A program can look for changes on this file and can trigger redeploy on logstash.
 
-# Getting started
+### environment variables 
 
 The [generate pipeline script](generate_pipeline.py) uses environment variables which are mandatory to set. Setup your environment as following.
-If you are not using azure configs then please delete the .conf files in [azure input directory](../config/inputs/azure).
 
 ```
-DEPLOY_ENV: test
-LOGSTASH_SERVERS: 127.0.0.1
-MY_INDEX: '1'
-SUB_MY_IP: abc
-ELASTIC_USER: elastic_user
-ELASTIC_PASSWORD: elastic_pass
-ELASTIC_CONNECTION_STRING: '"127.0.0.1:9200", "127.0.0.2:9200"'
-KAFKA_CONNECTION_STRING: kafkahost:9000
-KAFKA_USER: kafka_uname
-KAFKA_PASSWORD: kafka_pwd
-RACK_ID: some_id
-S3_BUCKET_NAME: some_name
+DEPLOY_ENV: test/dev/prod
+MY_INDEX: index of this logtash node in the cluster
+SUB_MY_IP: some unique value added to plugin ids
+ELASTIC_USER: elastic username
+ELASTIC_PASSWORD: elastic password
+ELASTIC_CONNECTION_STRING: '"127.0.0.1:9200", "127.0.0.2:9200"' (elastic workers)
+KAFKA_CONNECTION_STRING: kafkahost:9000 (kafka address)
+KAFKA_USER: kafka username for jaas file
+KAFKA_PASSWORD: kafka password for jaas file
+RACK_ID: kafka rack id
+S3_BUCKET_NAME: bucket name to send logs to for s3 out plugin
 LOGSTASH_API_SECRET: '{"azure_audit_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_operational_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_signin_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_tcs_security_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_dlp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_audit_consumer" : "azure_audit_consumer",  "azure_operational_consumer" : "azure_operational_consumer",  "azure_signin_consumer" : "azure_signin_consumer",  "azure_o365_consumer" : "azure_o365_consumer",  "azure_tcs_security_consumer" : "azure_o365_consumer",  "azure_o365_dlp_consumer" : "cg-production-operation",  "azure_storage_conn" : "DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net",  "nc4_api_key" : "nc4_api_key",  "nc4_api_uri" : "nc4_api_uri",  "azure_atp_consumer" : "azure_atp_consumer",  "azure_atp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "memcached_address" : "\"127.0.0.1\",\"127.0.0.2\"",  "dns_server" : "\"127.0.0.1\",\"127.0.0.2\""}'
 ```
 
-More documentation to follow.
+Last variable is for various other variables.
+```diff
+! Due to a current issue you have to set all with dummy values else script breaks. 
+```
+Explaining these below.
+
+```json
+{
+  "azure_audit_conn" : "ENDPOINT FOR AZURE AUDIT",
+  "azure_operational_conn" : "ENDPOINT FOR AZURE OPERATIONAL",
+  "azure_signin_conn" : "ENDPOINT FOR AZURE SIGNIN",
+  "azure_o365_conn" :"ENDPOINT FOR AZURE O365",
+  "azure_tcs_security_conn" : "ENDPOINT FOR AZURE TCS",
+  "azure_o365_dlp_conn" : "ENDPOINT FOR AZURE DLP",
+  "azure_atp_conn" : "ENDPOINT FOR AZURE ATP",
+  "azure_audit_consumer" : "CONSUMER NAME FOR AZURE AUDIT",
+  "azure_operational_consumer" : "CONSUMER NAME FOR AZURE OPERATIONAL",
+  "azure_signin_consumer" : "CONSUMER NAME FOR AZURE SIGNIN",
+  "azure_o365_consumer" : "CONSUMER NAME FOR AZURE O365",
+  "azure_tcs_security_consumer" : "CONSUMER NAME FOR AZURE TCS",
+  "azure_o365_dlp_consumer" : "CONSUMER NAME FOR DLP",
+  "azure_atp_consumer" : "CONSUMER NAME FOR AZURE ATP",
+  "azure_storage_conn" : "STORAGE CONNECTION FOR AZURE",
+  "nc4_api_key" : "API KEY FOR NC4 OUTPUT",
+  "nc4_api_uri" : "API URI FOR NC4 OUTPUT",
+  "memcached_address" : "SERVERS FOR THE MISP ENRICHMENT AND MISP PROCESSOR CONFIG e.g. \"127.0.0.1\",\"127.0.0.2\"",
+  "dns_server" : "SERVERS FOR THE DNS ENRICHMENT e.g. \"127.0.0.1\",\"127.0.0.2\""
+}
+```
+
+## Getting started
+
 
 ## FAQ
   1. How to add/remove an output pipeline?
