@@ -158,8 +158,8 @@ class LogstashHelper(object):
             Replace them with values taken from environment variables.
         '''
         vars_dict = {
-            'KAFKA_JAAS_PATH': '/usr/share/logstash/config/kafka_jaas.conf',
-            'KAFKA_CLIENT_TRUSTSTORE': '/usr/share/logstash/config/kafka_client_truststore.jks',
+            'KAFKA_JAAS_PATH': '${LOGSTASH_HOME}/config/kafka_jaas.conf',
+            'KAFKA_TRUSTSTORE': '${LOGSTASH_HOME}/config/kafka_client_truststore.jks',
             'KAFKA_TRUSTSTORE_PASSWORD': 'changeit',
             'KAFKA_BOOTSTRAP_SERVERS': self.kafka_connection_str,
             'RACK_ID': self.rack_id,

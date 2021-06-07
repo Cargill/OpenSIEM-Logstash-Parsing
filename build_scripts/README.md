@@ -343,11 +343,15 @@ These files need to exist otherwise logstash cannot load the geoip enrichment.
 /mnt/s3fs_geoip/GeoLite2-City.mmdb
 /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
 ```
-Either remove the enrichment file or just touch these files if you are disabling the enrichment from settings.json.
+Either remove geoip enrichment file or just touch these files if you are disabling the enrichment from settings.json.
 
-## FAQ
-  1. How to add/remove an output pipeline?
-  2. How to add/remove an input pipeline?
-  3. How to use only selected log processor configs?
-  4. How to disable an enrichment?
-  5. Why is an enrichment loaded (and breaks if it does not finds dependent files e.g. geoip) even if I'm disabling it?
+- Create _/data_ dir as the script uses it to write logs and create a change file.
+- Update settings.json file.
+- Update general.json file.
+- Set the environment variables as [above](#environment-variables).
+- Run  python build_scripts/generate_pipeline.py
+- Copy over the config directory to `/usr/share/logstash` and start logstash.
+
+An example can be found here. [workflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/.github/workflows/main.yml#L90)
+
+In the workflow, you will also find script to install logstash and add required plugins to it.
