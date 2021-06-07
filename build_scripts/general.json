@@ -8,7 +8,7 @@
     "processing_config" : {
         "syslog_log_audit_a10.traffic_monthly" : {
             "kafka_partitions" : 24,
-            "nodes" : 4
+            "nodes" : 2
         }
     }
 }
