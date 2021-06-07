@@ -17,7 +17,6 @@ config                                         # logstash configs
    |   |   |-- 1_kafka_input_template.conf     # kafka input pipeline template
    |-- outputs                                 # output pipelines
    |   |-- elastic_output.conf                 # to elastic
-   |   |-- nc4_output.conf                     # to nc4 API
    |   |-- s3_output.conf                      # to aws s3 bucket
    |-- processors                              # all parsing configs
    |   |-- *.conf                              
@@ -109,10 +108,6 @@ Lies in the config directory root. See inline comments.
   pipeline.batch.size: 2000
   # upload workers count and upload file queue size are configurable by the plugin
   # pipeline.workers is set to number of processors
-- pipeline.id: nc4_output
-  path.config: "${LOGSTASH_HOME}/config/outputs/nc4_output.conf"
-  pipeline.workers: 1
-  # it's a low volume api so not wasting resources
 
 ############### INPUTS & PROCESSORS ###############
 ```
@@ -242,9 +237,6 @@ filter {
 output {
   # [@metadata][output_pipelines] field becomes very important here. It was added in the input config via VAR_CUSTOM_FIELDS
   # These are hardcode rules so if you want to add or remove outputs you need to change here
-  if "nc4_output" in [@metadata][output_pipelines] {
-    pipeline { send_to =>  "nc4_output" }
-  }
   if "elastic_output" in [@metadata][output_pipelines] {
     pipeline { send_to =>  "elastic_output" }
   }
@@ -313,7 +305,7 @@ KAFKA_USER: kafka username for jaas file
 KAFKA_PASSWORD: kafka password for jaas file
 RACK_ID: kafka rack id
 S3_BUCKET_NAME: bucket name to send logs to for s3 out plugin
-LOGSTASH_API_SECRET: '{"azure_audit_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_operational_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_signin_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_tcs_security_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_dlp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_audit_consumer" : "azure_audit_consumer",  "azure_operational_consumer" : "azure_operational_consumer",  "azure_signin_consumer" : "azure_signin_consumer",  "azure_o365_consumer" : "azure_o365_consumer",  "azure_tcs_security_consumer" : "azure_o365_consumer",  "azure_o365_dlp_consumer" : "cg-production-operation",  "azure_storage_conn" : "DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net",  "nc4_api_key" : "nc4_api_key",  "nc4_api_uri" : "nc4_api_uri",  "azure_atp_consumer" : "azure_atp_consumer",  "azure_atp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "memcached_address" : "\"127.0.0.1\",\"127.0.0.2\"",  "dns_server" : "\"127.0.0.1\",\"127.0.0.2\""}'
+LOGSTASH_API_SECRET: '{"azure_audit_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_operational_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_signin_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_tcs_security_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_dlp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_audit_consumer" : "azure_audit_consumer",  "azure_operational_consumer" : "azure_operational_consumer",  "azure_signin_consumer" : "azure_signin_consumer",  "azure_o365_consumer" : "azure_o365_consumer",  "azure_tcs_security_consumer" : "azure_o365_consumer",  "azure_o365_dlp_consumer" : "cg-production-operation",  "azure_storage_conn" : "DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net",  "azure_atp_consumer" : "azure_atp_consumer",  "azure_atp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "memcached_address" : "\"127.0.0.1\",\"127.0.0.2\"",  "dns_server" : "\"127.0.0.1\",\"127.0.0.2\""}'
 ```
 
 Last variable is for various other variables.
@@ -339,8 +331,6 @@ Explaining these below.
   "azure_o365_dlp_consumer" : "CONSUMER NAME FOR DLP",
   "azure_atp_consumer" : "CONSUMER NAME FOR AZURE ATP",
   "azure_storage_conn" : "STORAGE CONNECTION FOR AZURE",
-  "nc4_api_key" : "API KEY FOR NC4 OUTPUT",
-  "nc4_api_uri" : "API URI FOR NC4 OUTPUT",
   "memcached_address" : "SERVERS FOR THE MISP ENRICHMENT AND MISP PROCESSOR CONFIG e.g. \"127.0.0.1\",\"127.0.0.2\"",
   "dns_server" : "SERVERS FOR THE DNS ENRICHMENT e.g. \"127.0.0.1\",\"127.0.0.2\""
 }
@@ -348,6 +338,12 @@ Explaining these below.
 
 ## Getting started
 
+These files need to exist otherwise logstash cannot load the geoip enrichment.
+```
+/mnt/s3fs_geoip/GeoLite2-City.mmdb
+/mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
+```
+Either remove the enrichment file or just touch these files if you are disabling the enrichment from settings.json.
 
 ## FAQ
   1. How to add/remove an output pipeline?
