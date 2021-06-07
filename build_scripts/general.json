@@ -1,21 +1,14 @@
 {
     "num_indexers" : 4,
     "prod_only_logs": [
-        "log_audit_azure.event_hub_signin_daily",
-        "log_audit_okta_monthly"
+        "event_hub_log_audit_azure.event_hub_audit",
+        "event_hub_log_audit_azure.event_hub_signin",
+        "syslog_log_audit_a10.traffic_monthly"
     ],
     "processing_config" : {
-        "log_audit_checkpoint.fw_cnet_gl_vpn_daily" : {
+        "syslog_log_audit_a10.traffic_monthly" : {
             "kafka_partitions" : 24,
             "nodes" : 4
-        },
-        "log_network_aws.vpcflow_daily" : {
-            "kafka_partitions" : 16,
-            "nodes" : 16
-        },
-        "log_audit_citrix.netscaler_daily" : {
-            "kafka_partitions" : 16,
-            "nodes" : 2
         }
     }
 }
