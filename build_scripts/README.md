@@ -3,39 +3,39 @@
 ### Directory Structure
 
 ```
-.github                                        #github templates and workflows
-build_scripts                                  #to build pipelines
-config                                         #logstash configs
-   |-- enrichments                             #enrichment configs
-   |   |-- 00_input.conf                       #gets input for enrichment pipeline
-   |   |-- *.conf                              #various enrichments
-   |   |-- 999_output.conf                     #forwards to output pipelines
-   |-- inputs                                  #input pipelines
+.github                                        # github templates and workflows
+build_scripts                                  # to build pipelines
+config                                         # logstash configs
+   |-- enrichments                             # enrichment configs
+   |   |-- 00_input.conf                       # gets input for enrichment pipeline
+   |   |-- *.conf                              # various enrichments
+   |   |-- 999_output.conf                     # forwards to output pipelines
+   |-- inputs                                  # input pipelines
    |   |-- azure                               
-   |   |   |-- *.conf                          
+   |   |   |-- *.conf                          # azure eventhub inputs
    |   |-- kafka                               
-   |   |   |-- 1_kafka_input_template.conf     #kafka input pipeline template
-   |-- outputs                                 #output pipeline
-   |   |-- elastic_output.conf                 #to elastic
-   |   |-- nc4_output.conf                     #to nc4 API
-   |   |-- s3_output.conf                      #to aws s3 bucket
-   |-- processors                              #all parsing configs
+   |   |   |-- 1_kafka_input_template.conf     # kafka input pipeline template
+   |-- outputs                                 # output pipelines
+   |   |-- elastic_output.conf                 # to elastic
+   |   |-- nc4_output.conf                     # to nc4 API
+   |   |-- s3_output.conf                      # to aws s3 bucket
+   |-- processors                              # all parsing configs
    |   |-- *.conf                              
-   |-- cisco_ios.json                          #used for cisco mnemonic translation
-   |-- cisco_ios_facility_categories.csv       #used for cisco facility translation
-   |-- iana_protocols.csv                      #used for iana protocol enrichment
-   |-- kafka_jaas.conf                         #credential template used for kafka inputs
-   |-- mitre_subtechnique.json                 #used by mitre enrichment
-   |-- mitre_tatics.json                       #used by mitre enrichment
-   |-- mitre_technique.json                    #used by mitre enrichment
-   |-- pipelines.yml                           #pipelines.yml template
+   |-- cisco_ios.json                          # used for cisco mnemonic translation
+   |-- cisco_ios_facility_categories.csv       # used for cisco facility translation
+   |-- iana_protocols.csv                      # used for iana protocol enrichment
+   |-- kafka_jaas.conf                         # credential template used for kafka inputs
+   |-- mitre_subtechnique.json                 # used by mitre enrichment
+   |-- mitre_tatics.json                       # used by mitre enrichment
+   |-- mitre_technique.json                    # used by mitre enrichment
+   |-- pipelines.yml                           # pipelines.yml template
 doc                                            
    |-- README.md                               
-   |-- api_collection_programs                 #api log collection scripts
-   |-- elastic_common_schema                   #modified schema
-   |-- enrichments                             #doc explaining enrichments and how to disable
-   |-- log_configurations                      #setup configs/script for log sources
-   |-- templates                               #ecs templates for elastic
+   |-- api_collection_programs                 # api log collection scripts
+   |-- elastic_common_schema                   # modified schema
+   |-- enrichments                             # doc explaining enrichments and how to disable
+   |-- log_configurations                      # setup configs/script for log sources
+   |-- templates                               # ecs templates for elastic
 .gitignore                                     
 CONTRIBUTING.md                                
 LICENSE                                        
@@ -46,33 +46,43 @@ README.md
 
 ## Pipelines
 
-We are using pipeline to pipeline communication [pipeline-to-pipeline
-architecture](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html) so that parsing logic can be modularised and community can use it with ease. To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. We have [general.json](#generaljson) file to specify more specifics like on how many nodes we need to process a particular log source. With these setting files and numerous environment variables [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific node. If you want to process all configs on all nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
+We are using [pipeline to pipeline communication](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html) so that parsing logic can be modularised and community can use it with ease.
 
-We do not process all configs on all nodes because of performance problems associated with kafka and logstash.
-
-Logflow overview:
+**Logflow overview**
 
 ![openSIEM_logflow](https://user-images.githubusercontent.com/6766061/120641277-0948cc80-c491-11eb-933e-8e07ac90ab01.jpg)
 
-Logflow detailed:
+Each input pipeline sends logs to its respective processor config pipeline. All the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is send to designated outputs. Log outputs are also sequential because of how they are defined in [enrichment output section](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/config/enrichments/999_output.conf). Reason why we did not used parallel out because if we have 3 outputs, then
+  1. It would lead to increased memory need by 2/3rd since each event is cloned for parallel processing. 
+  2. It does not offer any practical parralelism advantage because if any of the down pipelines are bloked, it chokes up the upper pipelines after it's batch size is full.
+
+**Logflow detailed**
 
 ![logflow_detailed](https://user-images.githubusercontent.com/6766061/120799243-1da5cb80-c55c-11eb-853f-5a7048bda591.jpg)
 
 
-Each input pipeline sends logs to its respective processor config pipeline. All the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is send to designated outputs.
-
 
 ## Working
 
+To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. We have [general.json](#generaljson) file to specify more specifics like on how many nodes we need to process a particular log source. With these setting files and numerous environment variables [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
+
+**Note:** We gather all the logs in Kafka through various logfeeding agents for a temporary storage. We process logs from Kafka and Azure Eventhub and output to elastic. So keep in mind that our pipeline generation script is inclined in favor of these but you can tweak for your custom use cases. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
+
+**Pipeline Generation**
+
 The pipeline generation script reads settings json files and the environment variables, takes the pipelines.yml from the config directory as a template and adds input and processor pipelines to it enabling processing of those log sources.
+
+**Note** The script also replaces variables defined in different conf files with values taken from environment. See environment variables section.
 
 ![pipeline_generation](https://user-images.githubusercontent.com/6766061/120667299-fb07aa00-c4aa-11eb-9e58-fb1b0c6b9dd0.jpg)
 
 
-### pipelines.yml template
+Individual input files and the script are explained below.
 
-Lies in the config directory root. Added below with detailed comments.
+### **pipelines.yml template**
+
+Lies in the config directory root. See inline comments.
+
 ```yml
 ################# ENRICHMENTS #################
 - pipeline.id: enrichments
@@ -90,25 +100,30 @@ Lies in the config directory root. Added below with detailed comments.
   path.config: "${LOGSTASH_HOME}/config/outputs/elastic_output.conf"
   pipeline.batch.delay: 50
   pipeline.batch.size: 2000
+  # A larger batch size because all logs go to elastic.
+  # The batch is limited to 20MB by the plugin
   # pipeline.workers is set to number of processors
 - pipeline.id: s3_output
   path.config: "${LOGSTASH_HOME}/config/outputs/s3_output.conf"
   pipeline.batch.delay: 50
   pipeline.batch.size: 2000
+  # upload workers count and upload file queue size are configurable by the plugin
   # pipeline.workers is set to number of processors
 - pipeline.id: nc4_output
   path.config: "${LOGSTASH_HOME}/config/outputs/nc4_output.conf"
-  # it's a low volume api so not wasting resources
   pipeline.workers: 1
+  # it's a low volume api so not wasting resources
 
 ############### INPUTS & PROCESSORS ###############
 ```
-## settings.json
+### **settings.json**
 
-```
+This is the most useful file which gives you flexibility to stitch an input, processor and output together. See inline comments.
+
+```json
 {
-  "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value)": {
-    "log_source": "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value)",
+  "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value. If using other inputs this should be the input file name.)": {
+    "log_source": "must be same as parent key (UNIQUE LOG SOURCE NAME)",
     "config": "PROCESSOR CONFIG FILE NAME WITHOUT .conf",
     "elastic_index": "INDEX NAME FOR ELASTIC OUTPUT PLUGIN (date patterns can also be used)",
     "ignore_enrichments": ["THESE ARE TAGS THAT ARE ADDED AND ENRICHMENTS CHECK FOR THEM"],
@@ -123,16 +138,35 @@ Lies in the config directory root. Added below with detailed comments.
 }
 ```
 
-## generate_settings.py
-Generates a sample settings.json file so that all configs can be tested for syntax errors in the test environment.
+### **general.json**
 
-## general.json
+This adds capability to process a config explicitly on logstash nodes. Logs can be restricted to be run in only non dev environments. Json file is explained below.
+
+```json
+{
+    "num_indexers" : NUMBER OF LOGSTASH NODES IN THE CLUSTER,
+    "prod_only_logs": [
+        "LIST OF LOGS WHICH WON'T BE ADDED IN PIPELINES IF ENVIRONMENT VARIABLE DEPLOY_ENV=dev (list should be made of log_source values from settings.json)"
+    ],
+    "processing_config" : {
+        "LOG_SOURCE VALUE FROM SETTINGS.JSON" : {
+            "kafka_partitions" : NUMBER OF KAFKA PARTITIONS FOR THIS PARTICULAR LOG SOURCE(this valuse is used to generate number of workers for the kafka input plugin i.e. kafka_partitions/nodes),
+            "nodes" : NUMBER OF NODES ON WHICH THIS LOG SOURCE WOULD BE EXPLICITLY PROCESSED
+        },
+        ...
+    }
+}
+```
+
+### **generate_settings.py**
+
+Generates a sample settings.json file with all processors and dummy kafka inputs so that all configs can be tested for syntax errors in the test environment.
+
+### **generate_pipelines.py**
 
 
-## generate_pipelines.py
+# Getting started
 
-
-# Setup
 The [generate pipeline script](generate_pipeline.py) uses environment variables which are mandatory to set. Setup your environment as following.
 If you are not using azure configs then please delete the .conf files in [azure input directory](../config/inputs/azure).
 
