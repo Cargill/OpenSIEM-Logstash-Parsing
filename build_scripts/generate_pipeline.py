@@ -181,8 +181,6 @@ class LogstashHelper(object):
             'AZURE_TCS_SECURITY_CONSUMER': self.logstash_api_secrets['azure_tcs_security_consumer'],
             'AZURE_O365_DLP_CONSUMER': self.logstash_api_secrets['azure_o365_dlp_consumer'],
             'BUCKET_NAME': self.bucket_name,
-            'NC4_API_KEY': self.logstash_api_secrets['nc4_api_key'],
-            'NC4_API_URI': self.logstash_api_secrets['nc4_api_uri'],
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
             'MEMCACHED_ADDRESS': self.logstash_api_secrets['memcached_address'],
