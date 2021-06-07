@@ -50,8 +50,7 @@ class LogstashHelper(object):
     def __init__(self, logstash_dir):
         self.logstash_dir = logstash_dir
         self.deploy_env = os.environ['DEPLOY_ENV']
-        self.logstash_servers = os.environ['LOGSTASH_SERVERS'].split(',')
-        # index of this instance in the array of all logstash instances
+        # index of this instance in the list of all logstash instances
         self.my_index = int(os.environ['MY_INDEX'])
         self.sub_my_ip = os.environ['SUB_MY_IP']
         self.elastic_user, self.elastic_pwd = os.environ['ELASTIC_USER'], os.environ['ELASTIC_PASSWORD']
@@ -287,7 +286,7 @@ class LogstashHelper(object):
             num_servers_for_special_logs += v['nodes']
         
         special_confs = []
-        num_servers = len(self.logstash_servers)
+        num_servers = general_settings['num_indexers']
         # if there are not enough servers for special logs process them like any other
         if num_servers < num_servers_for_special_logs:
             # cannot process clear lag logs explicitly.
