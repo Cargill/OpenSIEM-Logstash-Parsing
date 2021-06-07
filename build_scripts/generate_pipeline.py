@@ -159,7 +159,7 @@ class LogstashHelper(object):
         '''
         vars_dict = {
             'KAFKA_JAAS_PATH': '${LOGSTASH_HOME}/config/kafka_jaas.conf',
-            'KAFKA_TRUSTSTORE': '${LOGSTASH_HOME}/config/kafka_client_truststore.jks',
+            'KAFKA_CLIENT_TRUSTSTORE': '${LOGSTASH_HOME}/config/kafka_client_truststore.jks',
             'KAFKA_TRUSTSTORE_PASSWORD': 'changeit',
             'KAFKA_BOOTSTRAP_SERVERS': self.kafka_connection_str,
             'RACK_ID': self.rack_id,
