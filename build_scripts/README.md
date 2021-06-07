@@ -274,7 +274,12 @@ Generates a sample settings.json file with all processors and dummy kafka inputs
 
 ### **generate_pipelines.py**
 
-1. Generates required files e.g. 
+This assumes that you download this repo in some other directory and run logstash in `/usr/share/logstash` directory. You run this script from the base directory. And when it runs successfully it you can copy over the config directory to `/usr/share/logstash`. A bash command would like this
+```sh
+cp -r config/* /usr/share/logstash/config/
+```
+When the script runs. It does the following.
+1. Generate required files e.g. 
     - kafka input files from template
     - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one.
     ```diff
@@ -287,7 +292,10 @@ Generates a sample settings.json file with all processors and dummy kafka inputs
     ```diff
     + This is where a parsing config is tied to an input config as VAR_PIPELINE_NAME in both are replaced with actual common value. And the final output and the enrichments to ignore are also decided at this step.
     ```
-
+3. Replace variables in Kafka jaas file with actual creds
+4. Variable VAR_HOSTNAME in logstash _log4j.properties_ file is substituted with current hostname. This is handy for identifying logstash logs if you add the variable in a logging pattern. This step is optional. 
+4. Generate pipelines.yml file.
+5. Checks if changes were made between deployed directory `/usr/share/logstash` and the current directory. And changes the file `/data/should_redeploy` file. A program can look for changes on this file and can trigger redeploy on logstash.
 
 # Getting started
 

@@ -563,7 +563,7 @@ class LogstashHelper(object):
     def test_for_change(self, last_deployed_dir, current_deployable_dir):
         '''
             Compare the checksums to see if something changed between existing deployment and ongoing deployment
-            If something did change, write 'changed' to file /data/should_redeploy .
+            If something did change, write 0 or 1 to file /data/should_redeploy depending upon what was previously written.
             Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
         '''
         old_settings_checksum_dict, old_conf_checksum_dict = self.generate_checksum(
