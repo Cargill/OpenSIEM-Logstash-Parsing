@@ -154,6 +154,10 @@ class LogstashHelper(object):
             config.write(file_contents)
 
     def replace_vars(self):
+        '''
+            There are variables in conf files which follow VAR_ pattern.
+            Replace them with values taken from environment variables.
+        '''
         vars_dict = {
             'KAFKA_JAAS_PATH': '/usr/share/logstash/config/kafka_jaas.conf',
             'KAFKA_CLIENT_TRUSTSTORE': '/usr/share/logstash/config/kafka_client_truststore.jks',
@@ -462,6 +466,11 @@ class LogstashHelper(object):
         return settings
 
     def generate_files(self):
+        '''
+            Generates kafka inputs from template
+            If a processor is shared between multiple inputs, a copy is created with log_source name to be able to map an input pipeline to a processor pipeline one to one.
+            A log source is kafka input if it's not azure. You need to override that logic if you want to work with other inputs.
+        '''
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')

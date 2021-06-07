@@ -158,11 +158,135 @@ This adds capability to process a config explicitly on logstash nodes. Logs can 
 }
 ```
 
+### **pipelines and code**
+
+Each input config looks like this
+```ruby
+input {
+  #... more details here
+}
+filter {
+  mutate {
+    # VAR_CUSTOM_FIELDS
+  }
+}
+output {
+  pipeline { send_to => [VAR_PIPELINE_NAME]}
+  # notice the same pipeline name variable in both input config and the processor config
+}
+```
+
+_VAR_CUSTOM_FIELDS_ is replaced with add_field and add_tag section taken from `settings.json` so an example input becomes like this
+
+```ruby
+input {
+  #... more details here
+}
+filter {
+  mutate {
+    add_field => {
+      # log source name. Not necessarily used.
+      "[@metadata][index]" => "checkpoint"
+      # config name that would process this input. This tag is not used though.
+      "[@metadata][config]" => "syslog_log_audit_checkpoint.fw"
+      # Is used for elastic output
+      "[@metadata][output]" => "checkpoint_%{+xxxx.MM.dd}"
+      # determines where to output logs to
+      "[@metadata][output_pipelines]" => [elastic_output,s3_output]
+    }
+    # tags are added from ignore_enrichments section in the settings.json file
+    # these are checked by enrichments to apply or ignore
+    add_tag => [ "disable_misp_enrichment" ]
+    }
+  }
+}
+output {
+  pipeline { send_to => [VAR_PIPELINE_NAME]}
+  # notice the same pipeline name variable in both input config and the processor config
+}
+```
+
+Each processor looks like this
+
+```ruby
+input {
+  pipeline {
+    address => VAR_PIPELINE_NAME
+    # when pipeline name variable is replaced with same value in both input and processor configs,
+    # logs forwarded from the input pipeline are received here
+  }
+}
+filter {
+  #... processing logic goes here
+}
+output {
+  pipeline { send_to => [enrichments] }
+  # notice that each processor forwards the event to `enrichments` pipeline
+}
+```
+
+Enrichment config is splitted in multiple ordered files. When it is loaded in logstash it looks like this
+
+```ruby
+input {
+  pipeline { address => enrichments }
+  # hardcoded name for pipeline
+  # so events forwarded by processor config are received here
+}
+filter {
+  # enrichments are applied in sequential order
+  # enrichment 1
+  # enrichment 2
+  # ...
+}
+output {
+  # [@metadata][output_pipelines] field becomes very important here. It was added in the input config via VAR_CUSTOM_FIELDS
+  # These are hardcode rules so if you want to add or remove outputs you need to change here
+  if "nc4_output" in [@metadata][output_pipelines] {
+    pipeline { send_to =>  "nc4_output" }
+  }
+  if "elastic_output" in [@metadata][output_pipelines] {
+    pipeline { send_to =>  "elastic_output" }
+  }
+  if "s3_output" in [@metadata][output_pipelines] {
+    pipeline { send_to =>  "s3_output" }
+  }
+}
+```
+
+An output config e.g. elastic out looks like this
+
+```ruby
+input {
+  pipeline { address => elastic_output }
+  # name of the pipeline `elastic_output` is hardcoded
+}
+output {
+  elasticsearch {
+    # ... more details here
+  }
+}
+```
+
 ### **generate_settings.py**
 
 Generates a sample settings.json file with all processors and dummy kafka inputs so that all configs can be tested for syntax errors in the test environment.
 
 ### **generate_pipelines.py**
+
+1. Generates required files e.g. 
+    - kafka input files from template
+    - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one.
+    ```diff
+    ! Note that, it treats every log source as kafka input if it's not azure. You need to override that logic if you want to work with other inputs.
+    ```
+2. Replace variables starting with VAR_ e.g.
+    - in input configs
+    - in output files
+    - in enrichments (misp, dns)
+    ```diff
+    + This is where a parsing config is tied to an input config as VAR_PIPELINE_NAME in both are replaced with actual common value. And the final output and the enrichments to ignore are also decided at this step.
+    ```
 
 
 # Getting started
