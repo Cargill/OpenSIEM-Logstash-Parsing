@@ -287,6 +287,8 @@ When the script runs. It does the following.
 3. Replace variables in Kafka jaas file with actual creds
 4. Variable VAR_HOSTNAME in logstash _log4j.properties_ file is substituted with current hostname. This is handy for identifying logstash logs if you add the variable in a logging pattern. This step is optional. 
 4. Generate pipelines.yml file.
+    - Based on the volume of log sources we name them like [NAME OF THE LOGSOURCE]_daily, [NAME OF THE LOGSOURCE]_weekly and [NAME OF THE LOGSOURCE]_monthly
+    - So based on this logic this script sets the number of pipeline workers as 8, 4 and 2 respectively. If the log source is defined in processing_config section of general.json workers is set to 16.
 5. Checks if changes were made between deployed directory `/usr/share/logstash` and the current directory. And changes the file `/data/should_redeploy` file. A program can look for changes on this file and can trigger redeploy on logstash.
 
 ### environment variables 
