@@ -284,6 +284,8 @@ class LogstashHelper(object):
             num_servers_for_special_logs += v['nodes']
         
         special_confs = []
+        if self.deploy_env == 'test':
+            num_servers = 1
         num_servers = general_settings['num_indexers']
         # if there are not enough servers for special logs process them like any other
         if num_servers < num_servers_for_special_logs:
@@ -341,9 +343,10 @@ class LogstashHelper(object):
 
             for logs in [daily_logs, weekly_logs, monthly_logs]:
                 num_logs = len(logs)
-                selected_log_sources = selected_log_sources + \
-                    self.__get_log_distribution(
-                        num_logs, num_servers, arr_idx, logs)
+                if num_logs >0 :
+                    selected_log_sources = selected_log_sources + \
+                        self.__get_log_distribution(
+                            num_logs, num_servers, arr_idx, logs)
 
         return selected_log_sources
 
