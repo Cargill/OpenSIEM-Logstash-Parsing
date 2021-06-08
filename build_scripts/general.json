@@ -3,10 +3,10 @@
     "prod_only_logs": [
         "event_hub_log_audit_azure.event_hub_audit",
         "event_hub_log_audit_azure.event_hub_signin",
-        "syslog_log_audit_a10.traffic_monthly"
+        "syslog_log_audit_a10.traffic"
     ],
     "processing_config" : {
-        "syslog_log_audit_a10.traffic_monthly" : {
+        "syslog_log_audit_a10.traffic" : {
             "kafka_partitions" : 24,
             "nodes" : 2
         }
