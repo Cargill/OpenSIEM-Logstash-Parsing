@@ -45,17 +45,17 @@ README.md
 
 ## Pipelines
 
-We are using [pipeline to pipeline communication](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html) so that parsing logic can be modularised and community can use it with ease.
+We are using [pipeline to pipeline communication](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipeline.html) so that parsing logic can be modularized and the community can use it with ease.
 
 **Logflow overview**
 
 ![openSIEM_logflow](https://user-images.githubusercontent.com/6766061/120641277-0948cc80-c491-11eb-933e-8e07ac90ab01.jpg)
 
-Each input pipeline sends logs to its respective processor config pipeline. All the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is send to designated outputs. Log outputs are also sequential because of how they are defined in [enrichment output section](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/config/enrichments/999_output.conf). Reason why we did not used parallel out because if we have 3 outputs, then
-  1. It would lead to increased memory need by 2/3rd since each event is cloned for parallel processing. 
-  2. It does not offer any practical parralelism advantage because if any of the down pipelines are bloked, it chokes up the upper pipelines after it's batch size is full.
+Each input pipeline sends logs to its respective processor config pipeline (for example, McAfee or Symantec). All of the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is sent to its designated output(s). Log outputs also run sequentially by how they are defined in its [enrichment output section](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/config/enrichments/999_output.conf). The reason why we did not parallelize outputs is because if we have 3 outputs, then
+  1. It would lead to increased memory need by 67% since each event is cloned for parallel processing. 
+  2. It does not offer any practical parallelism advantages because if any of the downstream output pipelines are blocked, it chokes up the upper pipelines after its batch size is full.
 
-**Logflow detailed**
+**Log Flow in Detail**
 
 ![logflow_detailed](https://user-images.githubusercontent.com/6766061/120799243-1da5cb80-c55c-11eb-853f-5a7048bda591.jpg)
 
@@ -63,13 +63,16 @@ Each input pipeline sends logs to its respective processor config pipeline. All 
 
 ## Working
 
-To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. We have [general.json](#generaljson) file to specify more specifics like on how many nodes we need to process a particular log source. With these setting files and numerous environment variables [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
+To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
 
-**Note:** We gather all the logs in Kafka through various logfeeding agents for a temporary storage. We process logs from Kafka and Azure Eventhub and output to elastic. So keep in mind that our pipeline generation script is inclined in favor of these but you can tweak for your custom use cases. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
+**Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
 
 **Pipeline Generation**
 
-The pipeline generation script reads settings json files and the environment variables, takes the pipelines.yml from the config directory as a template and adds input and processor pipelines to it enabling processing of those log sources.
+The pipeline generation script (generate_pipelines.py):
+ 1. reads in settings files and environment variables
+ 2. takes the pipelines.yml from the config directory as a template
+ 3. adds input and processor pipelines to it, enabling the processing of those log sources.
 
 **Note** The script also replaces variables defined in different conf files with values taken from environment. See environment variables section.
 
@@ -270,10 +273,10 @@ This assumes that you download this repo in some other directory and run logstas
 ```sh
 cp -r config/* /usr/share/logstash/config/
 ```
-When the script runs. It does the following.
+When the script runs, it does the following:
 1. Generate required files e.g. 
     - kafka input files from template
-    - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one.
+    - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one. An example of this, if you have regional collection of a log source foo, and would like to keep those regional logs in different indices. In this case, the parsing of all regions of "foo" would be the same, despite having different inputs. 
     ```diff
     ! Note that, it treats every log source as kafka input if it's not azure. You need to override that logic if you want to work with other inputs.
     ```
@@ -291,7 +294,7 @@ When the script runs. It does the following.
     - So based on this logic this script sets the number of pipeline workers as 8, 4 and 2 respectively. If the log source is defined in processing_config section of general.json workers is set to 16.
 5. Checks if changes were made between deployed directory `/usr/share/logstash` and the current directory. And changes the file `/data/should_redeploy` file. A program can look for changes on this file and can trigger redeploy on logstash.
 
-### environment variables 
+### Environment Variables 
 
 The [generate pipeline script](generate_pipeline.py) uses environment variables which are mandatory to set. Setup your environment as following.
 
@@ -310,7 +313,7 @@ S3_BUCKET_NAME: bucket name to send logs to for s3 out plugin
 LOGSTASH_API_SECRET: '{"azure_audit_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_operational_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_signin_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_tcs_security_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_o365_dlp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "azure_audit_consumer" : "azure_audit_consumer",  "azure_operational_consumer" : "azure_operational_consumer",  "azure_signin_consumer" : "azure_signin_consumer",  "azure_o365_consumer" : "azure_o365_consumer",  "azure_tcs_security_consumer" : "azure_o365_consumer",  "azure_o365_dlp_consumer" : "cg-production-operation",  "azure_storage_conn" : "DefaultEndpointsProtocol=https;AccountName=dummyname;AccountKey=key;EndpointSuffix=core.windows.net",  "azure_atp_consumer" : "azure_atp_consumer",  "azure_atp_conn" : "Endpoint=sb://dummy.com/;SharedAccessKeyName=dum;SharedAccessKey=key=;EntityPath=path",  "memcached_address" : "\"127.0.0.1\",\"127.0.0.2\"",  "dns_server" : "\"127.0.0.1\",\"127.0.0.2\""}'
 ```
 
-Last variable is for various other variables.
+The last variable, LOGSTASH_API_SECRET is used to capture additional values that are not explicitly codified.
 ```diff
 ! Due to a current issue you have to set all with dummy values else script breaks. 
 ```
@@ -340,7 +343,7 @@ Explaining these below.
 
 ## Getting started
 
-These files need to exist otherwise logstash cannot load the geoip enrichment.
+These files need to exist in your running instance, otherwise Logstash cannot load the geoip enrichment.
 ```
 /mnt/s3fs_geoip/GeoLite2-City.mmdb
 /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
