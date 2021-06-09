@@ -65,7 +65,7 @@ Each input pipeline sends logs to its respective processor config pipeline (for 
 
 To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
 
-**Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
+**Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files and the pipeline generation script for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
 
 **Pipeline Generation**
 
@@ -276,7 +276,7 @@ cp -r config/* /usr/share/logstash/config/
 When the script runs, it does the following:
 1. Generate required files e.g. 
     - kafka input files from template
-    - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one. An example of this, if you have regional collection of a log source foo, and would like to keep those regional logs in different indices. In this case, the parsing of all regions of "foo" would be the same, despite having different inputs. 
+    - if a processor is shared between multiple inputs, a copy is created with log_source name(from settings.json) to be able to map an input pipeline to a processor pipeline one to one. e.g. If you have regional collection of a log source foo, and would like to keep those regional logs in different indices. In this case, the parsing of all regions of "foo" would be the same, despite having different inputs, so each of these regional log sources (foo_region1, foo_region2, etc) would be defined in settings.json with the same processing config (foo_processor). The script would make a copy for each of these log sources so each input can get it's own processor.
     ```diff
     ! Note that, it treats every log source as kafka input if it's not azure. You need to override that logic if you want to work with other inputs.
     ```
@@ -343,12 +343,12 @@ Explaining these below.
 
 ## Getting started
 
-These files need to exist in your running instance, otherwise Logstash cannot load the geoip enrichment.
+These files need to exist for Logstash to load the geoip enrichment.
 ```
 /mnt/s3fs_geoip/GeoLite2-City.mmdb
 /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
 ```
-Either remove geoip enrichment file or just touch these files if you are disabling the enrichment from settings.json.
+Either remove geoip enrichment file if you don't want to use it or just touch these files if you are disabling the enrichment from settings.json. If you want to use this enrichment you need to add geoip files. For more information see [using the Geoip filter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html).
 
 - Create _/data_ dir as the script uses it to write logs and create a change file.
 - Update settings.json file.
@@ -357,6 +357,6 @@ Either remove geoip enrichment file or just touch these files if you are disabli
 - Run  python build_scripts/generate_pipeline.py
 - Copy over the config directory to `/usr/share/logstash` and start logstash.
 
-An example can be found here. [workflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/.github/workflows/main.yml#L90)
+An example can be found in github [workflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/.github/workflows/main.yml#L90).
 
 In the workflow, you will also find script to install logstash and add required plugins to it.
