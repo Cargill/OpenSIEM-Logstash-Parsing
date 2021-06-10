@@ -49,7 +49,7 @@ We are using [pipeline to pipeline communication](https://www.elastic.co/guide/e
 
 **Logflow overview**
 
-![openSIEM_logflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/openSIEM_logflow.jpg)
+![openSIEM_logflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/doc/_resources/openSIEM_logflow.jpg)
 
 Each input pipeline sends logs to its respective processor config pipeline (for example, McAfee or Symantec). All of the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is sent to its designated output(s). Log outputs also run sequentially by how they are defined in its [enrichment output section](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/config/enrichments/999_output.conf). The reason why we did not parallelize outputs is because if we have 3 outputs, then
   1. It would lead to increased memory need by 67% since each event is cloned for parallel processing. 
@@ -57,7 +57,7 @@ Each input pipeline sends logs to its respective processor config pipeline (for 
 
 **Log Flow in Detail**
 
-![logflow_detailed](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/logflow_detailed.jpg)
+![logflow_detailed](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/doc/_resources/logflow_detailed.jpg)
 
 
 
@@ -76,7 +76,7 @@ The pipeline generation script (generate_pipelines.py):
 
 **Note** The script also replaces variables defined in different conf files with values taken from environment. See environment variables section.
 
-![pipeline_generation](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/pipeline_generation.jpg)
+![pipeline_generation](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/doc/_resources/pipeline_generation.jpg)
 
 
 Individual input files and the script are explained below.
