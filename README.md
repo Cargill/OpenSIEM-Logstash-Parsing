@@ -1,4 +1,4 @@
-# LogIndexer Pipeline
+# OpenSIEM Logstash Parsing
 Logstash Parsing Configurations for Elastisearch SIEM and OpenDistro for Elasticsearch SIEM
 
 
@@ -15,7 +15,6 @@ architecture](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipel
 "Quick start" mostly depends on how your Logstash configuration is set up. If you have your own setup already established,
 it might be best to use the processors that apply to your organization's log collection (found in the "config" directory). 
 If you are seeking to use the architecture in this repo, consult the README found in the build_scripts directory.
-*We will be adding an elaborate setup guide soon.*
 
 ## Contributions
 We welcome and encourage individual contributions to this repo. Please see the Contribution.md guide in the root of the repo.
