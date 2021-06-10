@@ -50,8 +50,7 @@ class LogstashHelper(object):
     def __init__(self, logstash_dir):
         self.logstash_dir = logstash_dir
         self.deploy_env = os.environ['DEPLOY_ENV']
-        self.logstash_servers = os.environ['LOGSTASH_SERVERS'].split(',')
-        # index of this instance in the array of all logstash instances
+        # index of this instance in the list of all logstash instances
         self.my_index = int(os.environ['MY_INDEX'])
         self.sub_my_ip = os.environ['SUB_MY_IP']
         self.elastic_user, self.elastic_pwd = os.environ['ELASTIC_USER'], os.environ['ELASTIC_PASSWORD']
@@ -154,9 +153,13 @@ class LogstashHelper(object):
             config.write(file_contents)
 
     def replace_vars(self):
+        '''
+            There are variables in conf files which follow VAR_ pattern.
+            Replace them with values taken from environment variables.
+        '''
         vars_dict = {
-            'KAFKA_JAAS_PATH': '/usr/share/logstash/config/kafka_jaas.conf',
-            'KAFKA_CLIENT_TRUSTSTORE': '/usr/share/logstash/config/kafka_client_truststore.jks',
+            'KAFKA_JAAS_PATH': '${LOGSTASH_HOME}/config/kafka_jaas.conf',
+            'KAFKA_CLIENT_TRUSTSTORE': '${LOGSTASH_HOME}/config/kafka_client_truststore.jks',
             'KAFKA_TRUSTSTORE_PASSWORD': 'changeit',
             'KAFKA_BOOTSTRAP_SERVERS': self.kafka_connection_str,
             'RACK_ID': self.rack_id,
@@ -178,8 +181,6 @@ class LogstashHelper(object):
             'AZURE_TCS_SECURITY_CONSUMER': self.logstash_api_secrets['azure_tcs_security_consumer'],
             'AZURE_O365_DLP_CONSUMER': self.logstash_api_secrets['azure_o365_dlp_consumer'],
             'BUCKET_NAME': self.bucket_name,
-            'NC4_API_KEY': self.logstash_api_secrets['nc4_api_key'],
-            'NC4_API_URI': self.logstash_api_secrets['nc4_api_uri'],
             'AZURE_ATP_CONSUMER': self.logstash_api_secrets['azure_atp_consumer'],
             'AZURE_ATP_CONN': self.logstash_api_secrets['azure_atp_conn'],
             'MEMCACHED_ADDRESS': self.logstash_api_secrets['memcached_address'],
@@ -283,7 +284,9 @@ class LogstashHelper(object):
             num_servers_for_special_logs += v['nodes']
         
         special_confs = []
-        num_servers = len(self.logstash_servers)
+        if self.deploy_env == 'test':
+            num_servers = 1
+        num_servers = general_settings['num_indexers']
         # if there are not enough servers for special logs process them like any other
         if num_servers < num_servers_for_special_logs:
             # cannot process clear lag logs explicitly.
@@ -340,9 +343,10 @@ class LogstashHelper(object):
 
             for logs in [daily_logs, weekly_logs, monthly_logs]:
                 num_logs = len(logs)
-                selected_log_sources = selected_log_sources + \
-                    self.__get_log_distribution(
-                        num_logs, num_servers, arr_idx, logs)
+                if num_logs >0 :
+                    selected_log_sources = selected_log_sources + \
+                        self.__get_log_distribution(
+                            num_logs, num_servers, arr_idx, logs)
 
         return selected_log_sources
 
@@ -462,6 +466,11 @@ class LogstashHelper(object):
         return settings
 
     def generate_files(self):
+        '''
+            Generates kafka inputs from template
+            If a processor is shared between multiple inputs, a copy is created with log_source name to be able to map an input pipeline to a processor pipeline one to one.
+            A log source is kafka input if it's not azure. You need to override that logic if you want to work with other inputs.
+        '''
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
         kafka_input_dir = os.path.join(root_dir, 'config', 'inputs', 'kafka')
@@ -554,7 +563,7 @@ class LogstashHelper(object):
     def test_for_change(self, last_deployed_dir, current_deployable_dir):
         '''
             Compare the checksums to see if something changed between existing deployment and ongoing deployment
-            If something did change, write 'changed' to file /data/should_redeploy .
+            If something did change, write 0 or 1 to file /data/should_redeploy depending upon what was previously written.
             Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
         '''
         old_settings_checksum_dict, old_conf_checksum_dict = self.generate_checksum(
