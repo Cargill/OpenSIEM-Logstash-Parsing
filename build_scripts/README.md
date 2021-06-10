@@ -49,7 +49,7 @@ We are using [pipeline to pipeline communication](https://www.elastic.co/guide/e
 
 **Logflow overview**
 
-![openSIEM_logflow](https://user-images.githubusercontent.com/6766061/120641277-0948cc80-c491-11eb-933e-8e07ac90ab01.jpg)
+![openSIEM_logflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/openSIEM_logflow.jpg)
 
 Each input pipeline sends logs to its respective processor config pipeline (for example, McAfee or Symantec). All of the processor pipelines forward logs to the enrichment pipeline. Enrichments are applied sequentially and then the processed and enriched log is sent to its designated output(s). Log outputs also run sequentially by how they are defined in its [enrichment output section](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/config/enrichments/999_output.conf). The reason why we did not parallelize outputs is because if we have 3 outputs, then
   1. It would lead to increased memory need by 67% since each event is cloned for parallel processing. 
@@ -57,7 +57,7 @@ Each input pipeline sends logs to its respective processor config pipeline (for 
 
 **Log Flow in Detail**
 
-![logflow_detailed](https://user-images.githubusercontent.com/6766061/120799243-1da5cb80-c55c-11eb-853f-5a7048bda591.jpg)
+![logflow_detailed](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/logflow_detailed.jpg)
 
 
 
@@ -67,7 +67,7 @@ To process logs we need to create pipelines.yml file. We start with defining enr
 
 **Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files and the pipeline generation script for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
 
-**Pipeline Generation**
+### **Pipeline Generation**
 
 The pipeline generation script (generate_pipelines.py):
  1. reads in settings files and environment variables
@@ -76,7 +76,7 @@ The pipeline generation script (generate_pipelines.py):
 
 **Note** The script also replaces variables defined in different conf files with values taken from environment. See environment variables section.
 
-![pipeline_generation](https://user-images.githubusercontent.com/6766061/120667299-fb07aa00-c4aa-11eb-9e58-fb1b0c6b9dd0.jpg)
+![pipeline_generation](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/usage-doc/doc/_resources/pipeline_generation.jpg)
 
 
 Individual input files and the script are explained below.
