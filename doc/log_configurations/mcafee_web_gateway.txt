@@ -35,6 +35,7 @@ Also needed is to configure a Log Handler Rule Set with two rules.  Currently ca
 			String.Concat (" sslsigmethodserver=", String.Concat (SSL.Server.Certificate.SignatureMethod, ", "))
 			String.Concat (" sslciphersrvrt=", String.Concat (SSL.Server.Cipher, ", "))
 			String.Concat (" sslversionsrvr=", String.Concat (SSL.Server.Protocol, ", "))
+			String.Concat (" rule=", String.Concat (Rules.CurrentRule.Name, ", "))
 			String.Concat (" method=", String.Concat (Request.Header.FirstLine, ", "))
 			String.Concat (" ref=", String.Concat (Header.Request.Get ("Referer"), " "))
 
@@ -65,6 +66,7 @@ Below is what each field represents
   sslsigmethodserver=Server Certificate Signature Method
   sslciphersrvrt=Server Cipher Suite
   sslversionsrvr=Server TLS Protocol
+  rule=Last Rule fired on the proxy
   method=Method (i.e. PUT, GET, POST, etc)
     url=URL
     ver=Protocol and Version
