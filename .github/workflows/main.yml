@@ -61,6 +61,8 @@ jobs:
           && export GNUPGHOME="$(mktemp -d)"; \
           ( gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$LOGSTASH_GPG_KEY" \
           || gpg --keyserver pgp.mit.edu --recv-keys "$LOGSTASH_GPG_KEY" \
+          || gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "$LOGSTASH_GPG_KEY" \
+          || gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$LOGSTASH_GPG_KEY" \
           || gpg --keyserver keyserver.pgp.com --recv-keys "$LOGSTASH_GPG_KEY" ); \
           gpg --batch --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
         \
