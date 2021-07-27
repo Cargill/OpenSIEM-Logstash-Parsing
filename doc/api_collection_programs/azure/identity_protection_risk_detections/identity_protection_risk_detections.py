@@ -64,7 +64,7 @@ def flatten_objects(logs):
         print(f"LOG WITHOUT FLATTENING: {log}")
         final_dict = dict(log)
         user_agent = []
-        additional_info = log["additionalInfo"].strip('][').split(', ')
+        additional_info = json.loads(log["additionalInfo"])
         for item in additional_info:
             user_agent.append(item["Value"])
         final_dict["user_agent"] = user_agent
@@ -80,7 +80,6 @@ if __name__ == "__main__":
                                      'azure_graph_tenant'])
     token = get_auth_token(secrets)
     logs = pull_graph_alerts(secrets, token)
-    print(f"logs: {logs}")
     if logs["value"]:
-        # flattened_logs = flatten_objects(logs)
-        kafka_producer.run_kafka_producer_job(logs["value"], "log_security_azure.graph_identity_protection_api_monthly")
+        flattened_logs = flatten_objects(logs)
+        kafka_producer.run_kafka_producer_job(flattened_logs, "log_security_azure.graph_identity_protection_api_monthly")
