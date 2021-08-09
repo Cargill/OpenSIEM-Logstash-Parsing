@@ -39,6 +39,7 @@ def pull_pp_siem_logs():
                            secrets['proofpoint_tap_password']),
                      headers=headers,
                          params=qs)
+        print(r.content)
         return r.json()
 
     except Exception as e:
@@ -101,33 +102,29 @@ if __name__ == "__main__":
         are coming from. So, additional parsing will need to be done to remove the outermost dict. 
     '''
 
-    while True:
-        """
-        Query pp_siem API (JSON format) from last 5 minutes
-        send logs to kafka
-        """
-        print("sleeping")
-        time.sleep(299)
-        print("Done sleeping")
-        logs = pull_pp_siem_logs()
-        if logs["clicksPermitted"]:
-            endpoint = "test_log_security_proofpoint.siem_api_clicks_monthly"
+    logs = pull_pp_siem_logs()
+    print(logs)
+    print(f"type: {type(logs)}")
+    if logs is not None:
+        if "clicksPermitted" in logs:
+            endpoint = "log_security_proofpoint.siem_api_clicks_monthly"
             clicks_permitted = parse_clicks(logs["clicksPermitted"], "clicksPermitted")
             kafka_producer.run_kafka_producer_job(clicks_permitted, endpoint)
 
-        if logs["clicksBlocked"]:
-            endpoint = "test_log_security_proofpoint.siem_api_clicks_monthly"
+        if "clicksBlocked" in logs:
+            endpoint = "log_security_proofpoint.siem_api_clicks_monthly"
             clicks_blocked = parse_clicks(logs["clicksBlocked"], "clicksBlocked")
             kafka_producer.run_kafka_producer_job(clicks_blocked, endpoint)
 
-        if logs['messagesDelivered']:
-            endpoint = "test_log_security_proofpoint.siem_api_messages_monthly"
+        if 'messagesDelivered' in logs:
+            endpoint = "log_security_proofpoint.siem_api_messages_monthly"
             messages_delivered = parse_messages(logs['messagesDelivered'], "messagesDelivered")
             kafka_producer.run_kafka_producer_job(messages_delivered, endpoint)
 
-        if logs['messagesBlocked']:
-            endpoint = "test_log_security_proofpoint.siem_api_messages_monthly"
+        if 'messagesBlocked' in logs:
+            endpoint = "log_security_proofpoint.siem_api_messages_monthly"
             messages_blocked = parse_messages(logs['messagesBlocked'], "messagesBlocked")
             kafka_producer.run_kafka_producer_job(messages_blocked, endpoint)
-
-        logger.info(f'pp_siem_produce finished')
+    else:
+        logger.info("No logs collected for this timeframe.")
+    logger.info(f'pp_siem_produce finished')
