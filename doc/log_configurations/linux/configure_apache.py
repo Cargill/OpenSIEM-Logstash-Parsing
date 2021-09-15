@@ -30,13 +30,11 @@ root_dir = options[os_type]['root_path']
 included_paths = []
 master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
 
-
-def get_included_paths(stripped_lines):
-    # look for includes, which are references to files with more configuration info
-    included_paths = []
-    for line in stripped_lines:
-        if line.startswith("IncludeOptional"):
-            include_path = line.split("IncludeOptional")[1].strip()
+def identify_abs_or_relative_path(line):
+    includes_all = ["IncludeOptional", "Include"]
+    for i in includes_all:
+        if line.startswith(i) and ".conf" in line:
+            include_path = line.split(i)[1].strip()
             abs_include_path = ''
             if include_path.startswith("/"):
                 # it's an absolute path
@@ -44,7 +42,15 @@ def get_included_paths(stripped_lines):
             else:
                 # it's a relative path
                 abs_include_path = os.path.join(root_dir, include_path)
-            included_paths.append(abs_include_path)
+            return abs_include_path
+
+
+def get_included_paths(stripped_lines):
+    # look for includes, which are references to files with more configuration info
+    included_paths = []
+    for line in stripped_lines:
+        path = identify_abs_or_relative_path(line)
+        included_paths.append(path)
     return included_paths
 
 
