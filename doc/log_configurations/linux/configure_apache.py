@@ -76,42 +76,49 @@ def assign_values(lines, num):
     # getting the index of first space character
     # the word before it is the key and everything after is the value
 
-
-
-
-def parse_config(config_path):
-    # returns a tuple of list of virtual_hosts definitions and list of includes path
-    # parse this config and get all included paths
+def read_lines(config_path):
     with open(config_path) as config_path:
-        virtual_hosts = []
         orig_lines = config_path.readlines()
         lines = [line.strip() for line in orig_lines]
         lines = list(filter(lambda line: not line.startswith('#'), lines))
-        included_paths = get_included_paths(lines)
-        # look for virtual hosts
-        virtual_host_def_start = False
-        for l in range(0, len(lines)):
-            if lines[l].startswith('<VirtualHost'):
-                matched = re.search('^<VirtualHost\s+(.+)>$', lines[l])
-                '''If the regex matches, then it is added to virtual_host_config
-                 as 'name': <VirtualHost *:80>
-                '''
-                virtual_host_config = {
-                    'name' : matched.group(1)
-                }
-                virtual_host_def_start = True
-            if lines[l].startswith('</VirtualHost>'):
-                virtual_host_def_start = False
-                virtual_hosts.append(virtual_host_config)
-            if virtual_host_def_start:
-                values = assign_values(lines, l)
-                virtual_host_config.update(values)
-        return virtual_hosts, included_paths
+        return lines
+
+
+def identify_extra_config_paths(config_path):
+    lines = read_lines(config_path)
+    included_paths = get_included_paths(lines)
+    return included_paths
+
+
+def parse_config(config_path):
+    lines = read_lines(config_path)
+    # look for virtual hosts
+    virtual_host_def_start = False
+    virtual_hosts = []
+    for l in range(0, len(lines)):
+        if lines[l].startswith('<VirtualHost'):
+            matched = re.search('^<VirtualHost\s+(.+)>$', lines[l])
+            '''If the regex matches, then it is added to virtual_host_config
+             as 'name': <VirtualHost *:80>
+            '''
+            virtual_host_config = {
+                'name' : matched.group(1)
+            }
+            virtual_host_def_start = True
+        if lines[l].startswith('</VirtualHost>'):
+            virtual_host_def_start = False
+            virtual_hosts.append(virtual_host_config)
+        if virtual_host_def_start:
+            values = assign_values(lines, l)
+            virtual_host_config.update(values)
+    return virtual_hosts
 
 
 
 confs_to_update = []
 config_path = master_config_path
+
+more_paths = identify_extra_config_paths(config_path)
 virtual_host_configs, more_paths = parse_config(config_path)
 if virtual_host_configs:
     # if it has virtual_host_configs
@@ -119,7 +126,7 @@ if virtual_host_configs:
     confs_to_update.append(config_path)
 if more_paths:
     for path in more_paths:
-
+        pass
 
 print(more_paths)
 print(virtual_host_configs)
