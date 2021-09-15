@@ -15,10 +15,13 @@ import os
 #       define CustomLog as DocumentRoot/log/requests.log and use tgrc_apache_log_format
 #       define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 
-os_type =  'centos'
+os_type = 'centos'
 options = {
-    'centos' : {
-        'root_path' : '/etc/httpd/'
+    'centos': {
+        'root_path': '/etc/httpd/'
+    },
+    'Red Hat': {
+        'root_path': '/etc/httpd/'
     }
 }
 root_dir = options[os_type]['root_path']
@@ -26,6 +29,7 @@ root_dir = options[os_type]['root_path']
 # included_paths may be a glob pattern conf.d/*.conf
 included_paths = []
 master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
+
 
 def get_included_paths(stripped_lines):
     # look for includes, which are references to files with more configuration info
@@ -98,6 +102,8 @@ def parse_config(config_path):
                 virtual_host_config.update(values)
         return virtual_hosts, included_paths
 
+
+
 confs_to_update = []
 config_path = master_config_path
 virtual_host_configs, more_paths = parse_config(config_path)
@@ -105,6 +111,9 @@ if virtual_host_configs:
     # if it has virtual_host_configs
     # add this config path to the list to update 
     confs_to_update.append(config_path)
+if more_paths:
+    for path in more_paths:
+
 
 print(more_paths)
 print(virtual_host_configs)
