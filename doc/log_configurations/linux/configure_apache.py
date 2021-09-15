@@ -119,14 +119,14 @@ confs_to_update = []
 config_path = master_config_path
 
 more_paths = identify_extra_config_paths(config_path)
-virtual_host_configs, more_paths = parse_config(config_path)
-if virtual_host_configs:
-    # if it has virtual_host_configs
-    # add this config path to the list to update 
-    confs_to_update.append(config_path)
 if more_paths:
     for path in more_paths:
-        pass
+        additional_config = parse_config(path)
+        confs_to_update.append(path)
+        # @Krishna, do we not want to add in the dict too?
+virtual_host_configs = parse_config(config_path)
+if virtual_host_configs:
+    confs_to_update.append(config_path)
 
 print(more_paths)
 print(virtual_host_configs)
