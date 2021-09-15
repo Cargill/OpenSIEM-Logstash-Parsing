@@ -28,7 +28,7 @@ included_paths = []
 master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
 
 def get_included_paths(stripped_lines):
-    # look for includes
+    # look for includes, which are references to files with more configuration info
     included_paths = []
     for line in stripped_lines:
         if line.startswith("IncludeOptional"):
@@ -43,6 +43,32 @@ def get_included_paths(stripped_lines):
             included_paths.append(abs_include_path)
     return included_paths
 
+
+def assign_values(lines, num):
+    '''We are interested in DocumentRoot, ServerName, ServerAlias, LogFormat, CustomLog, ErrorLog
+    We are going to find the relevant fields up until the accompanying </VirtualHost> section
+    '''
+    dict_values = {}
+    relevant_fields = ["DocumentRoot", "ServerName", "ServerAlias", "LogFormat", "CustomLog", "ErrorLog"]
+    for l in range(num, len(lines)):
+        if "</VirtualHost>" not in lines[l]:
+            for field in relevant_fields:
+                if field in lines[l]:
+                    key = ''.join(lines[l][:lines[l].index(' ')]).strip()
+                    value = ''.join(lines[l][lines[l].index(' '):]).strip()
+                    dict_values[key] = value
+                else:
+                    pass
+        else:
+            # reached the end of the VirtualHost section
+            break
+    return dict_values
+    # getting the index of first space character
+    # the word before it is the key and everything after is the value
+
+
+
+
 def parse_config(config_path):
     # returns a tuple of list of virtual_hosts definitions and list of includes path
     # parse this config and get all included paths
@@ -54,24 +80,22 @@ def parse_config(config_path):
         included_paths = get_included_paths(lines)
         # look for virtual hosts
         virtual_host_def_start = False
-        for line in lines:
-            if line.startswith('<VirtualHost'):
-                matched = re.search('^<VirtualHost\s+(.+)>$', line)
+        for l in range(0, len(lines)):
+            if lines[l].startswith('<VirtualHost'):
+                matched = re.search('^<VirtualHost\s+(.+)>$', lines[l])
+                '''If the regex matches, then it is added to virtual_host_config
+                 as 'name': <VirtualHost *:80>
+                '''
                 virtual_host_config = {
                     'name' : matched.group(1)
                 }
                 virtual_host_def_start = True
-            if line.startswith('</VirtualHost>'):
+            if lines[l].startswith('</VirtualHost>'):
                 virtual_host_def_start = False
                 virtual_hosts.append(virtual_host_config)
             if virtual_host_def_start:
-                # We are interested in DocumentRoot, ServerName, ServerAlias, LogFormat, CustomLog, ErrorLog
-                # getting the index of first space character
-                # the word before it is the key and everything after is the value
-                key = ''.join(line[:line.index(' ')]).strip()
-                value = ''.join(line[line.index(' '):]).strip()
-                virtual_host_config[key] = value
-
+                values = assign_values(lines, l)
+                virtual_host_config.update(values)
         return virtual_hosts, included_paths
 
 confs_to_update = []
