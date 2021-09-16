@@ -42,27 +42,20 @@ def identify_abs_or_relative_path(line):
     return None
 
 
-def assign_values(lines, num):
+def assign_values(line):
     '''We are interested in DocumentRoot, ServerName, ServerAlias, LogFormat, CustomLog, ErrorLog
     We are going to find the relevant fields up until the accompanying </VirtualHost> section
     '''
     dict_values = {}
     relevant_fields = ['DocumentRoot', 'ServerName',
                        'ServerAlias', 'LogFormat', 'CustomLog', 'ErrorLog']
-    for l in range(num, len(lines)):
-        if '</VirtualHost>' not in lines[l]:
-            for field in relevant_fields:
-                if field in lines[l]:
-                    # getting the index of first space character
-                    # the word before it is the key and everything after is the value
-                    key = ''.join(lines[l][:lines[l].index(' ')]).strip()
-                    value = ''.join(lines[l][lines[l].index(' '):]).strip()
-                    dict_values[key] = value
-                else:
-                    pass
-        else:
-            # reached the end of the VirtualHost section
-            break
+    for field in relevant_fields:
+        if field in line:
+            # getting the index of first space character
+            # the word before it is the key and everything after is the value
+            key = ''.join(line[:line.index(' ')]).strip()
+            value = ''.join(line[line.index(' '):]).strip()
+            dict_values[key] = value
     return dict_values
 
 
@@ -70,7 +63,6 @@ def read_lines(config_path):
     '''reads lines and strips them
     filters out the lines which start with # as they are comments
     '''
-    print(config_path)
     with open(config_path) as config_file:
         orig_lines = config_file.readlines()
         lines = [line.strip() for line in orig_lines]
@@ -80,7 +72,6 @@ def read_lines(config_path):
 
 def identify_extra_config_paths(config_path):
     '''fetches include paths in a config file
-    TODO: Make recursive
     '''
     lines = read_lines(config_path)
     # look for includes, which are references to files with more configuration info
@@ -88,8 +79,11 @@ def identify_extra_config_paths(config_path):
     for line in lines:
         path = identify_abs_or_relative_path(line)
         if path is not None:
-
-            included_paths.append(path)
+            # expand the path
+            for expanded_path in glob.glob(path):
+                paths = identify_extra_config_paths(expanded_path)
+                included_paths.append(expanded_path)
+                included_paths.extend(paths)
     return included_paths
 
 
@@ -98,9 +92,10 @@ def parse_config(config_path):
     # look for virtual hosts
     virtual_host_def_start = False
     virtual_hosts = []
-    for idx in range(0, len(lines)):
-        if lines[idx].startswith('<VirtualHost'):
-            matched = re.search(r'^<VirtualHost\s+(.+)>$', lines[idx])
+    for line in lines:
+        # There can be multiple VirtualHost definitions in one conf file.
+        if line.startswith('<VirtualHost'):
+            matched = re.search(r'^<VirtualHost\s+(.+)>$', line)
             '''If the regex matches, then it is added to virtual_host_config
              as 'name': <VirtualHost *:80>
             '''
@@ -108,11 +103,11 @@ def parse_config(config_path):
                 'name': matched.group(1)
             }
             virtual_host_def_start = True
-        if lines[idx].startswith('</VirtualHost>'):
+        if line.startswith('</VirtualHost>'):
             virtual_host_def_start = False
             virtual_hosts.append(virtual_host_config)
         if virtual_host_def_start:
-            values = assign_values(lines, idx)
+            values = assign_values(line)
             virtual_host_config.update(values)
     return virtual_hosts
 
@@ -120,22 +115,32 @@ def parse_config(config_path):
 if __name__ == "__main__":
     os_type = 'centos'
     root_dir = options[os_type]['root_path']
-    # for include_file in sorted(glob.glob(filepath)):
-    # included_paths may be a glob pattern conf.d/*.conf
-    included_paths = []
     # The config files that need to be updated i.e. configure logging for the VirtualHost
-    confs_to_update = []
+    confs_to_update = {}
     master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
 
-    config_path = master_config_path
-    more_paths = identify_extra_config_paths(config_path)
-    if more_paths:
-        for path in more_paths:
-            additional_config = parse_config(path)
-            included_paths.append(path)
-    virtual_host_configs = parse_config(config_path)
-    if virtual_host_configs:
-        confs_to_update.append(config_path)
-
-    print(more_paths)
-    print(virtual_host_configs)
+    more_paths = identify_extra_config_paths(master_config_path)
+    more_paths.append(master_config_path)
+    for path in more_paths:
+        virtual_host_configs = parse_config(path)
+        if virtual_host_configs:
+            confs_to_update[path] = virtual_host_configs
+    if len(confs_to_update.keys()) == 0:
+        # there is no virtual host update the master config
+        # TODO add logic
+        pass
+    else:
+        import json
+        print(json.dumps(confs_to_update, indent=2))
+        for conf_path in confs_to_update.keys():
+            with open(conf_path, 'r') as conf_file:
+                conf_str = conf_file.read()
+            with open(conf_path, 'w') as conf_file:
+                modified_conf_str = conf_str
+                # TODO
+                # for each virtual host
+                # add logic to insert LogFormat, CustomLog and ErrorLog
+                conf_file.write(modified_conf_str)
+            # TODO
+            # create directory and add permission
+            # make a rsyslog conf
