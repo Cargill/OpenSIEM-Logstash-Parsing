@@ -13,7 +13,7 @@ import uuid
 #           if CENTOS
 #              semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
 #              restorecon -R -v <log_directory>
-#       define CustomLog as DocumentRoot/log/requests.log and use tgrc_apache_log_format
+#       define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
 #       define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 
 options = {
@@ -139,6 +139,45 @@ def get_virtual_hosts(config_path):
 
 
 if __name__ == "__main__":
+    '''
+    CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
+    If CustomLog is defined in VirtualHost section it is used else CustomLog is picked up from root httpd.conf
+    CustomLog can be set in VirtualHost section also.
+    Recommendations:
+    1. Use BufferedLogs https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
+    On some systems, this may result in more efficient disk access and hence higher performance. 
+    It may be set only once for the entire server;
+    it cannot be configured per virtual-host.
+    This directive should be used with caution as a crash might cause loss of logging data.
+    2. Use single access log file for all sites/hosts on the server and 
+    log name of the virtual host in each request to keep file descriptors low.
+    https://httpd.apache.org/docs/2.4/logs.html#virtualhost
+
+
+    This script adds access logging and error logging per virtual host.
+    The path is doc_root/log/access.log and doc_root/log/error.log
+    It does not overwrites any predefined logging. So admins can also log in their desired format to a different location.
+    
+    Only if by chance a logformat is defined with name tgrc_log_format it would be overwritten with our standard log format.
+    
+    If no virtualhost is defined then logging is configured in root httpd.conf file.
+    This means that requests would be logged in two error log files and two access log files
+    as there would already be a default log definition.
+
+    Need DocumentRoot for log file path.
+    Need ServerName and/or ServerAlias for determining site name as it would be used in rsyslog.
+    But site name can also be a part of each log so this may not be needed.
+
+    So change logging to log site name.
+    Log to different places. But you don't need site name to pass now. It would be parsed from the logs.
+    OR
+    Enforce logging to one file by removing any other CustomLog directive from VirtualHost
+    And
+    
+    TODO
+    FIXME So we don't need to parse server name or alias.
+
+    '''
     os_type = 'centos'
     root_dir = options[os_type]['root_path']
     # The config files that need to be updated i.e. configure logging for the VirtualHost
@@ -147,6 +186,10 @@ if __name__ == "__main__":
 
     more_paths = identify_extra_config_paths(master_config_path)
     more_paths.append(master_config_path)
+    # TODO
+    # Need DocumentRoot for log file path
+    # Need ServerName and/or ServerAlias for determining site name. It would be used in rsyslog.
+    # But site name can also be a part of each log so this may not be needed.
     root_config = {}
     for path in more_paths:
         virtual_host_configs = get_virtual_hosts(path)
@@ -162,12 +205,14 @@ if __name__ == "__main__":
         import json
         print(json.dumps(confs_to_update, indent=2))
         for conf_path in confs_to_update.keys():
+            lines = read_lines(conf_path)
             virtual_hosts = confs_to_update[conf_path]
             for virtual_host in virtual_hosts:
                 # Check if CustomLog is defined
                 # Check if ErrorLog is defined
                 # Check if LogFormat is defined
                 # Check if both these logs are using the correct log format
+                insert_offset = 0
                 try:
                     doc_root = virtual_host['DocumentRoot']
                 except KeyError:
@@ -179,43 +224,70 @@ if __name__ == "__main__":
                         dir_name = virtual_host['ServerAlias']
                     else:
                         dir_name = str(uuid.uuid4())
+                    # We need doc_root as log directory is relative to it.
+                    # Get the default.
                     doc_root = '{}/{}'.format(
                         root_config['DocumentRoot'], dir_name)
-
-                tgrc_std_custom_log = '{}/log/requests.log tgrc_log_format'.format(
-                    doc_root)
-                tgrc_std_error_log = '{}/log/error.log tgrc_log_format'.format(
-                    doc_root)
-                tgrc_std_log_format = '"%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" \"%{X-Forwarded-For}i\"" tgrc_log_format'
+                std_log_format_name = 'tgrc_log_format'
+                custom_log_path = '{}/log/access.log'.format(doc_root)
+                error_log_path = '{}/log/error.log'.format(doc_root)
+                # tgrc_std_log_pattern = '"%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" \"%{X-Forwarded-For}i\""'
+                tgrc_std_log_pattern = '"%t %Z %z %m %U %q %p %a %H %v %s %I % O %T \"%{Referer}i\" \"%{User-Agent}i\" %{X-Forwarded-For}i"'
+                tgrc_std_log_format = 'LogFormat {} {}'.format(tgrc_std_log_pattern, std_log_format_name)
+                tgrc_std_custom_log = 'CustomLog {} {}'.format(custom_log_path, std_log_format_name)
+                tgrc_std_error_log = 'ErrorLog {}'.format(error_log_path)
                 try:
-                    custom_log = virtual_host['CustomLog']
-                    tgrc_std_custom_log = custom_log
-                    # replacing
+                    log_format_pattern = virtual_host['LogFormat'][std_log_format_name]
+                    # std_log_format_name is already defined in this config
+                    if log_format_pattern != tgrc_std_log_pattern:
+                        # replacing
+                        pass
                 except KeyError:
                     # inserting
-                    pass
+                    lines.insert(
+                        insert_offset + virtual_host['end_index'], tgrc_std_log_format)
+                    insert_offset += 1
+                try:
+                    custom_log = virtual_host['CustomLog']
+                    # checking if custom_log is using tgrc standard log format
+                    log_file_path = ''.join(
+                        custom_log[custom_log.rindex(' '):]).strip()
+                    log_format_name = ''.join(
+                        custom_log[:custom_log.rindex(' ')]).strip()
+                    if log_format_name != 'tgrc_log_format':
+                        # inserting
+                        lines.insert(
+                            insert_offset + virtual_host['end_index'], tgrc_std_custom_log)
+                        insert_offset += 1
+                    else:
+                        # logging format is good user may want to have a different path, so note it down
+                        # we are enforcing log pattern not log location
+                        custom_log_path = log_file_path
+                except KeyError:
+                    # inserting
+                    lines.insert(
+                        insert_offset + virtual_host['end_index'], tgrc_std_custom_log)
+                    insert_offset += 1
                 try:
                     error_log = virtual_host['ErrorLog']
+                    if log_format_name != 'tgrc_log_format':
+                        # inserting
+                        lines.insert(
+                            insert_offset + virtual_host['end_index'], tgrc_std_error_log)
+                        insert_offset += 1
+                    else:
+                        # logging format is good user may want to have a different path, so note it down
+                        # we are enforcing log pattern not log location
+                        error_log_path = log_file_path
                     tgrc_std_error_log = error_log
                     # replacing
                 except KeyError:
                     # inserting
-                    pass
-                try:
-                    log_format = virtual_host['LogFormat']
-                    tgrc_std_log_format = log_format
-                    # replacing
-                except KeyError:
-                    # inserting
-                    pass
-            with io.open(conf_path, 'r') as conf_file:
-                conf_str = conf_file.read()
+                    lines.insert(insert_offset +
+                                 virtual_host['end_index'], tgrc_std_error_log)
+                    insert_offset += 1
             with io.open(conf_path, 'w', encoding='UTF-8') as conf_file:
-                modified_conf_str = conf_str
-                # TODO
-                # for each virtual host
-                # add logic to insert LogFormat, CustomLog and ErrorLog
-                conf_file.write(modified_conf_str)
+                conf_file.writelines(lines)
             # TODO
             # create directory and add permission
             # make a rsyslog conf
