@@ -63,7 +63,7 @@ Each input pipeline sends logs to its respective processor config pipeline (for 
 
 ## Working
 
-To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
+To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `INSTANCE_COUNT` set to 1 in environment variables.
 
 **Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files and the pipeline generation script for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
 
@@ -142,7 +142,6 @@ This adds capability to process a config explicitly on logstash nodes. Logs can 
 
 ```json
 {
-    "num_indexers" : NUMBER OF LOGSTASH NODES IN THE CLUSTER,
     "prod_only_logs": [
         "LIST OF LOGS WHICH WON'T BE ADDED IN PIPELINES IF ENVIRONMENT VARIABLE DEPLOY_ENV=dev (list should be made of log_source values from settings.json)"
     ],
