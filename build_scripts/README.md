@@ -301,6 +301,7 @@ The [generate pipeline script](generate_pipeline.py) uses environment variables 
 ```
 DEPLOY_ENV: test/dev/prod
 MY_INDEX: index of this logtash node in the cluster
+INSTANCE_COUNT: number of instances in the cluster
 SUB_MY_IP: some unique value added to plugin ids
 ELASTIC_USER: elastic username
 ELASTIC_PASSWORD: elastic password

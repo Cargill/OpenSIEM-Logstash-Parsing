@@ -76,8 +76,10 @@ jobs:
         logstash-filter-tld
     - name: Generate pipelines
       env:
+        # See README.md for explaination
         DEPLOY_ENV: test
         MY_INDEX: '1'
+        # INSTANCE_COUNT=1 as we want to include all configs in one pipeline so syntax check can be performed
         INSTANCE_COUNT: '1'
         SUB_MY_IP: abc
         ELASTIC_USER: elastic_user
