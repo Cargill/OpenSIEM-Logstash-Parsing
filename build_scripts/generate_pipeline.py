@@ -68,7 +68,7 @@ class LogstashHelper(object):
         return jsonise(logstash_api_sec)
 
     def __get_num_instances(self):
-        num_of_logindexers = os.environ['INSTANCE_COUNT']
+        num_of_logindexers = int(os.environ['INSTANCE_COUNT'])
         return num_of_logindexers
 
     def __get_prod_only_logs(self):
