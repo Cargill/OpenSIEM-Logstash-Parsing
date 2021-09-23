@@ -61,16 +61,15 @@ class LogstashHelper(object):
         self.logstash_api_secrets = self.__get_logstash_api_secret()
         self.bucket_name = os.environ['S3_BUCKET_NAME']
         self.prod_only_logs = self.__get_prod_only_logs()
-        self.num_indexers = self.__get_num_indexers()
+        self.num_instances = self.__get_num_instances()
 
     def __get_logstash_api_secret(self):
         logstash_api_sec = os.environ['LOGSTASH_API_SECRET']
         return jsonise(logstash_api_sec)
 
-    def __get_num_indexers(self):
-        general_settings = load_general_settings(self.logstash_dir)
-        indexers = general_settings['num_indexers']
-        return indexers
+    def __get_num_instances(self):
+        num_of_logindexers = os.environ['INSTANCE_COUNT']
+        return num_of_logindexers
 
     def __get_prod_only_logs(self):
         general_settings = load_general_settings(self.logstash_dir)
@@ -284,14 +283,13 @@ class LogstashHelper(object):
             num_servers_for_special_logs += v['nodes']
         
         special_confs = []
-        if self.deploy_env == 'test':
-            num_servers = 1
-        num_servers = general_settings['num_indexers']
+        num_servers = self.num_instances
         # if there are not enough servers for special logs process them like any other
         if num_servers < num_servers_for_special_logs:
-            # cannot process clear lag logs explicitly.
+            # cannot process special logs explicitly.
             # treat them like high volume logs
             self.special_logs = []
+            logger.warning('cannot process special logs explicitly')
             num_servers_for_special_logs = 0
         
         daily_logs = []
