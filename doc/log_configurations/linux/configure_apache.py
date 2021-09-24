@@ -207,7 +207,7 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
     # log pattern
     # <%t Time the request was received> <%Z > <%z > <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
     tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \"%{Referer}i\" \"%{User-Agent}i\" %{X-Forwarded-For}i"'
-    tgrc_std_error_log_pattern = '"[%t] [%l] [pid %P] %F: %E: [client %a] %M"'
+    tgrc_std_error_log_pattern = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
     
     tgrc_std_log_format = 'LogFormat {} {}'.format(
         tgrc_std_log_pattern, std_log_format_name).decode("utf-8")
