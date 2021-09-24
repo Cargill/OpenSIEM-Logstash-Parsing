@@ -1,19 +1,73 @@
+'''
+Webshpere log pattern: https://www.ibm.com/docs/en/was-nd/8.5.5?topic=logs-custom-log-file-format
+About Apache Logging:
+CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
+If CustomLog is defined in VirtualHost section it is used else CustomLog is picked up from root httpd.conf
+CustomLog can be set in VirtualHost section also.
+Recommendations:
+1. Use BufferedLogs https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
+On some systems, this may result in more efficient disk access and hence higher performance. 
+It may be set only once for the entire server;
+it cannot be configured per virtual-host.
+This directive should be used with caution as a crash might cause loss of logging data.
+2. Use single access log file for all sites/hosts on the server and 
+log name of the virtual host in each request to keep file descriptors low.
+https://httpd.apache.org/docs/2.4/logs.html#virtualhost
+This has a drawback. In case one wants to do a custom logging for a virtual host then this logging would be suppressed.
+
+About this script:
+Considerations:
+    Admins are enabled to log in their desired format to a different location.
+    If a log is defined to log at a custom location with our standard pattern that can be used for rsyslog too.
+    But this aproach can cause issues if logging was defined to a pipe rather than a file. So the script adds logging to standard location.
+
+It does not overwrites any predefined logging.
+It adds access logging and error logging per virtual host.
+The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
+Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
+If either of ServerName and ServerAlias are not defined path is DocumentRoot/logs/log
+
+If no virtualhost is defined then logging is configured in root httpd.conf file.
+This means that requests would be logged in _two_ error log files and _two_ access log files
+as there would already be a default log definition.
+
+Log format:
+Virtual host name is also logged so it can be extracted with logstash. This way log parsing config would still work if 
+the server admin later decides to go with single logging approach.
+A logformat would be overwritten with our standard log format only if it was defined with name tgrc_log_format.
+
+Error Logs take all the formats defined, so it's hard to determine which format is being used. https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
+It's possible to enforce an error logging pattern only by removing all errorlogformats and using our standard only.
+
+Currently, we just add a standard error logging pattern and log to standard error log location.
+
+Collecting Apache Logs:
+Rsyslog can be configured just to read all apache logs and forward them to centrallized location with the tag of apache.
+It can also be configured to pre-parse it and send data in structured format.
+
+
+Tests:
+1. Overwrites tgrc_log_format LogFormat with standard one.
+2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
+3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
+
+# TODO remove later
+If using VirtualHosts
+      get DocumentRoot
+      get ServerName
+      get ServerAlias
+      define LogFormat as tgrc_apache_log_format
+      create ./log directory if not exists and execute
+          if CENTOS
+             semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
+             restorecon -R -v <log_directory>
+      define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
+      define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
+'''
 import glob
 import io
 import os
 import re
-
-# If using VirtualHosts
-#       get DocumentRoot
-#       get ServerName
-#       get ServerAlias
-#       define LogFormat as tgrc_apache_log_format
-#       create ./log directory if not exists and execute
-#           if CENTOS
-#              semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
-#              restorecon -R -v <log_directory>
-#       define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
-#       define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 
 options = {
     'centos': {
@@ -203,12 +257,12 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
     std_log_format_name = 'tgrc_log_format'
     custom_log_path = '{}/log/access.log'.format(doc_root)
     error_log_path = '{}/log/error.log'.format(doc_root)
-    
+
     # log pattern
     # <%t Time the request was received> <%Z > <%z > <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
     tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \"%{Referer}i\" \"%{User-Agent}i\" %{X-Forwarded-For}i"'
     tgrc_std_error_log_pattern = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
-    
+
     tgrc_std_log_format = 'LogFormat {} {}'.format(
         tgrc_std_log_pattern, std_log_format_name).decode("utf-8")
     tgrc_std_error_log_format = 'ErrorLogFormat {}'.format(
@@ -290,59 +344,6 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
 
 
 if __name__ == "__main__":
-    '''
-    About Apache Logging:
-    CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
-    If CustomLog is defined in VirtualHost section it is used else CustomLog is picked up from root httpd.conf
-    CustomLog can be set in VirtualHost section also.
-    Recommendations:
-    1. Use BufferedLogs https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
-    On some systems, this may result in more efficient disk access and hence higher performance. 
-    It may be set only once for the entire server;
-    it cannot be configured per virtual-host.
-    This directive should be used with caution as a crash might cause loss of logging data.
-    2. Use single access log file for all sites/hosts on the server and 
-    log name of the virtual host in each request to keep file descriptors low.
-    https://httpd.apache.org/docs/2.4/logs.html#virtualhost
-    This has a drawback. In case one wants to do a custom logging for a virtual host then this logging would be suppressed.
-
-    About this script:
-    Considerations:
-        Admins are enabled to log in their desired format to a different location.
-        If a log is defined to log at a custom location with our standard pattern that can be used for rsyslog too.
-        But this aproach can cause issues if logging was defined to a pipe rather than a file. So the script adds logging to standard location.
-    
-    It does not overwrites any predefined logging.
-    It adds access logging and error logging per virtual host.
-    The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
-    Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
-    If either of ServerName and ServerAlias are not defined path is DocumentRoot/logs/log
-    
-    If no virtualhost is defined then logging is configured in root httpd.conf file.
-    This means that requests would be logged in _two_ error log files and _two_ access log files
-    as there would already be a default log definition.
-
-    Log format:
-    Virtual host name is also logged so it can be extracted with logstash. This way log parsing config would still work if 
-    the server admin later decides to go with single logging approach.
-    A logformat would be overwritten with our standard log format only if it was defined with name tgrc_log_format.
-    
-    Error Logs take all the formats defined, so it's hard to determine which format is being used. https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
-    It's possible to enforce an error logging pattern only by removing all errorlogformats and using our standard only.
-    
-    Currently, we just add a standard error logging pattern and log to standard error log location.
-
-    Collecting Apache Logs:
-    Rsyslog can be configured just to read all apache logs and forward them to centrallized location with the tag of apache.
-    It can also be configured to pre-parse it and send data in structured format.
-
-
-    Tests:
-    1. Overwrites tgrc_log_format LogFormat with standard one.
-    2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
-    3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
-    '''
-
     os_type = 'centos'
     root_dir = options[os_type]['root_path']
     # The config files that need to be updated i.e. configure logging for the VirtualHost
