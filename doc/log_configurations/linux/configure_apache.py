@@ -15,6 +15,10 @@ log name of the virtual host in each request to keep file descriptors low.
 https://httpd.apache.org/docs/2.4/logs.html#virtualhost
 This has a drawback. In case one wants to do a custom logging for a virtual host then this logging would be suppressed.
 
+Apache allows us to rotate logs by piping logs to rotatelogs tool
+https://httpd.apache.org/docs/2.4/logs.html#rotation
+TODO: test it
+
 About this script:
 Considerations:
     Admins are enabled to log in their desired format to a different location.
@@ -25,7 +29,7 @@ It does not overwrites any predefined logging.
 It adds access logging and error logging per virtual host.
 The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
 Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
-If either of ServerName and ServerAlias are not defined path is DocumentRoot/logs/log
+If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
 
 If no virtualhost is defined then logging is configured in root httpd.conf file.
 This means that requests would be logged in _two_ error log files and _two_ access log files
@@ -51,18 +55,17 @@ Tests:
 2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
 3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
 
-# TODO remove later
-If using VirtualHosts
-      get DocumentRoot
-      get ServerName
-      get ServerAlias
-      define LogFormat as tgrc_apache_log_format
-      create ./log directory if not exists and execute
-          if CENTOS
-             semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
-             restorecon -R -v <log_directory>
-      define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
-      define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
+TODO: remove later
+get DocumentRoot
+get ServerName
+get ServerAlias
+define LogFormat as tgrc_apache_log_format
+create log directory if not exists and execute
+    if CENTOS
+        semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
+        restorecon -R -v <log_directory>
+define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
+define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 '''
 import glob
 import io
@@ -218,25 +221,24 @@ def get_virtual_hosts(config_path):
             virtual_hosts.append(virtual_host_config)
         if virtual_host_def_start:
             assign_values(stripped_line, virtual_host_config)
-            # # Since CustomLog is a list
-            # try:
-            #     custom_logs = virtual_host_config['CustomLog']
-            # except KeyError:
-            #     custom_logs = []
-            #     virtual_host_config['CustomLog'] = custom_logs
-            # if 'CustomLog' in values:
-            #     custom_logs.extend(values['CustomLog'])
-            # else:
-            #     virtual_host_config.update(values)
     return virtual_hosts
 
 
-def check_updation(lines, access_logs, error_logs, config, root_config={}):
-    # Check if CustomLog is defined
-    # Check if ErrorLog is defined
-    # Check if LogFormat is defined
-    # Check if both these logs are using the correct log format
-    insert_offset = -1
+def check_updation(lines, config, root_config={}, insert_offset=-1):
+    '''
+    lines is lines read from file
+    insert_offset should be -1 for a new file and should be shared thereafter
+    config is parsed apache config for a file
+    root_config is parsed httpd.conf
+
+    This function inserts needed settings or replaces conflicting settings in place.
+    Check if CustomLog is defined
+    Check if ErrorLog is defined
+    Check if LogFormat is defined
+    Check if both these logs are using the correct log format
+    '''
+    access_log_paths = []
+    error_log_paths = []
     try:
         doc_root = config['DocumentRoot']
     except KeyError:
@@ -255,12 +257,17 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
         doc_root = '{}/{}'.format(
             root_config['DocumentRoot'], dir_name)
     std_log_format_name = 'tgrc_log_format'
-    custom_log_path = '{}/log/access.log'.format(doc_root)
-    error_log_path = '{}/log/error.log'.format(doc_root)
+    # paths are enclosed with double quotes
+    doc_root = doc_root.replace('"', '')
+    custom_log_path = '"{}/log/access.log"'.format(doc_root)
+    error_log_path = '"{}/log/error.log"'.format(doc_root)
 
     # log pattern
-    # <%t Time the request was received> <%Z > <%z > <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
-    tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \"%{Referer}i\" \"%{User-Agent}i\" %{X-Forwarded-For}i"'
+    # %Z and %z are invalid patterns for apache. They are websphere specific.
+    # tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
+    
+    # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
+    tgrc_std_log_pattern = '"%t %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
     tgrc_std_error_log_pattern = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
 
     tgrc_std_log_format = 'LogFormat {} {}'.format(
@@ -302,6 +309,7 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
                 config['end_index'] + insert_offset, tgrc_std_custom_log)
             insert_offset += 1
     except KeyError:
+        print('inserting', tgrc_std_custom_log)
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_custom_log)
@@ -327,20 +335,23 @@ def check_updation(lines, access_logs, error_logs, config, root_config={}):
         error_logs = config['ErrorLog']
         std_error_log_exists = False
         for error_log in error_logs:
-            if error_log == tgrc_std_error_log:
+            if error_log == error_log_path:
                 std_error_log_exists = True
         if not std_error_log_exists:
+            print('inserting', tgrc_std_error_log)
             # inserting
             lines.insert(
                 config['end_index'] + insert_offset, tgrc_std_error_log)
             insert_offset += 1
     except KeyError:
+        print('inserting', tgrc_std_error_log_format)
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log)
         insert_offset += 1
-    access_logs.append(custom_log_path)
-    error_logs.append(error_log_path)
+    access_log_paths.append(custom_log_path)
+    error_log_paths.append(error_log_path)
+    return insert_offset, access_log_paths, error_log_paths
 
 
 if __name__ == "__main__":
@@ -353,8 +364,8 @@ if __name__ == "__main__":
     conf_paths = identify_extra_config_paths(master_config_path)
     conf_paths.append(master_config_path)
     root_config = {}
-    access_logs = []
-    error_logs = []
+    access_log_paths = []
+    error_log_paths = []
 
     for path in conf_paths:
         virtual_host_configs = get_virtual_hosts(path)
@@ -368,7 +379,7 @@ if __name__ == "__main__":
     lines = read_lines(master_config_path)
     # Assign line number in the file before which standard logging should be added
     root_config['end_index'] = len(lines)
-    check_updation(lines, access_logs, error_logs, root_config)
+    check_updation(lines, root_config)
     write_lines(master_config_path, lines)
     if len(confs_to_update.keys()) > 0:
         import json
@@ -376,17 +387,37 @@ if __name__ == "__main__":
 
         for conf_path in confs_to_update.keys():
             lines = read_lines(conf_path)
+            # for `lines` `insert_offset` has to be shared as `lines` would change as logformat is inserted in between
+            insert_offset = -1
             virtual_hosts = confs_to_update[conf_path]
             for virtual_host in virtual_hosts:
-                check_updation(lines, access_logs, error_logs,
-                               virtual_host, root_config)
+                print('insert offset is {}'.format(insert_offset))
+                insert_offset, new_access_log_paths, new_error_log_paths = check_updation(lines,
+                               virtual_host, root_config=root_config, insert_offset=insert_offset)
+                access_log_paths.extend(new_access_log_paths)
+                error_log_paths.extend(new_error_log_paths)
 
             # Update the config file at conf_path
             write_lines(conf_path, lines)
-    print('access_log', access_logs)
-    print('error_logs', error_logs)
+    print('access_log_paths', access_log_paths)
+    print('error_log_paths', error_log_paths)
     # create directory and add permission
-    for access_log in access_logs:
-        pass
-    # for error_log in error_logs:
+    for access_log_path in access_log_paths:
+        # ASSUMPTION: access_log we added is absolute path
+        access_log_path = access_log_path.replace('"', '')
+        dir_path, file_name = os.path.split(access_log_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        if os_type == 'centos':
+            os.system('semanage fcontext -a -t "httpd_log_t {}(/.*)?"'.format(dir_path))
+            os.system('restorecon -R -v {}'.format(dir_path))
+    for error_log_path in error_log_paths:
+        # ASSUMPTION: error_log we added is absolute path
+        error_log_path = error_log_path.replace('"', '')
+        dir_path, file_name = os.path.split(error_log_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        if os_type == 'centos':
+            os.system('semanage fcontext -a -t "httpd_log_t {}(/.*)?"'.format(dir_path))
+            os.system('restorecon -R -v {}'.format(dir_path))
     # Add to rsyslog
