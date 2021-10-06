@@ -409,8 +409,12 @@ if __name__ == "__main__":
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         if os_type == 'centos':
-            os.system('semanage fcontext -a -t "httpd_log_t {}(/.*)?"'.format(dir_path))
-            os.system('restorecon -R -v {}'.format(dir_path))
+            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(dir_path)
+            print('executing', add_permission)
+            os.system(add_permission)
+            restore_con = 'restorecon -R -v {}'.format(dir_path)
+            print('executing', restore_con)
+            os.system(restore_con)
     for error_log_path in error_log_paths:
         # ASSUMPTION: error_log we added is absolute path
         error_log_path = error_log_path.replace('"', '')
@@ -418,6 +422,10 @@ if __name__ == "__main__":
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         if os_type == 'centos':
-            os.system('semanage fcontext -a -t "httpd_log_t {}(/.*)?"'.format(dir_path))
-            os.system('restorecon -R -v {}'.format(dir_path))
+            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(dir_path)
+            print('executing', add_permission)
+            os.system(add_permission)
+            restore_con = 'restorecon -R -v {}'.format(dir_path)
+            print('executing', restore_con)
+            os.system(restore_con)
     # Add to rsyslog
