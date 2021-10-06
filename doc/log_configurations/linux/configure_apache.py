@@ -69,15 +69,23 @@ define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 '''
 import glob
 import io
+import json
+import logging
 import os
 import re
+from logging.handlers import RotatingFileHandler
+
+logger = logging.getLogger()
+
 
 options = {
     'centos': {
-        'root_path': '/etc/httpd/'
+        'root_path': '/etc/httpd/',
+        'script_log_path': '/var/log/configure_apache/script.log'
     },
     'Red Hat': {
-        'root_path': '/etc/httpd/'
+        'root_path': '/etc/httpd/',
+        'script_log_path': '/var/log/configure_apache/script.log'
     }
 }
 
@@ -163,7 +171,7 @@ def read_lines(config_path):
 
 def write_lines(conf_path, lines):
     with io.open(conf_path, 'w', encoding='UTF-8') as conf_file:
-        print('writing', conf_path)
+        logger.info('writing: {}'.format(conf_path))
         lines = ['{}\n'.format(line).decode('UTF-8') for line in lines]
         conf_file.writelines(lines)
 
@@ -224,7 +232,7 @@ def get_virtual_hosts(config_path):
     return virtual_hosts
 
 
-def check_updation(lines, config, root_config={}, insert_offset=-1):
+def check_updation(lines, config, root_config={}, insert_offset=0):
     '''
     lines is lines read from file
     insert_offset should be -1 for a new file and should be shared thereafter
@@ -265,7 +273,7 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
     # log pattern
     # %Z and %z are invalid patterns for apache. They are websphere specific.
     # tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
-    
+
     # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
     tgrc_std_log_pattern = '"%t %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
     tgrc_std_error_log_pattern = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
@@ -283,14 +291,14 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
         if log_format_pattern != tgrc_std_log_pattern:
             # look for ''LogFormat {}'.format(log_format_pattern)
             # and replace it with tgrc_std_log_format
-            print('WARNING', log_format_pattern,
-                  'not equal to', tgrc_std_log_pattern)
+            logger.warning('replacing format as: {} not equal to {}'.format(
+                log_format_pattern, tgrc_std_log_pattern))
             for idx in range(len(lines)):
                 if lines[idx].strip().startswith('LogFormat {}'.format(log_format_pattern)):
                     break
             lines[idx] = tgrc_std_log_format
     except KeyError:
-        print('inserting', tgrc_std_log_format)
+        logger.info('inserting: {}'.format(tgrc_std_log_format))
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_log_format)
@@ -300,16 +308,16 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
         tgrc_std_custom_log_exists = False
         for custom_log in custom_logs:
             if 'CustomLog {}'.format(custom_log) == tgrc_std_custom_log:
-                print('match found for ', 'custom_log')
+                logger.debug('match found for custom_log')
                 tgrc_std_custom_log_exists = True
         if not tgrc_std_custom_log_exists:
-            print('inserting', tgrc_std_custom_log)
+            logger.info('inserting: {}'.format(tgrc_std_custom_log))
             # inserting
             lines.insert(
                 config['end_index'] + insert_offset, tgrc_std_custom_log)
             insert_offset += 1
     except KeyError:
-        print('inserting', tgrc_std_custom_log)
+        logger.info('inserting: {}'.format(tgrc_std_custom_log))
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_custom_log)
@@ -326,7 +334,7 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
                 config['end_index'] + insert_offset, tgrc_std_error_log_format)
             insert_offset += 1
     except KeyError:
-        print('inserting', tgrc_std_error_log_format)
+        logger.info('inserting: {}'.format(tgrc_std_error_log_format))
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log_format)
@@ -338,13 +346,13 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
             if error_log == error_log_path:
                 std_error_log_exists = True
         if not std_error_log_exists:
-            print('inserting', tgrc_std_error_log)
+            logger.info('inserting: {}'.format(tgrc_std_error_log))
             # inserting
             lines.insert(
                 config['end_index'] + insert_offset, tgrc_std_error_log)
             insert_offset += 1
     except KeyError:
-        print('inserting', tgrc_std_error_log_format)
+        logger.info('inserting: {}'.format(tgrc_std_error_log_format))
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log)
@@ -354,8 +362,42 @@ def check_updation(lines, config, root_config={}, insert_offset=-1):
     return insert_offset, access_log_paths, error_log_paths
 
 
+def set_appropriate_permissions(file_paths, os_type):
+    for file_path in file_paths:
+        # ASSUMPTION: file_path we added is absolute path
+        file_path = file_path.replace('"', '')
+        dir_path, _ = os.path.split(file_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+        if os_type == 'centos':
+            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
+                dir_path)
+            logger.debug('executing: {}'.format(add_permission))
+            os.system(add_permission)
+            restore_con = 'restorecon -R -v {}'.format(dir_path)
+            logger.debug('executing: {}'.format(restore_con))
+            os.system(restore_con)
+
+
 if __name__ == "__main__":
     os_type = 'centos'
+    logger.setLevel(logging.DEBUG)
+
+    script_log_path = options[os_type]['script_log_path']
+    script_log_dir, _ = os.path.split(script_log_path)
+    if not os.path.exists(script_log_dir):
+        os.makedirs(script_log_dir)
+    # Could not get SysLogHandler working so using File and reading that from rsyslog
+    file_handler = RotatingFileHandler(
+        script_log_path, maxBytes=10240, backupCount=2)
+    formatter = logging.Formatter(
+        "configure_apache_script %(levelname)s L%(lineno)d - %(message)s")
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
     root_dir = options[os_type]['root_path']
     # The config files that need to be updated i.e. configure logging for the VirtualHost
     confs_to_update = {}
@@ -372,60 +414,47 @@ if __name__ == "__main__":
         root_config = get_root_settings(path)
         if virtual_host_configs:
             confs_to_update[path] = virtual_host_configs
-    # there is no virtual host update the master config
-    import json
-    print(json.dumps(root_config, indent=2))
-    print('updating root config')
-    lines = read_lines(master_config_path)
-    # Assign line number in the file before which standard logging should be added
-    root_config['end_index'] = len(lines)
-    check_updation(lines, root_config)
-    write_lines(master_config_path, lines)
-    if len(confs_to_update.keys()) > 0:
-        import json
-        print(json.dumps(confs_to_update, indent=2))
 
+    if len(confs_to_update.keys()) > 0:
+        logger.debug(json.dumps(confs_to_update))
         for conf_path in confs_to_update.keys():
             lines = read_lines(conf_path)
             # for `lines` `insert_offset` has to be shared as `lines` would change as logformat is inserted in between
-            insert_offset = -1
+            insert_offset = 0
             virtual_hosts = confs_to_update[conf_path]
             for virtual_host in virtual_hosts:
-                print('insert offset is {}'.format(insert_offset))
                 insert_offset, new_access_log_paths, new_error_log_paths = check_updation(lines,
-                               virtual_host, root_config=root_config, insert_offset=insert_offset)
+                                                                                          virtual_host, root_config=root_config, insert_offset=insert_offset)
                 access_log_paths.extend(new_access_log_paths)
                 error_log_paths.extend(new_error_log_paths)
 
             # Update the config file at conf_path
+            # TODO take a copy of lines and compare that with lines to see if they changed
+            logger.info('updating virtual host config: {}'.format(conf_path))
             write_lines(conf_path, lines)
-    print('access_log_paths', access_log_paths)
-    print('error_log_paths', error_log_paths)
+    else:
+        # there is no virtual host, update the master config
+        logger.debug(json.dumps(root_config))
+        lines = read_lines(master_config_path)
+        # Assign line number in the file before which standard logging should be added
+        root_config['end_index'] = len(lines)
+        _, new_access_log_paths, new_error_log_paths = check_updation(
+            lines, root_config)
+        access_log_paths.extend(new_access_log_paths)
+        error_log_paths.extend(new_error_log_paths)
+
+        logger.info('updating root config: {}'.format(master_config_path))
+        write_lines(master_config_path, lines)
+
+    logger.debug('access_log_paths: {}'.format(access_log_paths))
+    logger.debug('error_log_paths: {}'.format(error_log_paths))
     # create directory and add permission
-    for access_log_path in access_log_paths:
-        # ASSUMPTION: access_log we added is absolute path
-        access_log_path = access_log_path.replace('"', '')
-        dir_path, file_name = os.path.split(access_log_path)
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-        if os_type == 'centos':
-            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(dir_path)
-            print('executing', add_permission)
-            os.system(add_permission)
-            restore_con = 'restorecon -R -v {}'.format(dir_path)
-            print('executing', restore_con)
-            os.system(restore_con)
-    for error_log_path in error_log_paths:
-        # ASSUMPTION: error_log we added is absolute path
-        error_log_path = error_log_path.replace('"', '')
-        dir_path, file_name = os.path.split(error_log_path)
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-        if os_type == 'centos':
-            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(dir_path)
-            print('executing', add_permission)
-            os.system(add_permission)
-            restore_con = 'restorecon -R -v {}'.format(dir_path)
-            print('executing', restore_con)
-            os.system(restore_con)
+    set_appropriate_permissions(access_log_paths, os_type)
+    set_appropriate_permissions(error_log_paths, os_type)
+
     # Add to rsyslog
+    # Generate settings and update
+    # /etc/rsyslog.d/tgrc_apache.conf
+    # If the file has to be updated restart rsyslog.
+    # Note that restarting rsyslog may result in event loss but there is no other way (maybe use RELP or accept the loss)
+    # https://github.com/rsyslog/rsyslog/issues/3759#issuecomment-671655320
