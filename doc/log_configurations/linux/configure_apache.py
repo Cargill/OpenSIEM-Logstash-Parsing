@@ -54,18 +54,6 @@ Tests:
 1. Overwrites tgrc_log_format LogFormat with standard one.
 2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
 3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
-
-TODO: remove later
-get DocumentRoot
-get ServerName
-get ServerAlias
-define LogFormat as tgrc_apache_log_format
-create log directory if not exists and execute
-    if CENTOS
-        semanage fcontext -a -t httpd_log_t "<log_directory>(/.*)?"
-        restorecon -R -v <log_directory>
-define CustomLog as DocumentRoot/log/access.log and use tgrc_apache_log_format
-define ErrorLog as DocumentRoot/log/error.log and use tgrc_apache_log_format
 '''
 import glob
 import io
@@ -431,8 +419,8 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
         '',
         # Add log forwarding for this script logs too
         '$InputFileName {script_log_path}'.format(script_log_path=OPTIONS[os_type]['script_log_path']),
-        '$InputFileTag apache-error:',
-        '$InputFileSeverity error',
+        '$InputFileTag configure-apache:',
+        '$InputFileSeverity info',
         '$InputRunFileMonitor',
         ''
     ]
@@ -492,8 +480,7 @@ def configure_standard_logging(os_type):
     error_log_paths = []
     # if virtual host is defined configure logging in that else use root config
     if len(virtual_host_conf_dict.keys()) > 0:
-        logger.debug('got virtual hosts')
-        logger.debug(json.dumps(virtual_host_conf_dict))
+        logger.debug('virtual host configs: {}'.format(json.dumps(virtual_host_conf_dict)))
         for conf_path in virtual_host_conf_dict.keys():
             lines = read_lines(conf_path)
             virtual_hosts = virtual_host_conf_dict[conf_path]
@@ -510,8 +497,7 @@ def configure_standard_logging(os_type):
                 files_changed.append(conf_path)
     else:
         # there is no virtual host, update the master config
-        logger.debug('got root config')
-        logger.debug(json.dumps(root_config))
+        logger.debug('root config: {}'.format(json.dumps(root_config)))
         lines = read_lines(master_config_path)
         # Assign line number in the file before which standard logging should be added
         root_config['end_index'] = len(lines)
@@ -550,7 +536,7 @@ if __name__ == "__main__":
     file_handler = RotatingFileHandler(
         script_log_path, maxBytes=10240, backupCount=2)
     formatter = logging.Formatter(
-        "configure_apache_script %(levelname)s L%(lineno)d - %(message)s")
+        "%(levelname)s L%(lineno)d - %(message)s")
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     console_handler = logging.StreamHandler()
