@@ -353,7 +353,7 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
                 config['end_index'] + insert_offset, tgrc_std_error_log)
             insert_offset += 1
     except KeyError:
-        logger.info('inserting: {}'.format(tgrc_std_error_log_format))
+        logger.info('inserting: {}'.format(tgrc_std_error_log))
         # inserting
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log)
@@ -365,7 +365,8 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
 
 
 def ensure_appropriate_permissions(file_paths, os_type):
-    '''TODO: Execute commands only if needed
+    '''Create directory if not exists
+    Add write permission to the directory if not already
     '''
     for file_path in file_paths:
         # ASSUMPTION: file_path we added is absolute path
@@ -373,12 +374,21 @@ def ensure_appropriate_permissions(file_paths, os_type):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         if os_type == 'centos':
+            # example output
+            # httpd_log_t is the context needed for apache to write logs
+            # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
+            check_permission = 'ls -dlZ {}'.format(dir_path)
+            output = os.popen(check_permission).read()
+            if 'httpd_log_t' in output:
+                logger.debug('Path {} has required permission'.format(dir_path))
+                continue
             add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
                 dir_path)
-            logger.debug('executing: {}'.format(add_permission))
+            logger.info('executing: {}'.format(add_permission))
             os.system(add_permission)
+            # apply the changes and let them survive reboots
             restore_con = 'restorecon -R -v {}'.format(dir_path)
-            logger.debug('executing: {}'.format(restore_con))
+            logger.info('executing: {}'.format(restore_con))
             os.system(restore_con)
 
 
@@ -455,7 +465,7 @@ def configure_standard_logging(os_type):
     '''
     root_dir = OPTIONS[os_type]['root_path']
     master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
-    logger.info('looking for includes in {} recursively'.format(
+    logger.debug('looking for includes in {} recursively'.format(
         master_config_path))
     conf_paths = identify_extra_config_paths(master_config_path, os_type)
     conf_paths.append(master_config_path)
@@ -526,8 +536,7 @@ def configure_standard_logging(os_type):
 
 if __name__ == "__main__":
     os_type = 'centos'
-    logger.setLevel(logging.DEBUG)
-    # logger.setLevel(logging.INFO)
+    logger.setLevel(logging.INFO)
     script_log_path = OPTIONS[os_type]['script_log_path']
     script_log_dir, _ = os.path.split(script_log_path)
     if not os.path.exists(script_log_dir):
