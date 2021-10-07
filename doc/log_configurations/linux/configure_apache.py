@@ -78,19 +78,28 @@ from logging.handlers import RotatingFileHandler
 logger = logging.getLogger()
 
 
-options = {
+OPTIONS = {
     'centos': {
         'root_path': '/etc/httpd/',
-        'script_log_path': '/var/log/configure_apache/script.log'
+        'script_log_path': '/var/log/configure_apache/script.log',
+        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf'
     },
     'Red Hat': {
         'root_path': '/etc/httpd/',
-        'script_log_path': '/var/log/configure_apache/script.log'
+        'script_log_path': '/var/log/configure_apache/script.log',
+        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf'
     }
 }
+# log pattern
+# %Z and %z are invalid patterns for apache. They are websphere specific.
+# TGRC_STD_LOG_PATTERN = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
+
+# <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
+TGRC_STD_LOG_PATTERN = '"%t %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
+TGRC_STD_ERROR_LOG_PATTERN = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
 
 
-def identify_abs_or_relative_path(line):
+def identify_abs_or_relative_path(line, os_type):
     includes_all = ['IncludeOptional', 'Include']
     for i in includes_all:
         if line.startswith(i) and '.conf' in line:
@@ -101,6 +110,7 @@ def identify_abs_or_relative_path(line):
                 abs_include_path = include_path
             else:
                 # it's a relative path
+                root_dir = OPTIONS[os_type]['root_path']
                 abs_include_path = os.path.join(root_dir, include_path)
             return abs_include_path
     return None
@@ -163,31 +173,42 @@ def assign_values(line, config):
 def read_lines(config_path):
     '''reads lines
     '''
+    if not os.path.exists(config_path):
+        return []
     with io.open(config_path, 'r', encoding='UTF-8') as config_file:
         lines = config_file.readlines()
-        lines = [line.rstrip() for line in lines]
+        # lines are unicode, converting them to str
+        lines = [line.rstrip().encode('utf-8') for line in lines]
         return lines
 
 
 def write_lines(conf_path, lines):
+    '''compares existing contents and update if needed
+    returns True if write was needed/successful else False
+    '''
+    existing_lines = read_lines(conf_path)
+    if existing_lines == lines:
+        logger.debug('update not needed for: {}'.format(conf_path))
+        return False
     with io.open(conf_path, 'w', encoding='UTF-8') as conf_file:
         logger.info('writing: {}'.format(conf_path))
         lines = ['{}\n'.format(line).decode('UTF-8') for line in lines]
         conf_file.writelines(lines)
+        return True
 
 
-def identify_extra_config_paths(config_path):
-    '''fetches include paths in a config file
+def identify_extra_config_paths(config_path, os_type):
+    '''fetches include paths in a config file recursively
     '''
     lines = read_lines(config_path)
     # look for includes, which are references to files with more configuration info
     included_paths = []
     for line in lines:
-        path = identify_abs_or_relative_path(line.strip())
+        path = identify_abs_or_relative_path(line.strip(), os_type)
         if path is not None:
             # expand the path
             for expanded_path in glob.glob(path):
-                paths = identify_extra_config_paths(expanded_path)
+                paths = identify_extra_config_paths(expanded_path, os_type)
                 included_paths.append(expanded_path)
                 included_paths.extend(paths)
     return included_paths
@@ -206,6 +227,8 @@ def get_root_settings(config_path):
 
 
 def get_virtual_hosts(config_path):
+    '''Look for relevant settings in a file from start of <VirtualHost to start of </VirtualHost>
+    '''
     lines = read_lines(config_path)
     # look for virtual hosts
     virtual_host_def_start = False
@@ -245,8 +268,6 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
     Check if LogFormat is defined
     Check if both these logs are using the correct log format
     '''
-    access_log_paths = []
-    error_log_paths = []
     try:
         doc_root = config['DocumentRoot']
     except KeyError:
@@ -270,29 +291,21 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
     custom_log_path = '"{}/log/access.log"'.format(doc_root)
     error_log_path = '"{}/log/error.log"'.format(doc_root)
 
-    # log pattern
-    # %Z and %z are invalid patterns for apache. They are websphere specific.
-    # tgrc_std_log_pattern = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
-
-    # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
-    tgrc_std_log_pattern = '"%t %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
-    tgrc_std_error_log_pattern = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
-
     tgrc_std_log_format = 'LogFormat {} {}'.format(
-        tgrc_std_log_pattern, std_log_format_name).decode("utf-8")
+        TGRC_STD_LOG_PATTERN, std_log_format_name).decode("utf-8")
     tgrc_std_error_log_format = 'ErrorLogFormat {}'.format(
-        tgrc_std_error_log_pattern).decode("utf-8")
+        TGRC_STD_ERROR_LOG_PATTERN).decode("utf-8")
     tgrc_std_custom_log = 'CustomLog {} {}'.format(
         custom_log_path, std_log_format_name).decode("utf-8")
     tgrc_std_error_log = 'ErrorLog {}'.format(error_log_path).decode("utf-8")
     try:
         log_format_pattern = config['LogFormat'][std_log_format_name]
         # std_log_format_name is already defined in this config
-        if log_format_pattern != tgrc_std_log_pattern:
+        if log_format_pattern != TGRC_STD_LOG_PATTERN:
             # look for ''LogFormat {}'.format(log_format_pattern)
             # and replace it with tgrc_std_log_format
             logger.warning('replacing format as: {} not equal to {}'.format(
-                log_format_pattern, tgrc_std_log_pattern))
+                log_format_pattern, TGRC_STD_LOG_PATTERN))
             for idx in range(len(lines)):
                 if lines[idx].strip().startswith('LogFormat {}'.format(log_format_pattern)):
                     break
@@ -326,7 +339,7 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         error_log_formats = config['ErrorLogFormat']
         std_error_log_exists = False
         for error_log_format in error_log_formats:
-            if error_log_format == tgrc_std_error_log_pattern:
+            if error_log_format == TGRC_STD_ERROR_LOG_PATTERN:
                 std_error_log_exists = True
 
         if not std_error_log_exists:
@@ -357,15 +370,17 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log)
         insert_offset += 1
-    access_log_paths.append(custom_log_path)
-    error_log_paths.append(error_log_path)
-    return insert_offset, access_log_paths, error_log_paths
+    # Quotes were added for insertion. Now removing them.
+    custom_log_path = custom_log_path.replace('"', '')
+    error_log_path = error_log_path.replace('"', '')
+    return insert_offset, custom_log_path, error_log_path
 
 
-def set_appropriate_permissions(file_paths, os_type):
+def ensure_appropriate_permissions(file_paths, os_type):
+    '''TODO: Execute commands only if needed
+    '''
     for file_path in file_paths:
         # ASSUMPTION: file_path we added is absolute path
-        file_path = file_path.replace('"', '')
         dir_path, _ = os.path.split(file_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
@@ -379,11 +394,155 @@ def set_appropriate_permissions(file_paths, os_type):
             os.system(restore_con)
 
 
+def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
+    '''Ensures config at OPTIONS[os_type]['rsyslog_conf_path'] is up to date
+    Restarts rsyslog if it was updated
+    Note that restarting rsyslog may result in event loss but there is no other way (maybe use RELP or accept the loss)
+    https://github.com/rsyslog/rsyslog/issues/3759#issuecomment-671655320
+
+    Still using legacy rsyslog definition for backward compatibility.
+    '''
+    access_log_settings = []
+    for access_file_path in access_log_paths:
+        access_log_settings.append('$InputFileName {access_file_path}'.format(
+            access_file_path=access_file_path))
+        access_log_settings.append('$InputFileTag apache-access:')
+        access_log_settings.append('$InputFileSeverity info')
+        access_log_settings.append('$InputRunFileMonitor')
+        # new line
+        access_log_settings.append('')
+
+    error_log_settings = []
+    for error_file_path in error_log_paths:
+        error_log_settings.append('$InputFileName {error_file_path}'.format(
+            error_file_path=error_file_path))
+        error_log_settings.append('$InputFileTag apache-error:')
+        error_log_settings.append('$InputFileSeverity error')
+        error_log_settings.append('$InputRunFileMonitor')
+        # new line
+        error_log_settings.append('')
+
+    # update rsyslog config
+    rsyslog_config_lines = [
+        # Add notice
+        '# This file is generated by configure_apache script and would be overwritten if changed',
+        # Load file input module
+        '$ModLoad imfile',
+        '',
+        # Add log forwarding for this script logs too
+        '$InputFileName {script_log_path}'.format(script_log_path=OPTIONS[os_type]['script_log_path']),
+        '$InputFileTag apache-error:',
+        '$InputFileSeverity error',
+        '$InputRunFileMonitor',
+        ''
+    ]
+
+    rsyslog_config_lines = rsyslog_config_lines + \
+        access_log_settings + error_log_settings
+
+    rsyslog_conf_path = OPTIONS[os_type]['rsyslog_conf_path']
+    dir_path, _ = os.path.split(rsyslog_conf_path)
+    if not os.path.exists(dir_path):
+        logger.info('Creating directory {}'.format(error_log_paths))
+        os.makedirs(dir_path)
+    is_rsyslog_restart_required = write_lines(
+        rsyslog_conf_path, rsyslog_config_lines)
+    # If the file was updated, restart rsyslog.
+    if is_rsyslog_restart_required:
+        logger.info('rsyslog config created')
+        restart_rsyslog = 'systemctl restart rsyslog'
+        logger.info('executing: {}'.format(restart_rsyslog))
+        os.system(restart_rsyslog)
+
+
+def configure_standard_logging(os_type):
+    '''This is the main method
+    Parse root conf and get all include paths
+    Parse confs in include paths and get virtual host sections.
+    Insert standard logging if needed
+    Ensure appropriate permissions at standard logging locations
+    Ensure rsyslog config is up to date to receive logs from above locations and restart rsyslog if needed.
+
+    Generate a notice for server to be restarted.
+    '''
+    root_dir = OPTIONS[os_type]['root_path']
+    master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
+    logger.info('looking for includes in {} recursively'.format(
+        master_config_path))
+    conf_paths = identify_extra_config_paths(master_config_path, os_type)
+    conf_paths.append(master_config_path)
+
+    # conf path as key and parsed VirtualHost config list as value
+    virtual_host_conf_dict = {}
+    # relevant values parsed from non virtualhost sections
+    root_config = {}
+    for path in conf_paths:
+        logger.debug('looking for virtual_host definitions in {}'.format(path))
+        virtual_host_configs = get_virtual_hosts(path)
+        root_config = get_root_settings(path)
+        if virtual_host_configs:
+            virtual_host_conf_dict[path] = virtual_host_configs
+
+    # List of conf files that would be updated to enforce our standard.
+    # This would be used to notify server admins.
+    files_changed = []
+    # enforced access_log_paths based on defined configs
+    access_log_paths = []
+    # enforced error_log_paths based on defined configs
+    error_log_paths = []
+    # if virtual host is defined configure logging in that else use root config
+    if len(virtual_host_conf_dict.keys()) > 0:
+        logger.debug('got virtual hosts')
+        logger.debug(json.dumps(virtual_host_conf_dict))
+        for conf_path in virtual_host_conf_dict.keys():
+            lines = read_lines(conf_path)
+            virtual_hosts = virtual_host_conf_dict[conf_path]
+            # insert logging in each virtual host section
+            # as these sections are part of same file they must share insert_offset
+            insert_offset = 0
+            for virtual_host in virtual_hosts:
+                insert_offset, new_access_log_path, new_error_log_path = check_updation(lines,
+                                                                                          virtual_host, root_config=root_config, insert_offset=insert_offset)
+                access_log_paths.append(new_access_log_path)
+                error_log_paths.append(new_error_log_path)
+
+            if write_lines(conf_path, lines):
+                files_changed.append(conf_path)
+    else:
+        # there is no virtual host, update the master config
+        logger.debug('got root config')
+        logger.debug(json.dumps(root_config))
+        lines = read_lines(master_config_path)
+        # Assign line number in the file before which standard logging should be added
+        root_config['end_index'] = len(lines)
+        _, new_access_log_path, new_error_log_path = check_updation(
+            lines, root_config)
+        access_log_paths.append(new_access_log_path)
+        error_log_paths.append(new_error_log_path)
+
+        if write_lines(master_config_path, lines):
+            files_changed.append(conf_path)
+
+    logger.debug('access_log_paths: {}'.format(access_log_paths))
+    logger.debug('error_log_paths: {}'.format(error_log_paths))
+    
+    # create directory and add permission if required
+    ensure_appropriate_permissions(access_log_paths, os_type)
+    ensure_appropriate_permissions(error_log_paths, os_type)
+
+    if len(files_changed) > 0:
+        logger.info(
+            'Server restart is required as config files changed: {}'.format(files_changed))
+
+    # Create rsyslog config and restart rsyslog if needed
+    enforce_rsyslog_config(os_type, access_log_paths, error_log_paths)
+
+
 if __name__ == "__main__":
     os_type = 'centos'
     logger.setLevel(logging.DEBUG)
-
-    script_log_path = options[os_type]['script_log_path']
+    # logger.setLevel(logging.INFO)
+    script_log_path = OPTIONS[os_type]['script_log_path']
     script_log_dir, _ = os.path.split(script_log_path)
     if not os.path.exists(script_log_dir):
         os.makedirs(script_log_dir)
@@ -398,63 +557,4 @@ if __name__ == "__main__":
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
-    root_dir = options[os_type]['root_path']
-    # The config files that need to be updated i.e. configure logging for the VirtualHost
-    confs_to_update = {}
-    master_config_path = os.path.join(root_dir, 'conf/httpd.conf')
-
-    conf_paths = identify_extra_config_paths(master_config_path)
-    conf_paths.append(master_config_path)
-    root_config = {}
-    access_log_paths = []
-    error_log_paths = []
-
-    for path in conf_paths:
-        virtual_host_configs = get_virtual_hosts(path)
-        root_config = get_root_settings(path)
-        if virtual_host_configs:
-            confs_to_update[path] = virtual_host_configs
-
-    if len(confs_to_update.keys()) > 0:
-        logger.debug(json.dumps(confs_to_update))
-        for conf_path in confs_to_update.keys():
-            lines = read_lines(conf_path)
-            # for `lines` `insert_offset` has to be shared as `lines` would change as logformat is inserted in between
-            insert_offset = 0
-            virtual_hosts = confs_to_update[conf_path]
-            for virtual_host in virtual_hosts:
-                insert_offset, new_access_log_paths, new_error_log_paths = check_updation(lines,
-                                                                                          virtual_host, root_config=root_config, insert_offset=insert_offset)
-                access_log_paths.extend(new_access_log_paths)
-                error_log_paths.extend(new_error_log_paths)
-
-            # Update the config file at conf_path
-            # TODO take a copy of lines and compare that with lines to see if they changed
-            logger.info('updating virtual host config: {}'.format(conf_path))
-            write_lines(conf_path, lines)
-    else:
-        # there is no virtual host, update the master config
-        logger.debug(json.dumps(root_config))
-        lines = read_lines(master_config_path)
-        # Assign line number in the file before which standard logging should be added
-        root_config['end_index'] = len(lines)
-        _, new_access_log_paths, new_error_log_paths = check_updation(
-            lines, root_config)
-        access_log_paths.extend(new_access_log_paths)
-        error_log_paths.extend(new_error_log_paths)
-
-        logger.info('updating root config: {}'.format(master_config_path))
-        write_lines(master_config_path, lines)
-
-    logger.debug('access_log_paths: {}'.format(access_log_paths))
-    logger.debug('error_log_paths: {}'.format(error_log_paths))
-    # create directory and add permission
-    set_appropriate_permissions(access_log_paths, os_type)
-    set_appropriate_permissions(error_log_paths, os_type)
-
-    # Add to rsyslog
-    # Generate settings and update
-    # /etc/rsyslog.d/tgrc_apache.conf
-    # If the file has to be updated restart rsyslog.
-    # Note that restarting rsyslog may result in event loss but there is no other way (maybe use RELP or accept the loss)
-    # https://github.com/rsyslog/rsyslog/issues/3759#issuecomment-671655320
+    configure_standard_logging(os_type)
