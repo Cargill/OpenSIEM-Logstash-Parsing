@@ -22,7 +22,7 @@ It's possible to enforce an error logging pattern only by removing all errorlogf
 Since that would break any predefined logging, so we just add a standard error logging pattern and log to standard error log location.
 
 Log Location:
-The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
+The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
 Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
 If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
 
@@ -264,18 +264,20 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         doc_root = '{}/{}'.format(
             root_config['DocumentRoot'], dir_name)
     std_log_format_name = 'tgrc_log_format'
-    # paths are enclosed with double quotes
+    # paths may be enclosed with double quotes
     doc_root = doc_root.replace('"', '')
-    custom_log_path = '"{}/log/access.log"'.format(doc_root)
-    error_log_path = '"{}/log/error.log"'.format(doc_root)
+    custom_log_path = '{}/log/standard_access.log'.format(doc_root)
+    error_log_path = '{}/log/standard_error.log'.format(doc_root)
 
     tgrc_std_log_format = 'LogFormat {} {}'.format(
         TGRC_STD_LOG_PATTERN, std_log_format_name).decode("utf-8")
     tgrc_std_error_log_format = 'ErrorLogFormat {}'.format(
         TGRC_STD_ERROR_LOG_PATTERN).decode("utf-8")
-    tgrc_std_custom_log = 'CustomLog {} {}'.format(
+    # TODO: Use logrotation
+    # CustomLog "|rotatelogs /var/log/access_log 86400" common
+    tgrc_std_custom_log = 'CustomLog "{}" {}'.format(
         custom_log_path, std_log_format_name).decode("utf-8")
-    tgrc_std_error_log = 'ErrorLog {}'.format(error_log_path).decode("utf-8")
+    tgrc_std_error_log = 'ErrorLog "{}"'.format(error_log_path).decode("utf-8")
     try:
         log_format_pattern = config['LogFormat'][std_log_format_name]
         # std_log_format_name is already defined in this config
@@ -334,7 +336,7 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         error_logs = config['ErrorLog']
         std_error_log_exists = False
         for error_log in error_logs:
-            if error_log == error_log_path:
+            if 'ErrorLog {}'.format(error_log) == tgrc_std_error_log:
                 std_error_log_exists = True
         if not std_error_log_exists:
             logger.info('inserting: {}'.format(tgrc_std_error_log))
@@ -348,9 +350,6 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         lines.insert(
             config['end_index'] + insert_offset, tgrc_std_error_log)
         insert_offset += 1
-    # Quotes were added for insertion. Now removing them.
-    custom_log_path = custom_log_path.replace('"', '')
-    error_log_path = error_log_path.replace('"', '')
     return insert_offset, custom_log_path, error_log_path
 
 
