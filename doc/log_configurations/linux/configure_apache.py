@@ -1,59 +1,41 @@
-'''
-Webshpere log pattern: https://www.ibm.com/docs/en/was-nd/8.5.5?topic=logs-custom-log-file-format
+r'''
 About Apache Logging:
 CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
 If CustomLog is defined in VirtualHost section it is used else CustomLog is picked up from root httpd.conf
 CustomLog can be set in VirtualHost section also.
-Recommendations:
-1. Use BufferedLogs https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
-On some systems, this may result in more efficient disk access and hence higher performance. 
-It may be set only once for the entire server;
-it cannot be configured per virtual-host.
-This directive should be used with caution as a crash might cause loss of logging data.
-2. Use single access log file for all sites/hosts on the server and 
-log name of the virtual host in each request to keep file descriptors low.
-https://httpd.apache.org/docs/2.4/logs.html#virtualhost
-This has a drawback. In case one wants to do a custom logging for a virtual host then this logging would be suppressed.
-
-Apache allows us to rotate logs by piping logs to rotatelogs tool
-https://httpd.apache.org/docs/2.4/logs.html#rotation
-TODO: test it
 
 About this script:
-Considerations:
-    Admins are enabled to log in their desired format to a different location.
-    If a log is defined to log at a custom location with our standard pattern that can be used for rsyslog too.
-    But this aproach can cause issues if logging was defined to a pipe rather than a file. So the script adds logging to standard location.
-
-It does not overwrites any predefined logging.
+It does not overwrites any predefined logging. So admins can also write logs in desired format to a desired location.
 It adds access logging and error logging per virtual host.
-The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
-Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
-If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
-
 If no virtualhost is defined then logging is configured in root httpd.conf file.
 This means that requests would be logged in _two_ error log files and _two_ access log files
 as there would already be a default log definition.
 
 Log format:
-Virtual host name is also logged so it can be extracted with logstash. This way log parsing config would still work if 
-the server admin later decides to go with single logging approach.
-A logformat would be overwritten with our standard log format only if it was defined with name tgrc_log_format.
+Virtual host name is also logged so it can be extracted with logstash.
+A defined logformat is overwritten with standard log format if it is defined with name ``tgrc_log_format``.
 
-Error Logs take all the formats defined, so it's hard to determine which format is being used. https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
+Error Logging:
+Error Logs take all the formats defined, so it's hard to determine which format is being used.
+https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
 It's possible to enforce an error logging pattern only by removing all errorlogformats and using our standard only.
+Since that would break any predefined logging, so we just add a standard error logging pattern and log to standard error log location.
 
-Currently, we just add a standard error logging pattern and log to standard error log location.
+Log Location:
+The paths are log/access.log and log/error.log relative to DocumentRoot/(ServerName or ServerAlias)
+Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
+If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
 
 Collecting Apache Logs:
 Rsyslog can be configured just to read all apache logs and forward them to centrallized location with the tag of apache.
 It can also be configured to pre-parse it and send data in structured format.
 
-
 Tests:
 1. Overwrites tgrc_log_format LogFormat with standard one.
 2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
 3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
+4. If DocRoot is changed new ErrorLog is added but old error log path is not removed.
+(This is due to the fact that we don't want to remove any predefined error logs. There is no way to identify our enforced error log as error log don't have format specified)
 '''
 import glob
 import io
@@ -79,6 +61,7 @@ OPTIONS = {
     }
 }
 # log pattern
+# Webshpere log pattern: https://www.ibm.com/docs/en/was-nd/8.5.5?topic=logs-custom-log-file-format
 # %Z and %z are invalid patterns for apache. They are websphere specific.
 # TGRC_STD_LOG_PATTERN = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
 
@@ -159,8 +142,7 @@ def assign_values(line, config):
 
 
 def read_lines(config_path):
-    '''reads lines
-    '''
+    '''returns file content as lines'''
     if not os.path.exists(config_path):
         return []
     with io.open(config_path, 'r', encoding='UTF-8') as config_file:
@@ -171,8 +153,14 @@ def read_lines(config_path):
 
 
 def write_lines(conf_path, lines):
-    '''compares existing contents and update if needed
-    returns True if write was needed/successful else False
+    '''Compares existing contents in the file and updates only if needed.
+
+    Parameters:
+        conf_path str: 
+        lines list[str]: 
+
+    Returns:
+        bool: True if write was needed/successful else False
     '''
     existing_lines = read_lines(conf_path)
     if existing_lines == lines:
@@ -186,7 +174,10 @@ def write_lines(conf_path, lines):
 
 
 def identify_extra_config_paths(config_path, os_type):
-    '''fetches include paths in a config file recursively
+    '''Fetches include paths in a config file recursively
+
+    Returns:
+        list[str]: all paths
     '''
     lines = read_lines(config_path)
     # look for includes, which are references to files with more configuration info
@@ -203,8 +194,7 @@ def identify_extra_config_paths(config_path, os_type):
 
 
 def get_root_settings(config_path):
-    '''
-    Extracts important settings that are not tied to a particular virtual host
+    '''Extracts important settings that are not tied to a particular virtual host
     '''
     root_settings = {}
     lines = read_lines(config_path)
@@ -245,16 +235,16 @@ def get_virtual_hosts(config_path):
 
 def check_updation(lines, config, root_config={}, insert_offset=0):
     '''
-    lines is lines read from file
-    insert_offset should be -1 for a new file and should be shared thereafter
-    config is parsed apache config for a file
-    root_config is parsed httpd.conf
+    ``lines`` is lines read from file
+    ``insert_offset`` should be -1 for a new file and should be shared thereafter
+    ``config`` is parsed apache config for a file
+    ``root_config`` is parsed httpd.conf
 
     This function inserts needed settings or replaces conflicting settings in place.
-    Check if CustomLog is defined
-    Check if ErrorLog is defined
-    Check if LogFormat is defined
-    Check if both these logs are using the correct log format
+    Ensures if CustomLog is defined
+    Ensures if ErrorLog is defined
+    Ensures if LogFormat is defined
+    Ensures if both these logs are using the correct log format
     '''
     try:
         doc_root = config['DocumentRoot']
@@ -393,7 +383,7 @@ def ensure_appropriate_permissions(file_paths, os_type):
 
 
 def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
-    '''Ensures config at OPTIONS[os_type]['rsyslog_conf_path'] is up to date
+    '''Ensures config at ``OPTIONS[os_type]['rsyslog_conf_path']`` is up to date
     Restarts rsyslog if it was updated
     Note that restarting rsyslog may result in event loss but there is no other way (maybe use RELP or accept the loss)
     https://github.com/rsyslog/rsyslog/issues/3759#issuecomment-671655320
