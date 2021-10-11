@@ -67,4 +67,4 @@ This has a drawback. In case one wants to do a custom logging for a virtual host
 Apache allows us to rotate logs by piping logs to rotatelogs tool
 https://httpd.apache.org/docs/2.4/logs.html#rotation
 
-Apache can also send logs directly to syslog, use that instead.
+Apache can also send Error logs directly to syslog. Access log would have to be sent to files only.

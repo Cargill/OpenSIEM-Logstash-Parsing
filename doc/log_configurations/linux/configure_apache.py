@@ -52,12 +52,14 @@ OPTIONS = {
     'centos': {
         'root_path': '/etc/httpd/',
         'script_log_path': '/var/log/configure_apache/script.log',
-        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf'
+        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf',
+        'rotatelogs': '/sbin/rotatelogs'
     },
     'Red Hat': {
         'root_path': '/etc/httpd/',
         'script_log_path': '/var/log/configure_apache/script.log',
-        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf'
+        'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf',
+        'rotatelogs': '/sbin/rotatelogs'
     }
 }
 # log pattern
@@ -233,7 +235,7 @@ def get_virtual_hosts(config_path):
     return virtual_hosts
 
 
-def check_updation(lines, config, root_config={}, insert_offset=0):
+def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
     '''
     ``lines`` is lines read from file
     ``insert_offset`` should be -1 for a new file and should be shared thereafter
@@ -263,6 +265,9 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
             raise Exception('cannot determine DocumentRoot')
         doc_root = '{}/{}'.format(
             root_config['DocumentRoot'], dir_name)
+    # line index where this virtualhost definition ends
+    end_index = config['end_index']
+
     std_log_format_name = 'tgrc_log_format'
     # paths may be enclosed with double quotes
     doc_root = doc_root.replace('"', '')
@@ -273,11 +278,16 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         TGRC_STD_LOG_PATTERN, std_log_format_name).decode("utf-8")
     tgrc_std_error_log_format = 'ErrorLogFormat {}'.format(
         TGRC_STD_ERROR_LOG_PATTERN).decode("utf-8")
-    # TODO: Use logrotation
-    # CustomLog "|rotatelogs /var/log/access_log 86400" common
-    tgrc_std_custom_log = 'CustomLog "{}" {}'.format(
-        custom_log_path, std_log_format_name).decode("utf-8")
-    tgrc_std_error_log = 'ErrorLog "{}"'.format(error_log_path).decode("utf-8")
+
+    # CustomLog with this pattern are supposedly added by this script in previous run
+    # and should be ensured they are up to date.
+    custom_log_match_pattern = r'^"\|.+" {log_format}$'.format(
+        log_format=std_log_format_name).decode("utf-8")
+    tgrc_std_custom_log = 'CustomLog "|{rotatelogs} {log_path} {rotate_time}" {log_format}'.format(
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=custom_log_path, rotate_time=60, log_format=std_log_format_name).decode("utf-8")
+    tgrc_std_error_log = 'ErrorLog "|{rotatelogs} {log_path} {rotate_time}"'.format(
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=error_log_path, rotate_time=60).decode("utf-8")
+
     try:
         log_format_pattern = config['LogFormat'][std_log_format_name]
         # std_log_format_name is already defined in this config
@@ -293,27 +303,41 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
     except KeyError:
         logger.info('inserting: {}'.format(tgrc_std_log_format))
         # inserting
-        lines.insert(
-            config['end_index'] + insert_offset, tgrc_std_log_format)
+        lines.insert(end_index + insert_offset, tgrc_std_log_format)
         insert_offset += 1
     try:
         custom_logs = config['CustomLog']
         tgrc_std_custom_log_exists = False
         for custom_log in custom_logs:
+            logger.debug('Searching pattern {} in {}'.format(
+                custom_log_match_pattern, custom_log))
+            matched = re.search(custom_log_match_pattern, custom_log)
+            # If it exactly matches than no update needed
             if 'CustomLog {}'.format(custom_log) == tgrc_std_custom_log:
                 logger.debug('match found for custom_log')
                 tgrc_std_custom_log_exists = True
+            if matched > 0 and not tgrc_std_custom_log_exists:
+                logger.warn('Match found for custom_log, replacing it')
+                # let's find this line and replace it
+                # It would be closest line before the end index
+                idx = end_index
+                while idx > 0:
+                    if lines[idx] == custom_log:
+                        logger.info('replacing {} with: {}'.format(
+                            custom_log, tgrc_std_custom_log))
+                        lines[idx] = tgrc_std_custom_log
+                        tgrc_std_custom_log_exists = True
+                        break
+                    idx = idx - 1
         if not tgrc_std_custom_log_exists:
             logger.info('inserting: {}'.format(tgrc_std_custom_log))
             # inserting
-            lines.insert(
-                config['end_index'] + insert_offset, tgrc_std_custom_log)
+            lines.insert(end_index + insert_offset, tgrc_std_custom_log)
             insert_offset += 1
     except KeyError:
         logger.info('inserting: {}'.format(tgrc_std_custom_log))
         # inserting
-        lines.insert(
-            config['end_index'] + insert_offset, tgrc_std_custom_log)
+        lines.insert(end_index + insert_offset, tgrc_std_custom_log)
         insert_offset += 1
     try:
         error_log_formats = config['ErrorLogFormat']
@@ -323,14 +347,12 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
                 std_error_log_exists = True
 
         if not std_error_log_exists:
-            lines.insert(
-                config['end_index'] + insert_offset, tgrc_std_error_log_format)
+            lines.insert(end_index + insert_offset, tgrc_std_error_log_format)
             insert_offset += 1
     except KeyError:
         logger.info('inserting: {}'.format(tgrc_std_error_log_format))
         # inserting
-        lines.insert(
-            config['end_index'] + insert_offset, tgrc_std_error_log_format)
+        lines.insert(end_index + insert_offset, tgrc_std_error_log_format)
         insert_offset += 1
     try:
         error_logs = config['ErrorLog']
@@ -341,14 +363,12 @@ def check_updation(lines, config, root_config={}, insert_offset=0):
         if not std_error_log_exists:
             logger.info('inserting: {}'.format(tgrc_std_error_log))
             # inserting
-            lines.insert(
-                config['end_index'] + insert_offset, tgrc_std_error_log)
+            lines.insert(end_index + insert_offset, tgrc_std_error_log)
             insert_offset += 1
     except KeyError:
         logger.info('inserting: {}'.format(tgrc_std_error_log))
         # inserting
-        lines.insert(
-            config['end_index'] + insert_offset, tgrc_std_error_log)
+        lines.insert(end_index + insert_offset, tgrc_std_error_log)
         insert_offset += 1
     return insert_offset, custom_log_path, error_log_path
 
@@ -369,7 +389,8 @@ def ensure_appropriate_permissions(file_paths, os_type):
             check_permission = 'ls -dlZ {}'.format(dir_path)
             output = os.popen(check_permission).read()
             if 'httpd_log_t' in output:
-                logger.debug('Path {} has required permission'.format(dir_path))
+                logger.debug(
+                    'Path {} has required permission'.format(dir_path))
                 continue
             add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
                 dir_path)
@@ -391,7 +412,7 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
     '''
     access_log_settings = []
     for access_file_path in access_log_paths:
-        access_log_settings.append('$InputFileName {access_file_path}'.format(
+        access_log_settings.append('$InputFileName {access_file_path}*'.format(
             access_file_path=access_file_path))
         access_log_settings.append('$InputFileTag apache-access:')
         access_log_settings.append('$InputFileSeverity info')
@@ -401,7 +422,7 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
 
     error_log_settings = []
     for error_file_path in error_log_paths:
-        error_log_settings.append('$InputFileName {error_file_path}'.format(
+        error_log_settings.append('$InputFileName {error_file_path}*'.format(
             error_file_path=error_file_path))
         error_log_settings.append('$InputFileTag apache-error:')
         error_log_settings.append('$InputFileSeverity error')
@@ -417,7 +438,8 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
         '$ModLoad imfile',
         '',
         # Add log forwarding for this script logs too
-        '$InputFileName {script_log_path}'.format(script_log_path=OPTIONS[os_type]['script_log_path']),
+        '$InputFileName {script_log_path}'.format(
+            script_log_path=OPTIONS[os_type]['script_log_path']),
         '$InputFileTag configure-apache:',
         '$InputFileSeverity info',
         '$InputRunFileMonitor',
@@ -479,7 +501,8 @@ def configure_standard_logging(os_type):
     error_log_paths = []
     # if virtual host is defined configure logging in that else use root config
     if len(virtual_host_conf_dict.keys()) > 0:
-        logger.debug('virtual host configs: {}'.format(json.dumps(virtual_host_conf_dict)))
+        logger.debug('virtual host configs: {}'.format(
+            json.dumps(virtual_host_conf_dict)))
         for conf_path in virtual_host_conf_dict.keys():
             lines = read_lines(conf_path)
             virtual_hosts = virtual_host_conf_dict[conf_path]
@@ -488,7 +511,7 @@ def configure_standard_logging(os_type):
             insert_offset = 0
             for virtual_host in virtual_hosts:
                 insert_offset, new_access_log_path, new_error_log_path = check_updation(lines,
-                                                                                          virtual_host, root_config=root_config, insert_offset=insert_offset)
+                                                                                        virtual_host, os_type,  root_config=root_config, insert_offset=insert_offset)
                 access_log_paths.append(new_access_log_path)
                 error_log_paths.append(new_error_log_path)
 
@@ -501,7 +524,7 @@ def configure_standard_logging(os_type):
         # Assign line number in the file before which standard logging should be added
         root_config['end_index'] = len(lines)
         _, new_access_log_path, new_error_log_path = check_updation(
-            lines, root_config)
+            lines, root_config, os_type)
         access_log_paths.append(new_access_log_path)
         error_log_paths.append(new_error_log_path)
 
@@ -510,7 +533,7 @@ def configure_standard_logging(os_type):
 
     logger.debug('access_log_paths: {}'.format(access_log_paths))
     logger.debug('error_log_paths: {}'.format(error_log_paths))
-    
+
     # create directory and add permission if required
     ensure_appropriate_permissions(access_log_paths, os_type)
     ensure_appropriate_permissions(error_log_paths, os_type)
