@@ -53,7 +53,7 @@ python configure_apache.py -h
     # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%l log level> <%{c}L log id of the connection> <%L Request log ID> <%P pid> <%F Source file name and line number of the log call> <%E APR/OS error status code and string> <%a Client IP address and port of the request>
     TGRC_STD_ERROR_LOG_PATTERN = '"[%-t] [%-v] [%-l] [%-{c}L] [%-L] [pid %-P] [%-F: %-E] [client %-a] %-M"'
     ```
-    
+
     Sample logs
     ```log
     [12/Oct/2021:13:13:56 +0000] [abc] [3WgonhdVkMA] [YWWKFNNS-kB8QY2RXLp6OwAAAAA] [::1] [80] GET / "" HTTP/1.1 403 73 5149 0 "-" "curl/7.29.0" -
@@ -62,3 +62,4 @@ python configure_apache.py -h
 4. The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
 5. After the script is run and a change is made, a log is generated: _Server restart is required as config files changed: <list of files changed>_
 6. `rsysylog` forwards this log to SIEM and SIEM can notify the admins so they can plan to restart Apache.
+7. logs are rotated every 1 hour via logrotate

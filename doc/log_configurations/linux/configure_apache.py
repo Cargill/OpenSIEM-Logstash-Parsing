@@ -289,9 +289,9 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
     custom_log_match_pattern = r'^"\|.+" {log_format}$'.format(
         log_format=std_log_format_name).decode("utf-8")
     tgrc_std_custom_log = 'CustomLog "|{rotatelogs} {log_path} {rotate_time}" {log_format}'.format(
-        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=custom_log_path, rotate_time=60, log_format=std_log_format_name).decode("utf-8")
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=custom_log_path, rotate_time=3600, log_format=std_log_format_name).decode("utf-8")
     tgrc_std_error_log = 'ErrorLog "|{rotatelogs} {log_path} {rotate_time}"'.format(
-        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=error_log_path, rotate_time=60).decode("utf-8")
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=error_log_path, rotate_time=3600).decode("utf-8")
 
     try:
         log_format_pattern = config['LogFormat'][std_log_format_name]
