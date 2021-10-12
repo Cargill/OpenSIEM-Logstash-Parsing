@@ -28,3 +28,5 @@ For configuring auditd to log commands:
 6. Run 
     ```grub2-mkconfig -o /boot/grub2/grub.cfg```
 7. Reboot
+
+## configure apache script

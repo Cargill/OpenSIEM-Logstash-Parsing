@@ -8,8 +8,7 @@ About this script:
 It does not overwrites any predefined logging. So admins can also write logs in desired format to a desired location.
 It adds access logging and error logging per virtual host.
 If no virtualhost is defined then logging is configured in root httpd.conf file.
-This means that requests would be logged in _two_ error log files and _two_ access log files
-as there would already be a default log definition.
+This means that requests would be logged in _two_ error log files and _two_ access log files as there would already be a default log definition.
 
 Log format:
 Virtual host name is also logged so it can be extracted with logstash.
@@ -37,6 +36,7 @@ Tests:
 4. If DocRoot is changed new ErrorLog is added but old error log path is not removed.
 (This is due to the fact that we don't want to remove any predefined error logs. There is no way to identify our enforced error log as error log don't have format specified)
 '''
+import argparse
 import glob
 import io
 import json
@@ -47,7 +47,7 @@ from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger()
 
-
+# Add more operating systems here
 OPTIONS = {
     'centos': {
         'root_path': '/etc/httpd/',
@@ -547,7 +547,14 @@ def configure_standard_logging(os_type):
 
 
 if __name__ == "__main__":
-    os_type = 'centos'
+    parser = argparse.ArgumentParser(usage='%(prog)s [options]', description='Configures an Apache server for standard logging and adds logforwarding via rsyslog')
+    # Add a positional argument as this is mandatory
+    parser.add_argument(
+        dest='os_type', type=str, help='should be one of: {}'.format(', '.join(OPTIONS.keys())))
+    args = parser.parse_args()
+    os_type = args.os_type
+
+    # Logging for this script
     logger.setLevel(logging.INFO)
     script_log_path = OPTIONS[os_type]['script_log_path']
     script_log_dir, _ = os.path.split(script_log_path)
@@ -564,4 +571,5 @@ if __name__ == "__main__":
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
 
+    # Configure apache logging
     configure_standard_logging(os_type)
