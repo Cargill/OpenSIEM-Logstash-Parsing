@@ -30,3 +30,35 @@ For configuring auditd to log commands:
 7. Reboot
 
 ## configure apache script
+The script is written to be python2 compatible as that comes pre-installed in most systems.
+It currently supports only centos. Operating system type has to be passed as the first argument to the script.
+
+To run, do: 
+```sh
+python configure_apache.py centos
+```
+
+Usage help: 
+```sh
+python configure_apache.py -h
+```
+
+**Working**
+1. It adds access logging and error logging per virtual host.
+2. If no virtualhost is defined then logging is configured in root httpd.conf file.
+3. Adds logging in below formats
+    ```py
+    # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%{c}L log id of the connection> <%L Request log ID> <%a Client IP address and port of the request> <%p server port> <%m The request method> <%U The URL path requested> <%q The query string> <%H The request protocol> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
+    TGRC_STD_LOG_PATTERN = '"%t [%v] [%{c}L] [%L] [%a] [%p] %m %U \\"%q\\" %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
+    # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%l log level> <%{c}L log id of the connection> <%L Request log ID> <%P pid> <%F Source file name and line number of the log call> <%E APR/OS error status code and string> <%a Client IP address and port of the request>
+    TGRC_STD_ERROR_LOG_PATTERN = '"[%-t] [%-v] [%-l] [%-{c}L] [%-L] [pid %-P] [%-F: %-E] [client %-a] %-M"'
+    ```
+    
+    Sample logs
+    ```log
+    [12/Oct/2021:13:13:56 +0000] [abc] [3WgonhdVkMA] [YWWKFNNS-kB8QY2RXLp6OwAAAAA] [::1] [80] GET / "" HTTP/1.1 403 73 5149 0 "-" "curl/7.29.0" -
+    [Tue Oct 12 13:13:56 2021] [abc] [error] [3WgonhdVkMA] [YWWKFNNS-kB8QY2RXLp6OwAAAAA] [pid 23839] [request.c(1169): (13)Permission denied] [client ::1:39664] AH00035: access to /index.html denied (filesystem path '/var/www/krishna.com/index.html') because search permissions are missing on a component of the path
+    ```
+4. The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
+5. After the script is run and a change is made, a log is generated: _Server restart is required as config files changed: <list of files changed>_
+6. `rsysylog` forwards this log to SIEM and SIEM can notify the admins so they can plan to restart Apache.

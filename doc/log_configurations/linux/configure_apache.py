@@ -35,6 +35,10 @@ Tests:
 3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
 4. If DocRoot is changed new ErrorLog is added but old error log path is not removed.
 (This is due to the fact that we don't want to remove any predefined error logs. There is no way to identify our enforced error log as error log don't have format specified)
+
+Known Bug:
+If we modify ErroLogFormat it is inserted but since the ErrorLog directive is already set, it does not sets it again.
+Due to this, the ErrorLogFormat is not picked up.
 '''
 import argparse
 import glob
@@ -67,10 +71,11 @@ OPTIONS = {
 # %Z and %z are invalid patterns for apache. They are websphere specific.
 # TGRC_STD_LOG_PATTERN = '"%t %Z %z %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
 
-# <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%L Request log ID> <%m The request method> <%U The URL path requested> <%q The query string> <%p The canonical port of the server serving the request.> <%a Client IP address of the request> <%H The request protocol.> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
-TGRC_STD_LOG_PATTERN = '"%t %v %L %m %U %q %p %a %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
-TGRC_STD_ERROR_LOG_PATTERN = '"[%t] [%v] [%l] [pid %P] %F: %E: [client %a] %M"'
-
+# The patterns behave differently for CustomLog and ErrorLog.
+# <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%{c}L log id of the connection> <%L Request log ID> <%a Client IP address and port of the request> <%p server port> <%m The request method> <%U The URL path requested> <%q The query string> <%H The request protocol> <%s Status> <%I Bytes received> <%O Bytes sent> <%T The time taken to serve the request, in seconds.>
+TGRC_STD_LOG_PATTERN = '"%t [%v] [%{c}L] [%L] [%a] [%p] %m %U \\"%q\\" %H %s %I %O %T \\"%{Referer}i\\" \\"%{User-Agent}i\\" %{X-Forwarded-For}i"'
+# <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%l log level> <%{c}L log id of the connection> <%L Request log ID> <%P pid> <%F Source file name and line number of the log call> <%E APR/OS error status code and string> <%a Client IP address and port of the request>
+TGRC_STD_ERROR_LOG_PATTERN = '"[%-t] [%-v] [%-l] [%-{c}L] [%-L] [pid %-P] [%-F: %-E] [client %-a] %-M"'
 
 def identify_abs_or_relative_path(line, os_type):
     includes_all = ['IncludeOptional', 'Include']
@@ -320,7 +325,7 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
                 logger.warn('Match found for custom_log, replacing it')
                 # let's find this line and replace it
                 # It would be closest line before the end index
-                idx = end_index
+                idx = end_index + insert_offset
                 while idx > 0:
                     if lines[idx] == custom_log:
                         logger.info('replacing {} with: {}'.format(
@@ -355,6 +360,7 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
         lines.insert(end_index + insert_offset, tgrc_std_error_log_format)
         insert_offset += 1
     try:
+        # ErrorLog line must come immediately after ErrorLogFormat
         error_logs = config['ErrorLog']
         std_error_log_exists = False
         for error_log in error_logs:
