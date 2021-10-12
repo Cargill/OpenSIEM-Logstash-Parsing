@@ -1,14 +1,14 @@
 r'''
 About Apache Logging:
 CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
-If CustomLog is defined in VirtualHost section it is used else CustomLog is picked up from root httpd.conf
+If CustomLog is defined in VirtualHost section it is used. Otherwise, CustomLog is picked up from root httpd.conf
 CustomLog can be set in VirtualHost section also.
 
 About this script:
 It does not overwrites any predefined logging. So admins can also write logs in desired format to a desired location.
 It adds access logging and error logging per virtual host.
-If no virtualhost is defined then logging is configured in root httpd.conf file.
-This means that requests would be logged in _two_ error log files and _two_ access log files as there would already be a default log definition.
+If no virtualhost is defined then logging is configured in root httpd.conf file. This means that requests would be
+logged in _two_ error log files and _two_ access log files as there would already be a default log definition.
 
 Log format:
 Virtual host name is also logged so it can be extracted with logstash.
@@ -17,8 +17,9 @@ A defined logformat is overwritten with standard log format if it is defined wit
 Error Logging:
 Error Logs take all the formats defined, so it's hard to determine which format is being used.
 https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
-It's possible to enforce an error logging pattern only by removing all errorlogformats and using our standard only.
-Since that would break any predefined logging, so we just add a standard error logging pattern and log to standard error log location.
+It's possible to enforce an error logging pattern only by removing all error log formats and using a single standard (for
+example, our standard only.) Since that would break any predefined logging, this program adds a standard error logging
+pattern and logs to a standard error log location.
 
 Log Location:
 The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
@@ -26,7 +27,7 @@ Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds nece
 If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
 
 Collecting Apache Logs:
-Rsyslog can be configured just to read all apache logs and forward them to centrallized location with the tag of apache.
+Rsyslog can be configured just to read all apache logs and forward them to a centralized location with the tag of apache.
 It can also be configured to pre-parse it and send data in structured format.
 
 Tests:
@@ -37,8 +38,8 @@ Tests:
 (This is due to the fact that we don't want to remove any predefined error logs. There is no way to identify our enforced error log as error log don't have format specified)
 
 Known Bug:
-If we modify ErroLogFormat it is inserted but since the ErrorLog directive is already set, it does not sets it again.
-Due to this, the ErrorLogFormat is not picked up.
+If we modify ErrorLogFormat it is inserted but since the ErrorLog directive is already set, it does not set it again.
+As a result, the new ErrorLogFormat is not picked up.
 '''
 import argparse
 import glob
