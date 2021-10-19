@@ -29,7 +29,7 @@ For configuring auditd to log commands:
     ```grub2-mkconfig -o /boot/grub2/grub.cfg```
 7. Reboot
 
-## configure apache script
+## Configure apache script
 The script is written to be python2 compatible as that comes pre-installed in most systems.
 It currently supports only centos. Operating system type has to be passed as the first argument to the script.
 
@@ -43,7 +43,7 @@ Usage help:
 python configure_apache.py -h
 ```
 
-**Working**
+**How the script works**
 1. It adds access logging and error logging per virtual host.
 2. If no virtualhost is defined then logging is configured in root httpd.conf file.
 3. Adds logging in below formats
@@ -60,6 +60,11 @@ python configure_apache.py -h
     [Tue Oct 12 13:13:56 2021] [abc] [error] [3WgonhdVkMA] [YWWKFNNS-kB8QY2RXLp6OwAAAAA] [pid 23839] [request.c(1169): (13)Permission denied] [client ::1:39664] AH00035: access to /index.html denied (filesystem path '/var/www/krishna.com/index.html') because search permissions are missing on a component of the path
     ```
 4. The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
-5. After the script is run and a change is made, a log is generated: _Server restart is required as config files changed: <list of files changed>_
-6. `rsysylog` forwards this log to SIEM and SIEM can notify the admins so they can plan to restart Apache.
-7. logs are rotated every 1 hour via logrotate
+5. After the script is run and a change is made, a log is generated which says: _Server restart is required as config files changed: <list of files changed>._ `rsysylog` forwards this log to SIEM and SIEM can notify the admins so they can plan to restart Apache.
+6. logs are rotated every 1 hour via logrotate
+
+**References**
+Custom Log Format: https://httpd.apache.org/docs/current/mod/mod_log_config.html#formats
+Error Log Format: https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
+Understanding Error Logs: https://stackify.com/apache-error-log-explained/
+Forwarding Apache Logs Using Rsyslog: https://www.rsyslog.com/recipe-apache-logs-rsyslog-parsing-elasticsearch/
