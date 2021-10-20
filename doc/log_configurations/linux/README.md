@@ -64,7 +64,7 @@ python configure_apache.py -h
 6. logs are rotated every 1 hour via logrotate
 
 **References**
-Custom Log Format: https://httpd.apache.org/docs/current/mod/mod_log_config.html#formats
-Error Log Format: https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
-Understanding Error Logs: https://stackify.com/apache-error-log-explained/
-Forwarding Apache Logs Using Rsyslog: https://www.rsyslog.com/recipe-apache-logs-rsyslog-parsing-elasticsearch/
+- Custom Log Format: https://httpd.apache.org/docs/current/mod/mod_log_config.html#formats
+- Error Log Format: https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
+- Understanding Error Logs: https://stackify.com/apache-error-log-explained/
+- Forwarding Apache Logs Using Rsyslog: https://www.rsyslog.com/recipe-apache-logs-rsyslog-parsing-elasticsearch/
