@@ -1,14 +1,16 @@
 r'''
 About Apache Logging:
-CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths.
+CustomLog can be defined multiple times i.e. multiple patterns and multiple log paths (multiple files with logs).
 If CustomLog is defined in VirtualHost section it is used. Otherwise, CustomLog is picked up from root httpd.conf
 CustomLog can be set in VirtualHost section also.
 
 About this script:
 It does not overwrites any predefined logging. So admins can also write logs in desired format to a desired location.
+When we add a new definition all we say is to log at a location which we monitor and in format which we enforce.
 It adds access logging and error logging per virtual host.
 If no virtualhost is defined then logging is configured in root httpd.conf file. This means that requests would be
 logged in _two_ error log files and _two_ access log files as there would already be a default log definition.
+I.e. since this does not replace the original logging definition everything is logged twice.
 
 Log format:
 Virtual host name is also logged so it can be extracted with logstash.
@@ -24,7 +26,13 @@ pattern and logs to a standard error log location.
 Log Location:
 The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
 Creates DocumentRoot/(ServerName or ServerAlias)/log if not exists and adds necessary permissions to the directory.
-If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log
+If either of ServerName and ServerAlias are not defined then path is DocumentRoot/logs/log ... I.e:
+If DocumentRoot/(ServerName or ServerAlias)/log
+means
+DocumentRoot/ServerName/log
+or
+DocumentRoot/ServerAlias/log
+
 
 Collecting Apache Logs:
 Rsyslog can be configured just to read all apache logs and forward them to a centralized location with the tag of apache.
@@ -60,6 +68,7 @@ OPTIONS = {
         'rsyslog_conf_path': '/etc/rsyslog.d/tgrc_apache.conf',
         'rotatelogs': '/sbin/rotatelogs'
     },
+    # To be clear, this has NOT been tested by our team.
     'Red Hat': {
         'root_path': '/etc/httpd/',
         'script_log_path': '/var/log/configure_apache/script.log',

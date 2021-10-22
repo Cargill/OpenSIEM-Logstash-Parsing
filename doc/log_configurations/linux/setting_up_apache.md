@@ -1,3 +1,4 @@
+
 # Centos apache virtualhost setup
 
 1. vi /etc/httpd/conf.d/web-example.conf
@@ -61,15 +62,17 @@ LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" \"%{X-Fo
 ```
 
 ## Recommendations:
-1. Use BufferedLogs https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
+1. Use BufferedLogs: 
 On some systems, this may result in more efficient disk access and hence higher performance. 
 It may be set only once for the entire server;
 it cannot be configured per virtual-host.
 This directive should be used with caution as a crash might cause loss of logging data.
+https://httpd.apache.org/docs/current/mod/mod_log_config.html#bufferedlogs
 2. Use single access log file for all sites/hosts on the server and 
 log name of the virtual host in each request to keep file descriptors low.
+
+This has a drawback. In case one wants to do a custom logging for a virtual host then buffered logging would be suppressed.
 https://httpd.apache.org/docs/2.4/logs.html#virtualhost
-This has a drawback. In case one wants to do a custom logging for a virtual host then this logging would be suppressed.
 
 Apache allows us to rotate logs by piping logs to rotatelogs tool
 https://httpd.apache.org/docs/2.4/logs.html#rotation
