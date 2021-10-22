@@ -33,17 +33,24 @@ and add below
 
 ### Troubleshooting:
 
+If apache is not working. Most probably it's a permissions issue. Maybe httpd is not able to read files from document root or maybe it's not able to write logs. Below is an example for checking the log permissions.
+
 Check selinux permissions
 
 ```ls -dlZ /var/www/example.com/log/```
 
 Sample output:
 
-```
+```shell
 drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
 ```
 
-If the output contains httpd_log_t that means apache can write logs to the directory else apply httpd_log_t context and make it persist over reboots.
+If the output contains httpd_log_t that means apache can write logs to the directory else apply httpd_log_t context and make it persist over reboots by executing below commands.
+
+```shell
+semanage fcontext -a -t httpd_log_t "/var/www/example.com/log/(/.*)?"
+restorecon -R -v /var/www/example.com/log/
+```
 
 ### Setting up XFF header
 

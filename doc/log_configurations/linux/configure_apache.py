@@ -536,7 +536,7 @@ def configure_standard_logging(os_type):
         error_log_paths.append(new_error_log_path)
 
         if write_lines(master_config_path, lines):
-            files_changed.append(conf_path)
+            files_changed.append(master_config_path)
 
     logger.debug('access_log_paths: {}'.format(access_log_paths))
     logger.debug('error_log_paths: {}'.format(error_log_paths))
