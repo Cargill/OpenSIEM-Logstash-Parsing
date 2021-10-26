@@ -117,7 +117,7 @@ Lies in the config directory root. See inline comments.
 ### **settings.json**
 
 This is the most useful file which gives you flexibility to stitch an input, processor and output together. See inline comments.
-
+See [quick_reference_enrichment_enable_disable.csv](../doc/enrichments/quick_reference_enrichment_enable_disable.csv) to find tags to disable a certain enrichment.
 ```json
 {
   "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value. If using other inputs this should be the input file name.)": {
@@ -350,11 +350,11 @@ These files need to exist for Logstash to load the geoip enrichment.
 ```
 Either remove geoip enrichment file if you don't want to use it or just touch these files if you are disabling the enrichment from settings.json. If you want to use this enrichment you need to add geoip files. For more information see [using the Geoip filter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html).
 
-- Create _/data_ dir as the script uses it to write logs and create a change file.
 - Update settings.json file.
 - Update general.json file.
 - Set the environment variables as [above](#environment-variables).
 - Run  python build_scripts/generate_pipeline.py
+- The script generates logs at /data dir. The script would fail if it cannot create that directory.
 - Copy over the config directory to `/usr/share/logstash` and start logstash.
 
 An example can be found in github [workflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/.github/workflows/main.yml#L90).
