@@ -131,3 +131,100 @@ export LOGSTASH_API_SECRET='{"memcached_address" : "\"127.0.0.1\",\"127.0.0.2\""
 
 
 ### Detailed Setup
+1. Install logstash with required plugins following above pre-requisite section of logstash.
+
+2. Clone the repo
+```
+git clone https://github.com/Cargill/OpenSIEM-Logstash-Parsing
+```
+
+3. Assuming your logstash config directory is _/usr/share/logstash/config_ do
+```
+cp -r OpenSIEM-Logstash-Parsing/config/* /usr/share/logstash/config/
+```
+
+4. Cleanup
+Remove kafka and azure input directories. We'll create a file input for this example.
+```
+# remove input directories
+rm -rf /usr/share/logstash/config/inputs/*
+rm -rf /usr/share/logstash/config/outputs/*
+```
+
+dns enrichment needs a dns server.
+geoip enrichment needs a geoip database file.
+memcache/misp enrichment needs a memcache server.
+For the sake of simplicity let's not use these. So do
+```
+rm -f /usr/share/logstash/config/enrichments/09_dns.conf
+rm -f /usr/share/logstash/config/enrichments/99_geoip.conf
+rm -f /usr/share/logstash/config/enrichments/100_misp.conf
+```
+If you want to use these enrichments then you need to do the needful so they can work. e.g. you need to replace the variable with actual values in dns and misp.
+
+5. Let's create our input config.
+Open _/usr/share/logstash/config/inputs/a10_input.conf_ in editor and add below.
+```
+input {
+  file {
+    path => "/var/log/a10_audit.log"
+  }
+}
+filter {
+  mutate {
+      add_field => {
+        "[@metadata][output_file]" => "a10_%{+xxxx.MM.dd}"
+        "[@metadata][output_pipelines]" => [file_output]
+      }
+    }
+  }
+}
+output {
+  pipeline { send_to => [a10_processor]}
+}
+```
+Make sure the path defined has a10 logs. This config creates an input source from the file path. Adds 2 metadata fields to specify the output file name and the output pipelines. Output pipelines is the name of pipelines where the logs would be sent after processing and enriching. This comes handy when we have multiple conditional outputs. After adding metadata fields this config forwards the event to `a10_processor` pipeline.
+
+6. Update processor file.
+Open _/usr/share/logstash/config/processors/syslog_log_audit_a10.proxy.conf_
+in editor. Replace `VAR_PIPELINE_NAME` with `a10_processor`. All processors forward events to _enrichments_ pipeline.
+
+7. Setup enrichment output.
+Enrichment input _00_input.conf_ is defined as `enrichments` pipeline, so the logs from processors are recieved there. We have to configure output part.
+Open 999_output.conf and replace the contents with below
+
+```
+output {
+  if "file_output" in [@metadata][output_pipelines] {
+    pipeline { send_to =>  "file_output" }
+  }
+}
+```
+
+8. Create output config
+Create _/usr/share/logstash/config/outputs/file_out.conf_ and add below contents.
+```
+input {
+  pipeline { address => file_output }
+}
+output {
+  file {
+    path => "/tmp/%{[@metadata][output_file]}"
+  }
+}
+```
+
+9. Create pipeline.yml
+Replace _/usr/share/logstash/config/pipelines.yml_ with below contents.
+```yml
+################# ENRICH #################
+- pipeline.id: enrichments
+  path.config: "/usr/share/logstash/config/enrichments/{*}.conf"
+
+################# OUTPUT #################
+- pipeline.id: file_output
+  path.config: "/usr/share/logstash/config/outputs/file_out.conf"
+
+############### INPUTS & PROCESSORS ###############
+- 
+```
