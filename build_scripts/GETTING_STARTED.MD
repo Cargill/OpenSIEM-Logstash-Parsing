@@ -3,6 +3,8 @@ This example is a walk through for parsing `A10 audit logs`.  The logs will be i
 
 Below section is written assuming you ingest logs from kafka and want to use our script to generate pipelines. For a manual process and/or for deeper understanding skip to the [Detailed Setup](#detailed_setup) section.
 
+It is also assumed that you are using logstash on linux and it's installed at _/usr/share/logstash_ location.
+
 
 ### Pre-requisites
 1. Install LogStash >= 7.12
@@ -167,15 +169,14 @@ Open _/usr/share/logstash/config/inputs/a10_input.conf_ in editor and add below.
 ```
 input {
   file {
-    path => "/var/log/a10_audit.log"
+    path => "/tmp/a10_audit.log"
   }
 }
 filter {
   mutate {
-      add_field => {
-        "[@metadata][output_file]" => "a10_%{+xxxx.MM.dd}"
-        "[@metadata][output_pipelines]" => [file_output]
-      }
+    add_field => {
+      "[@metadata][output_file]" => "a10_%{+xxxx.MM.dd}"
+      "[@metadata][output_pipelines]" => [file_output]
     }
   }
 }
@@ -191,7 +192,7 @@ in editor. Replace `VAR_PIPELINE_NAME` with `a10_processor`. All processors forw
 
 7. Setup enrichment output.
 Enrichment input _00_input.conf_ is defined as `enrichments` pipeline, so the logs from processors are recieved there. We have to configure output part.
-Open 999_output.conf and replace the contents with below
+Open _999_output.conf_ and replace the contents with below
 
 ```
 output {
@@ -222,9 +223,15 @@ Replace _/usr/share/logstash/config/pipelines.yml_ with below contents.
   path.config: "/usr/share/logstash/config/enrichments/{*}.conf"
 
 ################# OUTPUT #################
-- pipeline.id: file_output
+- pipeline.id: output
   path.config: "/usr/share/logstash/config/outputs/file_out.conf"
 
 ############### INPUTS & PROCESSORS ###############
-- 
+- pipeline.id: a10_input
+  path.config: "/usr/share/logstash/config/inputs/a10_input.conf"
+- pipeline.id: a10_processor
+  path.config: "/usr/share/logstash/config/processors/syslog_log_audit_a10.proxy.conf"
 ```
+
+10. Start logstash
+You should see parsed logs in a file called _/tmp/a10_2021.10.27_ assuming you ran it on _Oct 27 2021_. Note that this is because we defined the output file name to be generated with date pattern by logstash. ("a10_%{+xxxx.MM.dd}" defined in input conf file)
