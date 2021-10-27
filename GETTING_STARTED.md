@@ -1,7 +1,7 @@
 ## Getting started
 This example is a walk through for parsing `A10 audit logs`.  The logs will be ingested from kafka topic `a10_proxy` and parsed using [syslog_log_audit_a10.proxy](./config/processors/syslog_log_audit_a10.proxy.conf) config.
 
-Below section is written assuming you ingest logs from kafka and want to use our script to generate pipelines. For a manual process and/or for deeper understanding skip to the [Detailed Setup](#detailed_setup) section.
+Below section is written assuming you ingest logs from kafka and want to use our script to generate pipelines. For a manual process and/or for deeper understanding skip to the [Detailed Setup](#detailed-setup) section.
 
 It is also assumed that you are using logstash on linux and logstash home is _/usr/share/logstash_ path.(logstash home is the directory that contains pipelines.yml, logstash.yml, jvm.options etc.)
 
@@ -23,7 +23,7 @@ logstash-plugin install \
     /mnt/s3fs_geoip/GeoLite2-City.mmdb
     /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
     ```
-    Either remove the enrichment file if you don't want to use it or just touch above files if you are disabling the enrichment from [settings.json](./build_scripts#settings.json). If you want to use this enrichment you need to add geoip files. For more information see [using the Geoip filter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html). 
+    Either remove the enrichment file if you don't want to use it or just touch above files if you are disabling the enrichment from [settings.json](./build_scripts#settingsjson). If you want to use this enrichment you need to add geoip files. For more information see [using the Geoip filter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html). 
 
     In this example it is asummed that geoip enrichment would not be used.
     
