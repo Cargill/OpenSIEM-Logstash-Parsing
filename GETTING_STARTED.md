@@ -3,7 +3,7 @@ This example is a walk through for parsing `A10 audit logs`.  The logs will be i
 
 Below section is written assuming you ingest logs from kafka and want to use our script to generate pipelines. For a manual process and/or for deeper understanding skip to the [Detailed Setup](#detailed_setup) section.
 
-It is also assumed that you are using logstash on linux and it's installed at _/usr/share/logstash_ location.
+It is also assumed that you are using logstash on linux and logstash home is _/usr/share/logstash_ path.(logstash home is the directory that contains pipelines.yml, logstash.yml, jvm.options etc.)
 
 
 ### Pre-requisites
