@@ -28,6 +28,7 @@ logstash-plugin install \
     In this example it is asummed that geoip enrichment would not be used.
     
     2. dns enrichment
+
       09_dns.conf has variable VAR_DNS_SERVER for nameserver definition.
       Add server address like this in LOGSTASH_API_SECRET json.
       ```sh
@@ -37,6 +38,7 @@ logstash-plugin install \
       Remove the enrichment file if you won't be using it.
 
     3. memcached/misp enrichment
+
       09_dns.conf has variable VAR_DNS_SERVER for nameserver definition.
       Add server address like this in LOGSTASH_API_SECRET json.
       ```sh
@@ -148,14 +150,16 @@ cp -r OpenSIEM-Logstash-Parsing/config/* /usr/share/logstash/config/
 4. Cleanup
 Remove kafka and azure input directories. We'll create a file input for this example.
 ```
-# remove input directories
 rm -rf /usr/share/logstash/config/inputs/*
 rm -rf /usr/share/logstash/config/outputs/*
 ```
 
 dns enrichment needs a dns server.
+
 geoip enrichment needs a geoip database file.
+
 memcache/misp enrichment needs a memcache server.
+
 For the sake of simplicity let's not use these. So do
 ```
 rm -f /usr/share/logstash/config/enrichments/09_dns.conf
