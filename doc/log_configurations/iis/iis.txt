@@ -3,4 +3,4 @@ If there are servers running IIS version lower than 8.5, then you will need to d
 this Advanced Logging dependency. Your windows admins will need to install this alongside
 the powershell program.
 
-https://www.microsoft.com/en-us/download/details.aspx?id=7211
+https://www.microsoft.com/en-us/download/details.aspx?id=7211 - Link no longer available, file is provided in this directory
