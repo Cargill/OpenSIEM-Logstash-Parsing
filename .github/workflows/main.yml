@@ -47,7 +47,6 @@ jobs:
       # Unable to use cached directory. Setting up every time for now. Shall revisit later.
       # if: steps.cache-logstash.outputs.cache-hit != 'true'
       run: |
-        export LOGSTASH_GPG_KEY="46095ACC8548582C1A2699A9D27D666CD88E42B4"
         sudo apt-get install -qqy --no-install-recommends ca-certificates curl
         set -x\
         && mkdir ${LOGSTASH_HOME} \
@@ -59,12 +58,9 @@ jobs:
         && sha512sum --check "${LOGSTASH_BINARY}.sha512"; \
         curl -L -O "${DOWNLOAD_URL}/${LOGSTASH_BINARY}.asc" \
           && export GNUPGHOME="$(mktemp -d)"; \
-          ( gpg --keyserver ha.pool.sks-keyservers.net --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver pgp.mit.edu --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys "$LOGSTASH_GPG_KEY" \
-          || gpg --keyserver keyserver.pgp.com --recv-keys "$LOGSTASH_GPG_KEY" ); \
-          gpg --batch --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
+          curl -L -O https://artifacts.elastic.co/GPG-KEY-elasticsearch \
+          && gpg -q --batch --import /tmp/GPG-KEY-elasticsearch \
+          && gpg --batch --no-auto-key-retrieve --verify "${LOGSTASH_BINARY}.asc" "${LOGSTASH_BINARY}"; \
         \
         tar xzf ${LOGSTASH_BINARY} -C ${LOGSTASH_HOME} --strip-components=1; \
         \
