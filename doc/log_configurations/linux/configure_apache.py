@@ -399,6 +399,16 @@ def ensure_appropriate_permissions(file_paths, os_type):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         if os_type == 'centos':
+            # output = os.popen('selinuxenabled').read()
+            # TODO
+            # selinuxenabled
+            # if [ $? -ne 0 ]
+            # then 
+            #     echo "DISABLED"
+            # else
+            #     echo "ENABLED"
+            # fi
+            
             # example output
             # httpd_log_t is the context needed for apache to write logs
             # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
