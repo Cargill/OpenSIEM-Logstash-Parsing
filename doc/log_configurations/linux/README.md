@@ -8,11 +8,19 @@ rsyslog is pre installed and running by default on below systems:
 - Ubuntu 18 and above
 
 To configure log collection:
-- append contents of [rsyslog.conf](./rsyslog.conf) to /etc/rsyslog.conf _after changing last line to respective zone IP._
+- append contents of [rsyslog.conf](./rsyslog/rsyslog.conf) to /etc/rsyslog.conf _after changing last line to respective zone IP._
+- Add other [conf files](./rsyslog) to /etc/rsyslog.d 
+- If selinux is enabled execute
+    ```sh
+    semanage permissive -a syslogd_t
+    ```
+    Ref: https://linux.die.net/man/8/syslogd_selinux
+    rsyslog is part of syslogd_t. Above command tells selinux to permit the processes running with this context on everything.
+    To check if selinux is enabled, execute `selinuxenabled` command and check for status 0.
 - Restart rsyslog daemon
-  ```sh
-  systemctl restart rsyslog
-  ```
+    ```sh
+    systemctl restart rsyslog
+    ```
 
 ## auditd
 
