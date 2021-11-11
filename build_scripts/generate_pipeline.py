@@ -308,9 +308,15 @@ class LogstashHelper(object):
             if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
                 continue
             log_type = config_file.split('_')[-1]
-            if settings[config_file]['volume'] == 'high':
+            try:
+                log_volume = settings[config_file]['volume']
+            except KeyError:
+                logger.warning(f'could not find volume for {config_file}')
+                log_volume = 'undefined'
+
+            if log_volume == 'high':
                 high_volume_logs.append(config_file)
-            elif settings[config_file]['volume'] == 'medium':
+            elif log_volume == 'medium':
                 medium_volume_logs.append(config_file)
             else:
                 low_volume_logs.append(config_file)
@@ -389,10 +395,15 @@ class LogstashHelper(object):
                 f'/config/processors/{log_source_input_conf}'
             # and config name for id
             processor_pipeline_id = f'proc_{log_source}'
-
-            if settings[log_source]['volume'] == 'high':
+            try:
+                log_volume = settings[log_source]['volume']
+            except KeyError:
+                logger.warning(f'could not find volume for {log_source}')
+                log_volume = 'undefined'
+            
+            if log_volume == 'high':
                 pipeline_workers = 8
-            elif settings[log_source]['volume'] == 'medium':
+            elif log_volume == 'medium':
                 pipeline_workers = 4
             else:
                 pipeline_workers = 2
