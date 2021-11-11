@@ -392,15 +392,21 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
     return insert_offset, custom_log_path, error_log_path
 
 def run_command(command):
+    '''
+    Runs the command and returns tuple of exit code, stdout, stderr
+    stdout and stderr are string with `\n` new line separator
+    Returns -100 code if their was an exception.
+    '''
     try:
-        # Execute command and read stdout and stderr. Kill the process if it does not complete within 10 seconds
-        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, timeout=10)
+        # Execute command and read stdout and stderr
+        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True, universal_newlines=True))
         # Wait for it to complete and also read the streams.
         std_out, std_err = proc.communicate()
         return proc.returncode, std_out, std_err
-    except subprocess.TimeoutExpired:
-        logger.error('Execution timed out for {}. Logging may not be correctly set up.'.format(command))
-    return -1, None, None
+    except OSError as e:
+        logger.exception(e)
+        logger.error('Execution failed for command {}'.format(command))
+        return -100, '', ''
 
 def ensure_appropriate_permissions(file_paths, os_type):
     '''Create directory if not exists
@@ -411,7 +417,7 @@ def ensure_appropriate_permissions(file_paths, os_type):
         dir_path, _ = os.path.split(file_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        if os_type == 'centos' || os_type == 'Red Hat':
+        if os_type == 'centos' or os_type == 'Red Hat':
             status, _, _ = run_command('selinuxenabled')
             if status == 0:
                 # selinux enabled
@@ -419,7 +425,7 @@ def ensure_appropriate_permissions(file_paths, os_type):
                 # httpd_log_t is the context needed for apache to write logs
                 # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
                 check_permission = 'ls -dlZ {}'.format(dir_path)
-                status, output, _ = run_command(check_permission)
+                _, output, _ = run_command(check_permission)
                 if 'httpd_log_t' in output:
                     logger.debug(
                         'Path {} has required permission'.format(dir_path))
@@ -427,11 +433,15 @@ def ensure_appropriate_permissions(file_paths, os_type):
                 add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
                     dir_path)
                 logger.info('executing: {}'.format(add_permission))
-                run_command(add_permission)
+                status, _, _ = run_command(add_permission)
+                if status == 0:
+                    logger.info('add_permission executed successfully')
                 # apply the changes and let them survive reboots
                 restore_con = 'restorecon -R -v {}'.format(dir_path)
                 logger.info('executing: {}'.format(restore_con))
-                run_command(restore_con)
+                status, _, _ = run_command(restore_con)
+                if status == 0:
+                    logger.info('restore_con executed successfully')
 
 
 def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
@@ -493,7 +503,9 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
         logger.info('rsyslog config created')
         restart_rsyslog = 'systemctl restart rsyslog'
         logger.info('executing: {}'.format(restart_rsyslog))
-        run_command(restart_rsyslog)
+        status, _, _ = run_command(restart_rsyslog)
+        if status ==0:
+            logger.info('restart_rsyslog executed successfully')
 
 
 def configure_standard_logging(os_type):
