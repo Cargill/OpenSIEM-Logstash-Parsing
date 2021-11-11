@@ -200,8 +200,9 @@ class LogstashHelper(object):
         azure_inputs = list(filter(lambda file_name:file_name.endswith('.conf'), azure_inputs))
         for input_name in azure_inputs:
             try:
-                log_source_name = input_name[:-5]
-                config = settings[log_source_name]  # stripping .conf
+                log_source_name = input_name[:-5] # stripping .conf
+                config = settings[log_source_name]
+                config['log_source'] = log_source_name
             except KeyError:
                 # User doesn't want to process that log and that's okay
                 continue
@@ -216,8 +217,9 @@ class LogstashHelper(object):
         for input_name in kafka_inputs:
             if input_name == '1_kafka_input_template.conf':
                 continue
-            log_source_name = input_name[:-5]
-            config = settings[log_source_name]  # stripping .conf
+            log_source_name = input_name[:-5] # stripping .conf
+            config = settings[log_source_name]
+            config['log_source'] = log_source_name
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
                 continue
             self.__add_custom_input_field(
@@ -296,9 +298,9 @@ class LogstashHelper(object):
             logger.warning('cannot process special logs explicitly')
             num_servers_for_special_logs = 0
         
-        daily_logs = []
-        weekly_logs = []
-        monthly_logs = []
+        high_volume_logs = []
+        medium_volume_logs = []
+        low_volume_logs = []
         # filter daily, weekly and monthly logs which do not need special treatment
         for config_file in conf_names:
             if config_file in self.special_logs:
@@ -306,17 +308,12 @@ class LogstashHelper(object):
             if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
                 continue
             log_type = config_file.split('_')[-1]
-            # treat test settings as low volume, they are not a priority
-            if config_file.startswith('test_'):
-                log_type = 'monthly'
-            if log_type == 'daily':
-                daily_logs.append(config_file)
-            elif log_type == 'weekly':
-                weekly_logs.append(config_file)
-            elif log_type == 'monthly':
-                monthly_logs.append(config_file)
+            if settings[config_file]['volume'] == 'high':
+                high_volume_logs.append(config_file)
+            elif settings[config_file]['volume'] == 'medium':
+                medium_volume_logs.append(config_file)
             else:
-                monthly_logs.append(config_file)
+                low_volume_logs.append(config_file)
 
         # initialise selected config list for this node
         selected_log_sources = []
@@ -343,7 +340,7 @@ class LogstashHelper(object):
             num_servers = num_servers - num_servers_for_special_logs
             arr_idx = arr_idx - num_servers_for_special_logs
 
-            for logs in [daily_logs, weekly_logs, monthly_logs]:
+            for logs in [high_volume_logs, medium_volume_logs, low_volume_logs]:
                 num_logs = len(logs)
                 if num_logs >0 :
                     selected_log_sources = selected_log_sources + \
@@ -360,6 +357,7 @@ class LogstashHelper(object):
             while generated pipelines file.
         '''
         selected_log_sources = self.get_selected_log_sources()
+        settings = self.load_settings()
 
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
@@ -392,16 +390,10 @@ class LogstashHelper(object):
             # and config name for id
             processor_pipeline_id = f'proc_{log_source}'
 
-            log_type = log_source.split('_')[-1]
-            # treat test settings as low volume, they are not a priority
-            if log_source.startswith('test_'):
-                log_type = 'monthly'
-            if log_type == 'daily':
+            if settings[log_source]['volume'] == 'high':
                 pipeline_workers = 8
-            elif log_type == 'weekly':
+            elif settings[log_source]['volume'] == 'medium':
                 pipeline_workers = 4
-            elif log_type == 'monthly':
-                pipeline_workers = 2
             else:
                 pipeline_workers = 2
 
@@ -496,7 +488,7 @@ class LogstashHelper(object):
         
         for key in settings.keys():
             setting = settings[key]
-            log_source_conf = f'{setting["log_source"]}.conf'
+            log_source_conf = f'{key}.conf'
             # generate inputs
             if log_source_conf not in azure_input_list:
                 # it's a kafka input, generate an input conf
