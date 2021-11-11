@@ -92,7 +92,7 @@ touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
 ```json
 {
   "a10_proxy": {
-    "log_source": "a10_proxy",
+    "volume": "high",
     "config": "syslog_log_audit_a10.proxy",
     "elastic_index": "a10_proxy_audit_index",
     "ignore_enrichments": ["disable_geoip_enrichment"],
