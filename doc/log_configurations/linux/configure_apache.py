@@ -399,7 +399,7 @@ def run_command(command):
     '''
     try:
         # Execute command and read stdout and stderr
-        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True, universal_newlines=True))
+        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True, universal_newlines=True)
         # Wait for it to complete and also read the streams.
         std_out, std_err = proc.communicate()
         return proc.returncode, std_out, std_err
