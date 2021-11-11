@@ -420,11 +420,11 @@ def ensure_appropriate_permissions(file_paths, os_type):
         if os_type == 'centos' or os_type == 'Red Hat':
             status, _, _ = run_command('selinuxenabled')
             if status == 0:
-                # selinux enabled
-                # example output
-                # httpd_log_t is the context needed for apache to write logs
-                # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
+                # selinux is enabled
                 check_permission = 'ls -dlZ {}'.format(dir_path)
+                # httpd_log_t is the context needed for apache to write logs
+                # example output
+                # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
                 _, output, _ = run_command(check_permission)
                 if 'httpd_log_t' in output:
                     logger.debug(
