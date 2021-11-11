@@ -38,7 +38,7 @@ Collecting Apache Logs:
 Rsyslog can be configured just to read all apache logs and forward them to a centralized location with the tag of apache.
 It can also be configured to pre-parse it and send data in structured format.
 
-Tests:
+Tested following scenarios:
 1. Overwrites tgrc_log_format LogFormat with standard one.
 2. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log if either are absent in Virtual hosts section.
 3. Inserts tgrc_std_log_format, tgrc_std_custom_log, tgrc_std_error_log in root config.
@@ -296,12 +296,14 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
 
     # CustomLog with this pattern are supposedly added by this script in previous run
     # and should be ensured they are up to date.
+    # CustomLog "|/sbin/rotatelogs -n 5 /var/log/access.log 10M" common
+    # https://httpd.apache.org/docs/2.4/programs/rotatelogs.html
     custom_log_match_pattern = r'^"\|.+" {log_format}$'.format(
         log_format=std_log_format_name).decode("utf-8")
-    tgrc_std_custom_log = 'CustomLog "|{rotatelogs} {log_path} {rotate_time}" {log_format}'.format(
-        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=custom_log_path, rotate_time=3600, log_format=std_log_format_name).decode("utf-8")
-    tgrc_std_error_log = 'ErrorLog "|{rotatelogs} {log_path} {rotate_time}"'.format(
-        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=error_log_path, rotate_time=3600).decode("utf-8")
+    tgrc_std_custom_log = 'CustomLog "|{rotatelogs} -n 5 {log_path} {rotate_size}" {log_format}'.format(
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=custom_log_path, rotate_size='10M', log_format=std_log_format_name).decode("utf-8")
+    tgrc_std_error_log = 'ErrorLog "|{rotatelogs} -n 5 {log_path} {rotate_size}"'.format(
+        rotatelogs=OPTIONS[os_type]['rotatelogs'], log_path=error_log_path, rotate_size='10M').decode("utf-8")
 
     try:
         log_format_pattern = config['LogFormat'][std_log_format_name]

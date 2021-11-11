@@ -8,7 +8,7 @@ rsyslog is pre installed and running by default on below systems:
 - Ubuntu 18 and above
 
 To configure log collection:
-- append contents of [rsyslog.conf](./rsyslog/rsyslog.conf) to /etc/rsyslog.conf _after changing last line to respective zone IP._
+- append contents of [rsyslog.conf](./rsyslog/rsyslog.conf) to /etc/rsyslog.conf _after changing last line to syslog collector IP._
 - Add other [conf files](./rsyslog) to /etc/rsyslog.d 
 - If selinux is enabled execute
     ```sh
@@ -37,8 +37,9 @@ For configuring auditd to log commands:
     ```grub2-mkconfig -o /boot/grub2/grub.cfg```
 7. Reboot
 
-## Configure apache script
-The script is written to be python2 compatible as that comes pre-installed in most systems.
+## Apache server logging
+
+_configure_apache.py_ script is written to be python2 compatible as that comes pre-installed in most systems.
 It currently supports only centos. Operating system type has to be passed as the first argument to the script.
 
 To run, do: 
@@ -69,10 +70,11 @@ python configure_apache.py -h
     ```
 4. The paths are log/standard_access.log and log/standard_error.log relative to DocumentRoot/(ServerName or ServerAlias)
 5. After the script is run and a change is made, a log is generated which says: _Server restart is required as config files changed: <list of files changed>._ `rsysylog` forwards this log to SIEM and SIEM can notify the admins so they can plan to restart Apache.
-6. logs are rotated every 1 hour via logrotate
+6. Logs are rotated on reaching size of 10 MB and 5 rotated logs are kept.
 
 **References**
 - Custom Log Format: https://httpd.apache.org/docs/current/mod/mod_log_config.html#formats
 - Error Log Format: https://httpd.apache.org/docs/2.4/mod/core.html#errorlogformat
+- Log rotation: https://httpd.apache.org/docs/2.4/programs/rotatelogs.html
 - Understanding Error Logs: https://stackify.com/apache-error-log-explained/
 - Forwarding Apache Logs Using Rsyslog: https://www.rsyslog.com/recipe-apache-logs-rsyslog-parsing-elasticsearch/
