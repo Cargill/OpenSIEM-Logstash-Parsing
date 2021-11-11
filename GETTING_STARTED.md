@@ -74,10 +74,11 @@ input {
   }
 }
 ```
-All the VAR* fields are mandatory and need to be passed from environment variable without VAR_ prefix. e.g. a key `VAR_KAFKA_GROUP_ID` should be passed as 
+VAR* fields need to be passed from environment variable without VAR_ prefix. e.g. a key `VAR_RACK_ID` should be passed as 
 ```sh
-export KAFKA_GROUP_ID=logstash_consumer_group
+export VAR_RACK_ID=kafka_rack1
 ```
+Most of above have some default values. You can overwrite them in replace_vars method in [generate_pipeline](build_scripts/generate_pipeline.py)
 
 ### Steps
 
