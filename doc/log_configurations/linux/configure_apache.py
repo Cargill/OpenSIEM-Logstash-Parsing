@@ -56,6 +56,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 from logging.handlers import RotatingFileHandler
 
 logger = logging.getLogger()
@@ -390,6 +391,16 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
         insert_offset += 1
     return insert_offset, custom_log_path, error_log_path
 
+def run_command(command):
+    try:
+        # Execute command and read stdout and stderr. Kill the process if it does not complete within 10 seconds
+        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, timeout=10)
+        # Wait for it to complete and also read the streams.
+        std_out, std_err = proc.communicate()
+        return proc.returncode, std_out, std_err
+    except subprocess.TimeoutExpired:
+        logger.error('Execution timed out for {}. Logging may not be correctly set up.'.format(command))
+    return -1, None, None
 
 def ensure_appropriate_permissions(file_paths, os_type):
     '''Create directory if not exists
@@ -400,34 +411,27 @@ def ensure_appropriate_permissions(file_paths, os_type):
         dir_path, _ = os.path.split(file_path)
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
-        if os_type == 'centos':
-            # output = os.popen('selinuxenabled').read()
-            # TODO
-            # selinuxenabled
-            # if [ $? -ne 0 ]
-            # then 
-            #     echo "DISABLED"
-            # else
-            #     echo "ENABLED"
-            # fi
-            
-            # example output
-            # httpd_log_t is the context needed for apache to write logs
-            # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
-            check_permission = 'ls -dlZ {}'.format(dir_path)
-            output = os.popen(check_permission).read()
-            if 'httpd_log_t' in output:
-                logger.debug(
-                    'Path {} has required permission'.format(dir_path))
-                continue
-            add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
-                dir_path)
-            logger.info('executing: {}'.format(add_permission))
-            os.system(add_permission)
-            # apply the changes and let them survive reboots
-            restore_con = 'restorecon -R -v {}'.format(dir_path)
-            logger.info('executing: {}'.format(restore_con))
-            os.system(restore_con)
+        if os_type == 'centos' || os_type == 'Red Hat':
+            status, _, _ = run_command('selinuxenabled')
+            if status == 0:
+                # selinux enabled
+                # example output
+                # httpd_log_t is the context needed for apache to write logs
+                # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
+                check_permission = 'ls -dlZ {}'.format(dir_path)
+                status, output, _ = run_command(check_permission)
+                if 'httpd_log_t' in output:
+                    logger.debug(
+                        'Path {} has required permission'.format(dir_path))
+                    continue
+                add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
+                    dir_path)
+                logger.info('executing: {}'.format(add_permission))
+                run_command(add_permission)
+                # apply the changes and let them survive reboots
+                restore_con = 'restorecon -R -v {}'.format(dir_path)
+                logger.info('executing: {}'.format(restore_con))
+                run_command(restore_con)
 
 
 def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
@@ -489,7 +493,7 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
         logger.info('rsyslog config created')
         restart_rsyslog = 'systemctl restart rsyslog'
         logger.info('executing: {}'.format(restart_rsyslog))
-        os.system(restart_rsyslog)
+        run_command(restart_rsyslog)
 
 
 def configure_standard_logging(os_type):
