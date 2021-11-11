@@ -12,9 +12,8 @@ architecture](https://www.elastic.co/guide/en/logstash/current/pipeline-to-pipel
 
 
 ## Quick start Instructions
-"Quick start" mostly depends on how your Logstash configuration is set up. If you have your own setup already established,
-it might be best to use the processors that apply to your organization's log collection (found in the "config" directory). 
-If you are seeking to use the architecture in this repo, consult the README found in the build_scripts directory.
+Follow [GETTING_STARTED.md](./GETTING_STARTED.md) to get started. For detailed info on the architecture and working see README in [build_scripts](./build_scripts)
+
 
 ## Contributions
 We welcome and encourage individual contributions to this repo. Please see the Contribution.md guide in the root of the repo.

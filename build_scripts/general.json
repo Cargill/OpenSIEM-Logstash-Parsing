@@ -1,5 +1,4 @@
 {
-    "num_indexers" : 4,
     "prod_only_logs": [
         "event_hub_log_audit_azure.event_hub_audit",
         "event_hub_log_audit_azure.event_hub_signin",
