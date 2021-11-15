@@ -63,7 +63,7 @@ Each input pipeline sends logs to its respective processor config pipeline (for 
 
 ## Working
 
-To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `INSTANCE_COUNT` set to 1 in environment variables.
+To process logs we need to create pipelines.yml file. We start with defining enrichments and output pipelines(common for all log sources). Then we add input and processor pipelines only for the logs we process. [settings.json](#settingsjson) is the file where we define the log sources we want to process. The file [general.json](#generaljson) provides specs such as how many nodes we need to process a particular log source. With these settings files and numerous environment variables, [generate_pipelines.py](#generate_pipelinespy) script generates a `pipelines.yml` for a specific Logstash node. If you want to process all configs on all Logstash nodes you just need to run the generate script with `num_indexers` set to 1 in `general.json`.
 
 **Note:** We gather all the logs in Kafka through various log collection agents for temporary storage. We process logs from Kafka and Azure Eventhub and output to Elastic. You can tweak these configuration files and the pipeline generation script for your custom use cases, especially if they fall outside of our scope. We do not process all configs on all nodes because we faced performance problems associated with Kafka and Logstash kafka-input plugin.
 
@@ -117,7 +117,7 @@ Lies in the config directory root. See inline comments.
 ### **settings.json**
 
 This is the most useful file which gives you flexibility to stitch an input, processor and output together. See inline comments.
-
+See [quick_reference_enrichment_enable_disable.csv](../doc/enrichments/quick_reference_enrichment_enable_disable.csv) to find tags to disable a certain enrichment.
 ```json
 {
   "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value. If using other inputs this should be the input file name.)": {
@@ -142,6 +142,7 @@ This adds capability to process a config explicitly on logstash nodes. Logs can 
 
 ```json
 {
+    "num_indexers" : NUMBER OF LOGSTASH NODES IN THE CLUSTER,
     "prod_only_logs": [
         "LIST OF LOGS WHICH WON'T BE ADDED IN PIPELINES IF ENVIRONMENT VARIABLE DEPLOY_ENV=dev (list should be made of log_source values from settings.json)"
     ],
@@ -300,7 +301,6 @@ The [generate pipeline script](generate_pipeline.py) uses environment variables 
 ```
 DEPLOY_ENV: test/dev/prod
 MY_INDEX: index of this logtash node in the cluster
-INSTANCE_COUNT: number of instances in the cluster
 SUB_MY_IP: some unique value added to plugin ids
 ELASTIC_USER: elastic username
 ELASTIC_PASSWORD: elastic password
@@ -350,11 +350,11 @@ These files need to exist for Logstash to load the geoip enrichment.
 ```
 Either remove geoip enrichment file if you don't want to use it or just touch these files if you are disabling the enrichment from settings.json. If you want to use this enrichment you need to add geoip files. For more information see [using the Geoip filter](https://www.elastic.co/guide/en/logstash/current/plugins-filters-geoip.html).
 
-- Create _/data_ dir as the script uses it to write logs and create a change file.
 - Update settings.json file.
 - Update general.json file.
 - Set the environment variables as [above](#environment-variables).
 - Run  python build_scripts/generate_pipeline.py
+- The script generates logs at /data dir. The script would fail if it cannot create that directory.
 - Copy over the config directory to `/usr/share/logstash` and start logstash.
 
 An example can be found in github [workflow](https://github.com/Cargill/OpenSIEM-Logstash-Parsing/blob/master/.github/workflows/main.yml#L90).
