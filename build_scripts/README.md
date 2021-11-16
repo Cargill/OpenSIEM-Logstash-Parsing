@@ -121,7 +121,7 @@ See [quick_reference_enrichment_enable_disable.csv](../doc/enrichments/quick_ref
 ```json
 {
   "UNIQUE LOG SOURCE NAME (if using kafka input, kafka topic name is assigned this value. If using other inputs this should be the input file name.)": {
-    "log_source": "must be same as parent key (UNIQUE LOG SOURCE NAME)",
+    "volume": "high, medium or low. Used to allocate pipeline workers",
     "config": "PROCESSOR CONFIG FILE NAME WITHOUT .conf",
     "elastic_index": "INDEX NAME FOR ELASTIC OUTPUT PLUGIN (date patterns can also be used)",
     "ignore_enrichments": ["THESE ARE TAGS THAT ARE ADDED AND ENRICHMENTS CHECK FOR THEM"],
@@ -147,7 +147,7 @@ This adds capability to process a config explicitly on logstash nodes. Logs can 
         "LIST OF LOGS WHICH WON'T BE ADDED IN PIPELINES IF ENVIRONMENT VARIABLE DEPLOY_ENV=dev (list should be made of log_source values from settings.json)"
     ],
     "processing_config" : {
-        "LOG_SOURCE VALUE FROM SETTINGS.JSON" : {
+        "UNIQUE LOG SOURCE NAME FROM SETTINGS.JSON" : {
             "kafka_partitions" : NUMBER OF KAFKA PARTITIONS FOR THIS PARTICULAR LOG SOURCE(this valuse is used to generate number of workers for the kafka input plugin i.e. kafka_partitions/nodes),
             "nodes" : NUMBER OF NODES ON WHICH THIS LOG SOURCE WOULD BE EXPLICITLY PROCESSED
         },

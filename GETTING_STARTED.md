@@ -74,10 +74,11 @@ input {
   }
 }
 ```
-All the VAR* fields are mandatory and need to be passed from environment variable without VAR_ prefix. e.g. a key `VAR_KAFKA_GROUP_ID` should be passed as 
+VAR* fields need to be passed from environment variable without VAR_ prefix. e.g. a key `VAR_RACK_ID` should be passed as 
 ```sh
-export KAFKA_GROUP_ID=logstash_consumer_group
+export VAR_RACK_ID=kafka_rack1
 ```
+Most of above have some default values. You can overwrite them in replace_vars method in [generate_pipeline](build_scripts/generate_pipeline.py)
 
 ### Steps
 
@@ -91,7 +92,7 @@ touch /mnt/s3fs_geoip/GeoLitePrivate2-City.mmdb
 ```json
 {
   "a10_proxy": {
-    "log_source": "a10_proxy",
+    "volume": "high",
     "config": "syslog_log_audit_a10.proxy",
     "elastic_index": "a10_proxy_audit_index",
     "ignore_enrichments": ["disable_geoip_enrichment"],
