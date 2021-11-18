@@ -20,8 +20,8 @@ for root, _, files in os.walk(processor_dir):
 
 for processor in processors:
     settings[processor] = {
-        "log_source": processor,
         "config": processor,
+        "volume" : "high",
         "elastic_index": processor,
         "ignore_enrichments": [],
         "output_list": [
