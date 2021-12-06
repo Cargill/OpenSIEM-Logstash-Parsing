@@ -88,6 +88,7 @@ TGRC_STD_LOG_PATTERN = '"%t [%v] [%{c}L] [%L] [%a] [%p] %m %U \\"%q\\" %H %s %I 
 # <%t Time the request was received> <%v The canonical ServerName of the server serving the request.> <%l log level> <%{c}L log id of the connection> <%L Request log ID> <%P pid> <%F Source file name and line number of the log call> <%E APR/OS error status code and string> <%a Client IP address and port of the request>
 TGRC_STD_ERROR_LOG_PATTERN = '"[%-t] [%-v] [%-l] [%-{c}L] [%-L] [pid %-P] [%-F: %-E] [client %-a] %-M"'
 
+
 def identify_abs_or_relative_path(line, os_type):
     includes_all = ['IncludeOptional', 'Include']
     for i in includes_all:
@@ -391,22 +392,37 @@ def check_updation(lines, config, os_type, root_config={}, insert_offset=0):
         insert_offset += 1
     return insert_offset, custom_log_path, error_log_path
 
-def run_command(command):
+
+def run_command(command, timeout=120):
     '''
-    Runs the command and returns tuple of exit code, stdout, stderr
-    stdout and stderr are string with `\n` new line separator
+    Runs the command and returns tuple of exit code, stdout
+    
+    stdout and stderr is combined and is strings with `\n` new line separator
     Returns -100 code if their was an exception.
     '''
     try:
         # Execute command and read stdout and stderr
-        proc = subprocess.Popen(command,stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True, universal_newlines=True)
+        # command is assumed to be run with /bin/sh shell, if this shell is not found OSError is raised
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
         # Wait for it to complete and also read the streams.
-        std_out, std_err = proc.communicate()
-        return proc.returncode, std_out, std_err
+        logger.write(proc.stdout.read())
+
+        try:
+            std_out, _ = proc.communicate(timeout=timeout)
+        except TimeoutError as t:
+            logger.error(
+                'Timed out while executing command {}'.format(command))
+            proc.kill()
+            return -99, ''
+
+        return proc.returncode, std_out
     except OSError as e:
         logger.exception(e)
         logger.error('Execution failed for command {}'.format(command))
-        return -100, '', ''
+        logger.error('Is /bin/sh available on this machine?')
+        return -100, ''
+
 
 def ensure_appropriate_permissions(file_paths, os_type):
     '''Create directory if not exists
@@ -418,14 +434,14 @@ def ensure_appropriate_permissions(file_paths, os_type):
         if not os.path.exists(dir_path):
             os.makedirs(dir_path)
         if os_type == 'centos' or os_type == 'Red Hat':
-            status, _, _ = run_command('selinuxenabled')
+            status, _ = run_command('selinuxenabled')
             if status == 0:
                 # selinux is enabled
                 check_permission = 'ls -dlZ {}'.format(dir_path)
                 # httpd_log_t is the context needed for apache to write logs
                 # example output
                 # drwx------. root root unconfined_u:object_r:httpd_log_t:s0 /var/www/example.com/html/log/
-                _, output, _ = run_command(check_permission)
+                _, output = run_command(check_permission)
                 if 'httpd_log_t' in output:
                     logger.debug(
                         'Path {} has required permission'.format(dir_path))
@@ -433,13 +449,13 @@ def ensure_appropriate_permissions(file_paths, os_type):
                 add_permission = 'semanage fcontext -a -t httpd_log_t "{}(/.*)?"'.format(
                     dir_path)
                 logger.info('executing: {}'.format(add_permission))
-                status, _, _ = run_command(add_permission)
+                status, _ = run_command(add_permission)
                 if status == 0:
                     logger.info('add_permission executed successfully')
                 # apply the changes and let them survive reboots
                 restore_con = 'restorecon -R -v {}'.format(dir_path)
                 logger.info('executing: {}'.format(restore_con))
-                status, _, _ = run_command(restore_con)
+                status, _ = run_command(restore_con)
                 if status == 0:
                     logger.info('restore_con executed successfully')
 
@@ -503,8 +519,8 @@ def enforce_rsyslog_config(os_type, access_log_paths, error_log_paths):
         logger.info('rsyslog config created')
         restart_rsyslog = 'systemctl restart rsyslog'
         logger.info('executing: {}'.format(restart_rsyslog))
-        status, _, _ = run_command(restart_rsyslog)
-        if status ==0:
+        status, _ = run_command(restart_rsyslog)
+        if status == 0:
             logger.info('restart_rsyslog executed successfully')
 
 
@@ -591,7 +607,8 @@ def configure_standard_logging(os_type):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(usage='%(prog)s [options]', description='Configures an Apache server for standard logging and adds logforwarding via rsyslog')
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [options]', description='Configures an Apache server for standard logging and adds logforwarding via rsyslog')
     # Add a positional argument as this is mandatory
     parser.add_argument(
         dest='os_type', type=str, help='should be one of: {}'.format(', '.join(OPTIONS.keys())))
