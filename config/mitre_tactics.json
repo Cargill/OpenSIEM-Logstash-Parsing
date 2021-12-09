@@ -11,6 +11,6 @@
 "ta0010": "threat.tactic.name: exfiltration; threat.tactic.reference: https://attack.mitre.org/tactics/TA0010/;",
 "ta0011": "threat.tactic.name: command and control; threat.tactic.reference: https://attack.mitre.org/tactics/TA0011/;",
 "ta0040": "threat.tactic.name: impact; threat.tactic.reference: https://attack.mitre.org/tactics/TA0040/;",
-"ta0042":	"threat.tactic.name: Resource Development; threat.tactic.reference: https://attack.mitre.org/tactics/TA0042/;",
-"ta0043":	"threat.tactic.name: Reconnaissance; threat.tactic.reference: https://attack.mitre.org/tactics/TA0043/;"
+"ta0042": "threat.tactic.name: Resource Development; threat.tactic.reference: https://attack.mitre.org/tactics/TA0042/;",
+"ta0043": "threat.tactic.name: Reconnaissance; threat.tactic.reference: https://attack.mitre.org/tactics/TA0043/;"
 }

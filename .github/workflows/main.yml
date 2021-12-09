@@ -8,7 +8,7 @@ on:
       - 'config/**'
       - 'build_scripts/**'
   pull_request:
-    branches: [ master, develop ]
+    branches: [ master, develop, 1.0 ]
 
 jobs:
   syntax-check:
