@@ -10,6 +10,8 @@ import re
 import sys
 from pathlib import Path
 
+# working directory for this script. Here logs and other state files would be saved.
+working_dir = '/tmp/opensiem'
 
 def get_logger():
     import logging
@@ -27,9 +29,9 @@ def get_logger():
     console_hdlr.setLevel(logging.INFO)
     console_hdlr.setFormatter(formatter)
 
-    Path('/data').mkdir(parents=True, exist_ok=True)
+    Path(f'{working_dir}'.format()).mkdir(parents=True, exist_ok=True)
     file_hdlr = RotatingFileHandler(
-        '/data/generate_pipeline.log', maxBytes=1024)
+        f'{working_dir}/generate_pipeline.log', maxBytes=1024)
     file_hdlr.setFormatter(formatter)
     file_hdlr.setLevel(logging.INFO)
 
@@ -198,13 +200,15 @@ class LogstashHelper(object):
         azure_inputs = list(filter(lambda file_name:file_name.endswith('.conf'), azure_inputs))
         for input_name in azure_inputs:
             try:
-                config = settings[input_name[:-5]]  # stripping .conf
+                log_source_name = input_name[:-5] # stripping .conf
+                config = settings[log_source_name]
+                config['log_source'] = log_source_name
             except KeyError:
                 # User doesn't want to process that log and that's okay
                 continue
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
                 continue
-            vars_dict['PIPELINE_NAME'] = '"' + config['log_source'] + '"'
+            vars_dict['PIPELINE_NAME'] = '"' + log_source_name + '"'
             self.__add_custom_input_field(
                 f'{azure_inputs_dir}/{input_name}', config)
             self.__replace_vars(f'{azure_inputs_dir}/{input_name}', vars_dict)
@@ -213,12 +217,14 @@ class LogstashHelper(object):
         for input_name in kafka_inputs:
             if input_name == '1_kafka_input_template.conf':
                 continue
-            config = settings[input_name[:-5]]  # stripping .conf
+            log_source_name = input_name[:-5] # stripping .conf
+            config = settings[log_source_name]
+            config['log_source'] = log_source_name
             if self.deploy_env == 'dev' and config in self.prod_only_logs:
                 continue
             self.__add_custom_input_field(
                 f'{kafka_input_dir}/{input_name}', config)
-            vars_dict['PIPELINE_NAME'] = '"' + config['log_source'] + '"'
+            vars_dict['PIPELINE_NAME'] = '"' + log_source_name + '"'
             codec = 'plain'
             try:
                 # overwrite default if provided
@@ -292,9 +298,9 @@ class LogstashHelper(object):
             logger.warning('cannot process special logs explicitly')
             num_servers_for_special_logs = 0
         
-        daily_logs = []
-        weekly_logs = []
-        monthly_logs = []
+        high_volume_logs = []
+        medium_volume_logs = []
+        low_volume_logs = []
         # filter daily, weekly and monthly logs which do not need special treatment
         for config_file in conf_names:
             if config_file in self.special_logs:
@@ -302,17 +308,18 @@ class LogstashHelper(object):
             if self.deploy_env == 'dev' and config_file in self.prod_only_logs:
                 continue
             log_type = config_file.split('_')[-1]
-            # treat test settings as low volume, they are not a priority
-            if config_file.startswith('test_'):
-                log_type = 'monthly'
-            if log_type == 'daily':
-                daily_logs.append(config_file)
-            elif log_type == 'weekly':
-                weekly_logs.append(config_file)
-            elif log_type == 'monthly':
-                monthly_logs.append(config_file)
+            try:
+                log_volume = settings[config_file]['volume']
+            except KeyError:
+                logger.warning(f'could not find volume for {config_file}')
+                log_volume = 'undefined'
+
+            if log_volume == 'high':
+                high_volume_logs.append(config_file)
+            elif log_volume == 'medium':
+                medium_volume_logs.append(config_file)
             else:
-                monthly_logs.append(config_file)
+                low_volume_logs.append(config_file)
 
         # initialise selected config list for this node
         selected_log_sources = []
@@ -339,7 +346,7 @@ class LogstashHelper(object):
             num_servers = num_servers - num_servers_for_special_logs
             arr_idx = arr_idx - num_servers_for_special_logs
 
-            for logs in [daily_logs, weekly_logs, monthly_logs]:
+            for logs in [high_volume_logs, medium_volume_logs, low_volume_logs]:
                 num_logs = len(logs)
                 if num_logs >0 :
                     selected_log_sources = selected_log_sources + \
@@ -356,6 +363,7 @@ class LogstashHelper(object):
             while generated pipelines file.
         '''
         selected_log_sources = self.get_selected_log_sources()
+        settings = self.load_settings()
 
         root_dir = self.logstash_dir
         azure_inputs_dir = os.path.join(root_dir, 'config', 'inputs', 'azure')
@@ -387,17 +395,16 @@ class LogstashHelper(object):
                 f'/config/processors/{log_source_input_conf}'
             # and config name for id
             processor_pipeline_id = f'proc_{log_source}'
-
-            log_type = log_source.split('_')[-1]
-            # treat test settings as low volume, they are not a priority
-            if log_source.startswith('test_'):
-                log_type = 'monthly'
-            if log_type == 'daily':
+            try:
+                log_volume = settings[log_source]['volume']
+            except KeyError:
+                logger.warning(f'could not find volume for {log_source}')
+                log_volume = 'undefined'
+            
+            if log_volume == 'high':
                 pipeline_workers = 8
-            elif log_type == 'weekly':
+            elif log_volume == 'medium':
                 pipeline_workers = 4
-            elif log_type == 'monthly':
-                pipeline_workers = 2
             else:
                 pipeline_workers = 2
 
@@ -484,7 +491,7 @@ class LogstashHelper(object):
         
         settings = self.load_settings()
         # cleanup generated processors if any
-        generated_processors = [k for k,v in settings.items() if v['config']!= v['log_source']]
+        generated_processors = [k for k,v in settings.items() if v['config']!= k]
         for root, _, files in os.walk(processor_dir):
             for file in files:
                 if file[:-5] in generated_processors:
@@ -492,7 +499,7 @@ class LogstashHelper(object):
         
         for key in settings.keys():
             setting = settings[key]
-            log_source_conf = f'{setting["log_source"]}.conf'
+            log_source_conf = f'{key}.conf'
             # generate inputs
             if log_source_conf not in azure_input_list:
                 # it's a kafka input, generate an input conf
@@ -561,7 +568,7 @@ class LogstashHelper(object):
     def test_for_change(self, last_deployed_dir, current_deployable_dir):
         '''
             Compare the checksums to see if something changed between existing deployment and ongoing deployment
-            If something did change, write 0 or 1 to file /data/should_redeploy depending upon what was previously written.
+            If something did change, write 0 or 1 to file {working_dir}/should_redeploy depending upon what was previously written.
             Chef client keeps checking this file and triggers redeploy of logstash if it was modified.
         '''
         old_settings_checksum_dict, old_conf_checksum_dict = self.generate_checksum(
@@ -588,11 +595,11 @@ class LogstashHelper(object):
         if changed:
             contents = ''
             try:
-                with open('/data/should_redeploy', 'r', encoding='UTF-8') as change_file:
+                with open(f'{working_dir}/should_redeploy', 'r', encoding='UTF-8') as change_file:
                     contents = change_file.read()
             except FileNotFoundError:
                 pass
-            with open('/data/should_redeploy', 'w', encoding='UTF-8') as change_file:
+            with open(f'{working_dir}/should_redeploy', 'w', encoding='UTF-8') as change_file:
                 new_content = '1' if contents == '0' else '0'
                 change_file.write(new_content)
             logger.info("settings changed")
@@ -608,7 +615,7 @@ def load_general_settings(root_dir):
 
 if __name__ == "__main__":
     '''        
-        Generates pipelines.yml for a given node and notifies Chef(through /data/should_redeploy) if logstash re-deployment should happen or not.
+        Generates pipelines.yml for a given node and notifies Chef(through {working_dir}/should_redeploy) if logstash re-deployment should happen or not.
 
         On every node the git repo is downloded in /opt/logstash
         and logstash is deployed in /usr/share/logstash .
