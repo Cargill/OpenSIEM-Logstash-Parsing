@@ -47,7 +47,7 @@
 1.9.0-dev,TRUE,client,client.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,client,client.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,client,client.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
-1.9.0-dev,TRUE,cloud,cloud.account.id,keyword,extended,,6.66778E+11,The cloud account or organization id.
+1.9.0-dev,TRUE,cloud,cloud.account.id,keyword,extended,,6.67E+11,The cloud account or organization id.
 1.9.0-dev,TRUE,cloud,cloud.account.name,keyword,extended,,elastic-dev,The cloud account name.
 1.9.0-dev,TRUE,cloud,cloud.availability_zone,keyword,extended,,us-east-1c,Availability zone in which this host is running.
 1.9.0-dev,TRUE,cloud,cloud.instance.id,keyword,extended,,i-1234567890abcdef0,Instance ID of the host machine.
@@ -776,12 +776,12 @@ custom,TRUE,database,database.table,keyword,extended,,,
 custom,TRUE,database,database.field_names,keyword,extended,,,
 custom,TRUE,email,email.subject,keyword,extended,,,
 custom,TRUE,agent,agent.parse_rule,keyword,extended,,,
-custom,TRUE,email,e-mail header,keyword,extended,,,
+custom,TRUE,email,email.header,keyword,extended,,,
 custom,TRUE,log,log.source.ip,ip,extended,,,
 custom,TRUE,log,log.source.hostname,keyword,extended,,,
-custom,TRUE,email,email-src-display-name ,keyword,extended,,,
-custom,TRUE,email,email-reply-to ,keyword,extended,,,
-custom,TRUE,email,email-x-mailer,keyword,extended,,,
+custom,TRUE,email,email.src_display_name ,keyword,extended,,,
+custom,TRUE,email,email.reply_to ,keyword,extended,,,
+custom,TRUE,email,email.x_mailer,keyword,extended,,,
 custom,TRUE,email,email.body,keyword,extended,,,
 custom,TRUE,threat,threat.list.uuid,keyword,extended,,,
 custom,TRUE,threat,threat.list.category,keyword,extended,,,
@@ -820,3 +820,22 @@ custom,TRUE,host,host.timezone,keyword,Custom Field,,Custom Field,The timezone t
 custom,TRUE,related,related.mac,keyword,Custom Field,,Custom Field,All MAC addresses seen on your event.
 custom,TRUE,observer,observer.ingress.interface.host_count,integer,Custom Field,,Custom Field,
 custom,TRUE,event,event.recommendation,keyword,Custom Field,,Custom Field,"Recommendation provided by the log, given an event."
+custom,TRUE,http,http.cookie.name,keyword,Custom Field,,Custom Field,HTTP Cookie
+custom,TRUE,network,network.geo.city_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.continent_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.continent_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.country_iso_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.country_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.location,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.postal_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.region_iso_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.region_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.timezone,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.street_address,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.site_id,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.description,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.bu,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.network_range,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.dmz,boolean,Custom Field,,Custom Field,
+custom,TRUE,network,network.plant_system_control,boolean,Custom Field,,Custom Field,

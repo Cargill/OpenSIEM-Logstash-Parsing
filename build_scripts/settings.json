@@ -1,6 +1,6 @@
 {
   "syslog_log_audit_a10.proxy": {
-    "log_source": "syslog_log_audit_a10.proxy",
+    "volume" : "high",
     "config": "syslog_log_audit_a10.proxy",
     "elastic_index": "syslog_log_audit_a10.proxy_%{+xxxx.MM}",
     "ignore_enrichments": [],
@@ -13,7 +13,7 @@
     }
   },
   "syslog_log_audit_a10.traffic_monthly": {
-    "log_source": "syslog_log_audit_a10.traffic_monthly",
+    "volume" : "low",
     "config": "syslog_log_audit_a10.traffic_monthly",
     "elastic_index": "syslog_log_audit_a10.traffic_monthly_%{+xxxx.MM}",
     "ignore_enrichments": [],

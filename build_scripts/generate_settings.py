@@ -12,6 +12,7 @@ settings_file_path = os.path.join(
 processor_dir = os.path.join(logstash_dir, 'config', 'processors')
 kafka_input_dir = os.path.join(logstash_dir, 'config', 'inputs', 'kafka')
 
+# creating a settings file that has definitions for all processing configs
 processors = []
 for root, _, files in os.walk(processor_dir):
     for file in files:
@@ -19,8 +20,8 @@ for root, _, files in os.walk(processor_dir):
 
 for processor in processors:
     settings[processor] = {
-        "log_source": processor,
         "config": processor,
+        "volume" : "high",
         "elastic_index": processor,
         "ignore_enrichments": [],
         "output_list": [
@@ -33,3 +34,18 @@ for processor in processors:
 
 with open(settings_file_path, 'w') as settings_file:
     json.dump(settings, settings_file, indent=2)
+
+# Creating a general settings file that tells to generate pipelines that should run on single node
+general_settings_file_path = os.path.join(
+    logstash_dir, 'build_scripts', 'general.json')
+
+test_general_json = {
+    "num_indexers" : 1,
+    "prod_only_logs": [
+    ],
+    "processing_config" : {
+    }
+}
+
+with open(general_settings_file_path, 'w') as general_settings_file:
+    json.dump(test_general_json, general_settings_file, indent=2)
