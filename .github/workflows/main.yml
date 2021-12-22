@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Set logstash variables to be used accross steps
       run: |
-        export LOGSTASH_VERSION=7.12.0
+        export LOGSTASH_VERSION=7.16.2
         export LOGSTASH_HOME="/usr/share/logstash"
         echo "LOGSTASH_VERSION=$LOGSTASH_VERSION" >> $GITHUB_ENV
         echo "LOGSTASH_HOME=$LOGSTASH_HOME" >> $GITHUB_ENV
