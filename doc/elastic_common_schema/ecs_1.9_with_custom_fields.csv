@@ -777,10 +777,10 @@ custom,TRUE,database,database.field_names,keyword,extended,,,
 custom,TRUE,email,email.subject,keyword,extended,,,
 custom,TRUE,agent,agent.parse_rule,keyword,extended,,,
 custom,TRUE,email,email.header,keyword,extended,,,
-custom,TRUE,kafka,offset,long,extended,,"3,405,575",Kafka offset count
-custom,TRUE,kafka,partition,integer,extended,,17,partitions #
-custom,TRUE,kafka,timestamp,date,extended,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
-custom,TRUE,kafka,topic,keyword,extended,,log_audit_proxy_weekly,kafka topic name
+custom,TRUE,kafka,kafka.offset,long,extended,,"3,405,575",Kafka offset count
+custom,TRUE,kafka,kafka.partition,integer,extended,,17,partitions #
+custom,TRUE,kafka,kafka.timestamp,date,extended,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
+custom,TRUE,kafka,kafka.topic,keyword,extended,,log_audit_proxy_weekly,kafka topic name
 custom,TRUE,log,log.source.ip,ip,extended,,,
 custom,TRUE,log,log.source.hostname,keyword,extended,,,
 custom,TRUE,email,email.src_display_name ,keyword,extended,,,
