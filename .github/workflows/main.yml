@@ -69,7 +69,8 @@ jobs:
         && ${LOGSTASH_HOME}/bin/logstash-plugin install \
         logstash-input-okta_system_log \
         logstash-filter-json_encode \
-        logstash-filter-tld
+        logstash-filter-tld \
+        logstash-output-opensearch
     - name: Generate pipelines
       env:
         # See README.md for explaination
