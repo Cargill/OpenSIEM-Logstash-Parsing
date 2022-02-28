@@ -813,7 +813,10 @@ custom,TRUE,threat,threat.list.distribution,keyword,extended,,,
 custom,TRUE,event,event.modified,date,extended,,,
 custom,TRUE,database,database.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 custom,TRUE,event,event.severity_name,keyword,extended,,,
+custom,TRUE,assignee,assignee.user.name,keyword,Custom Field,,Custom Field,
+custom,TRUE,assignee,assignee.user.email,Keyword,Custom Field,,Custom Field,
 custom,TRUE,network,network.mac,keyword,Custom Field,,Custom Field,MAC address of a network device.
+custom,TRUE,host,host.business,keyword,Custom Field,,Custom Field,Host Business name
 custom,TRUE,host,host.last_logged_in_user,keyword,Custom Field,,Custom Field,Last logged in user on a host device.
 custom,TRUE,host,host.logged_in_users,keyword,Custom Field,,Custom Field,Currently logged in users on a host device.
 custom,TRUE,host,host.manufacturer,keyword,Custom Field,,Custom Field,The manufacturer of a host device.
@@ -821,6 +824,11 @@ custom,TRUE,host,host.model,keyword,Custom Field,,Custom Field,The model of a ho
 custom,TRUE,host,host.os.installation_date,date,Custom Field,,Custom Field,The installation date of a host OS.
 custom,TRUE,host,host.serial,keyword,Custom Field,,Custom Field,The serial number associated with a host.
 custom,TRUE,host,host.timezone,keyword,Custom Field,,Custom Field,The timezone that a host device is located in.
+custom,TRUE,host,host.user.department,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.manager_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.manager_email,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.geo.region_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.geo.country_name,keyword,Custom Field,,Custom Field,
 custom,TRUE,related,related.mac,keyword,Custom Field,,Custom Field,All MAC addresses seen on your event.
 custom,TRUE,observer,observer.ingress.interface.host_count,integer,Custom Field,,Custom Field,
 custom,TRUE,event,event.recommendation,keyword,Custom Field,,Custom Field,"Recommendation provided by the log, given an event."
@@ -843,3 +851,4 @@ custom,TRUE,network,network.geo.bu,keyword,Custom Field,,Custom Field,
 custom,TRUE,network,network.network_range,keyword,Custom Field,,Custom Field,
 custom,TRUE,network,network.dmz,boolean,Custom Field,,Custom Field,
 custom,TRUE,network,network.plant_system_control,boolean,Custom Field,,Custom Field,
+custom,TRUE,user,user.business.unit,keyword,Custom Field,,Custom Field,
