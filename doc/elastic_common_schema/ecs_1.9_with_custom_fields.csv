@@ -1,14 +1,14 @@
 ﻿ECS_Version,Indexed,Field_Set,Field,Type,Level,Normalization,Example,Description
 1.9.0-dev,TRUE,base,@timestamp,date,core,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
-1.9.0-dev,TRUE,base,labels,object,core,,"{""application"": ""foo-bar"", ""env"": ""production""}",Custom key/value pairs.
-1.9.0-dev,TRUE,base,message,text,core,,Hello World,Log message optimized for viewing in a log viewer.
-1.9.0-dev,TRUE,base,tags,keyword,core,array,"[""production"", ""env2""]",List of keywords used to tag each event.
 1.9.0-dev,TRUE,agent,agent.build.original,keyword,core,,"metricbeat version 7.6.0 (amd64), libbeat 7.6.0 [6a23e8f8f30f5001ba344e4e54d8d9cb82cb107c built 2020-02-05 23:10:10 +0000 UTC]",Extended build information for the agent.
 1.9.0-dev,TRUE,agent,agent.ephemeral_id,keyword,extended,,8a4f500f,Ephemeral identifier of this agent.
 1.9.0-dev,TRUE,agent,agent.id,keyword,core,,8a4f500d,Unique identifier of this agent.
 1.9.0-dev,TRUE,agent,agent.name,keyword,core,,foo,Custom name of the agent.
+custom,TRUE,agent,agent.parse_rule,keyword,extended,,,
 1.9.0-dev,TRUE,agent,agent.type,keyword,core,,filebeat,Type of the agent.
 1.9.0-dev,TRUE,agent,agent.version,keyword,core,,6.0.0-rc2,Version of the agent.
+custom,TRUE,assignee,assignee.user.email,Keyword,Custom Field,,Custom Field,
+custom,TRUE,assignee,assignee.user.name,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,client,client.address,keyword,extended,,,Client network address.
 1.9.0-dev,TRUE,client,client.as.number,long,extended,,15169,Unique number allocated to the autonomous system.
 1.9.0-dev,TRUE,client,client.as.organization.name,keyword,extended,,Google LLC,Organization name.
@@ -35,10 +35,15 @@
 1.9.0-dev,TRUE,client,client.registered_domain,keyword,extended,,example.com,"The highest registered client domain, stripped of the subdomain."
 1.9.0-dev,TRUE,client,client.subdomain,keyword,extended,,east,The subdomain of the domain.
 1.9.0-dev,TRUE,client,client.top_level_domain,keyword,extended,,co.uk,"The effective top level domain (com, org, net, co.uk)."
+custom,TRUE,client,client.user.business.unit,keyword,Custom Field,,,
 1.9.0-dev,TRUE,client,client.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,client,client.user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,client,client.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,client,client.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,client,client.user.geo.city_name,keyword,Custom Field,,,
+custom,TRUE,client,client.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,client,client.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,client,client.user.geo.region_name,keyword,Custom Field,,,
 1.9.0-dev,TRUE,client,client.user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,client,client.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,client,client.user.group.name,keyword,extended,,,Name of the group.
@@ -47,6 +52,7 @@
 1.9.0-dev,TRUE,client,client.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,client,client.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,client,client.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,client,client.user.title,keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.account.id,keyword,extended,,6.67E+11,The cloud account or organization id.
 1.9.0-dev,TRUE,cloud,cloud.account.name,keyword,extended,,elastic-dev,The cloud account name.
 1.9.0-dev,TRUE,cloud,cloud.availability_zone,keyword,extended,,us-east-1c,Availability zone in which this host is running.
@@ -64,6 +70,20 @@
 1.9.0-dev,TRUE,container,container.labels,object,extended,,,Image labels.
 1.9.0-dev,TRUE,container,container.name,keyword,extended,,,Container name.
 1.9.0-dev,TRUE,container,container.runtime,keyword,extended,,docker,Runtime managing this container.
+custom,TRUE,database,database.field_names,keyword,extended,,,
+custom,TRUE,database,database.instance,keyword,extended,,,
+custom,TRUE,database,database.name ,keyword,extended,,,
+custom,TRUE,database,database.table,keyword,extended,,,
+custom,TRUE,database,database.user.domain,keyword,extended,,,Name of the directory the user is a member of.
+custom,TRUE,database,database.user.email,keyword,extended,,,User email address.
+custom,TRUE,database,database.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,database,database.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,database,database.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
+custom,TRUE,database,database.user.group.name,keyword,extended,,,Name of the group.
+custom,TRUE,database,database.user.hash,keyword,extended,,,Unique user hash to correlate information for a user in anonymized form.
+custom,TRUE,database,database.user.id,keyword,extended,,,Unique identifiers of the user.
+custom,TRUE,database,database.user.name,keyword,extended,,albert,Short name or login of the user.
+custom,TRUE,database,database.user.name.text,text,extended,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,destination,destination.address,keyword,extended,,,Destination network address.
 1.9.0-dev,TRUE,destination,destination.as.number,long,extended,,15169,Unique number allocated to the autonomous system.
 1.9.0-dev,TRUE,destination,destination.as.organization.name,keyword,extended,,Google LLC,Organization name.
@@ -90,10 +110,15 @@
 1.9.0-dev,TRUE,destination,destination.registered_domain,keyword,extended,,example.com,"The highest registered destination domain, stripped of the subdomain."
 1.9.0-dev,TRUE,destination,destination.subdomain,keyword,extended,,east,The subdomain of the domain.
 1.9.0-dev,TRUE,destination,destination.top_level_domain,keyword,extended,,co.uk,"The effective top level domain (com, org, net, co.uk)."
+custom,TRUE,destination,destination.user.business.unit,keyword,Custom Field,,,
 1.9.0-dev,TRUE,destination,destination.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,destination,destination.user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,destination,destination.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,destination,destination.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,destination,destination.user.geo.city_name,keyword,Custom Field,,,
+custom,TRUE,destination,destination.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,destination,destination.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,destination,destination.user.geo.region_name,keyword,Custom Field,,,
 1.9.0-dev,TRUE,destination,destination.user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,destination,destination.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,destination,destination.user.group.name,keyword,extended,,,Name of the group.
@@ -102,6 +127,7 @@
 1.9.0-dev,TRUE,destination,destination.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,destination,destination.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,destination,destination.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,destination,destination.user.title,keyword,Custom Field,,,
 1.9.0-dev,TRUE,dll,dll.code_signature.exists,boolean,core,,TRUE,Boolean to capture if a signature is present.
 1.9.0-dev,TRUE,dll,dll.code_signature.signing_id,keyword,extended,,com.apple.xpc.proxy,The identifier used to sign the process.
 1.9.0-dev,TRUE,dll,dll.code_signature.status,keyword,extended,,ERROR_UNTRUSTED_ROOT,Additional information about the certificate status.
@@ -142,6 +168,12 @@
 1.9.0-dev,TRUE,dns,dns.response_code,keyword,extended,,NOERROR,The DNS response code.
 1.9.0-dev,TRUE,dns,dns.type,keyword,extended,,answer,"The type of DNS event captured, query or answer."
 1.9.0-dev,TRUE,ecs,ecs.version,keyword,core,,1.0.0,ECS version this event conforms to.
+custom,TRUE,email,email.body,keyword,extended,,,
+custom,TRUE,email,email.header,keyword,extended,,,
+custom,TRUE,email,email.reply_to ,keyword,extended,,,
+custom,TRUE,email,email.src_display_name ,keyword,extended,,,
+custom,TRUE,email,email.subject,keyword,extended,,,
+custom,TRUE,email,email.x_mailer,keyword,extended,,,
 1.9.0-dev,TRUE,error,error.code,keyword,core,,,Error code describing the error.
 1.9.0-dev,TRUE,error,error.id,keyword,core,,,Unique identifier for the error.
 1.9.0-dev,TRUE,error,error.message,text,core,,,Error message.
@@ -159,16 +191,19 @@
 1.9.0-dev,TRUE,event,event.id,keyword,core,,8a4f500d,Unique ID to describe the event.
 1.9.0-dev,TRUE,event,event.ingested,date,core,,2016-05-23T08:05:35.101Z,Timestamp when an event arrived in the central data store.
 1.9.0-dev,TRUE,event,event.kind,keyword,core,,alert,The kind of the event. The highest categorization field in the hierarchy.
+custom,TRUE,event,event.modified,date,extended,,,
 1.9.0-dev,TRUE,event,event.module,keyword,core,,apache,Name of the module this data is coming from.
 1.9.0-dev,FALSE,event,event.original,keyword,core,,Sep 19 08:26:10 host CEF:0&#124;Security&#124; threatmanager&#124;1.0&#124;100&#124; worm successfully stopped&#124;10&#124;src=10.0.0.1 dst=2.1.2.2spt=1232,Raw text message of entire event.
 1.9.0-dev,TRUE,event,event.outcome,keyword,core,,success,The outcome of the event. The lowest level categorization field in the hierarchy.
 1.9.0-dev,TRUE,event,event.provider,keyword,extended,,kernel,Source of the event.
 1.9.0-dev,TRUE,event,event.reason,keyword,extended,,Terminated an unexpected process,"Reason why this event happened, according to the source"
+custom,TRUE,event,event.recommendation,keyword,Custom Field,,Custom Field,"Recommendation provided by the log, given an event."
 1.9.0-dev,TRUE,event,event.reference,keyword,extended,,https://system.example.com/event/#0001234,Event reference URL
 1.9.0-dev,TRUE,event,event.risk_score,float,core,,,Risk score or priority of the event (e.g. security solutions). Use your system's original value here.
 1.9.0-dev,TRUE,event,event.risk_score_norm,float,extended,,,Normalized risk score or priority of the event (0-100).
 1.9.0-dev,TRUE,event,event.sequence,long,extended,,,Sequence number of the event.
 1.9.0-dev,TRUE,event,event.severity,long,core,,7,Numeric severity of the event.
+custom,TRUE,event,event.severity_name,keyword,extended,,,
 1.9.0-dev,TRUE,event,event.start,date,extended,,,event.start contains the date when the event started or when the activity was first observed.
 1.9.0-dev,TRUE,event,event.timezone,keyword,extended,,,Event time zone.
 1.9.0-dev,TRUE,event,event.type,keyword,core,array,,Event type. The third categorization field in the hierarchy.
@@ -243,6 +278,7 @@
 1.9.0-dev,TRUE,group,group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,group,group.name,keyword,extended,,,Name of the group.
 1.9.0-dev,TRUE,host,host.architecture,keyword,core,,x86_64,Operating system architecture.
+custom,TRUE,host,host.business,keyword,Custom Field,,Custom Field,Host Business name
 1.9.0-dev,TRUE,host,host.cpu.usage,scaled_float,extended,,,"Percent CPU used, between 0 and 1."
 1.9.0-dev,TRUE,host,host.disk.read.bytes,long,extended,,,The number of bytes read by all disks.
 1.9.0-dev,TRUE,host,host.disk.write.bytes,long,extended,,,The number of bytes written on all disks.
@@ -261,7 +297,11 @@
 1.9.0-dev,TRUE,host,host.hostname,keyword,core,,,Hostname of the host.
 1.9.0-dev,TRUE,host,host.id,keyword,core,,,Unique host id.
 1.9.0-dev,TRUE,host,host.ip,ip,core,array,,Host ip addresses.
+custom,TRUE,host,host.last_logged_in_user,keyword,Custom Field,,Custom Field,Last logged in user on a host device.
+custom,TRUE,host,host.logged_in_users,keyword,Custom Field,,Custom Field,Currently logged in users on a host device.
 1.9.0-dev,TRUE,host,host.mac,keyword,core,array,"[""00-00-5E-00-53-23"", ""00-00-5E-00-53-24""]",Host MAC addresses.
+custom,TRUE,host,host.manufacturer,keyword,Custom Field,,Custom Field,The manufacturer of a host device.
+custom,TRUE,host,host.model,keyword,Custom Field,,Custom Field,The model of a host device.
 1.9.0-dev,TRUE,host,host.name,keyword,core,,,Name of the host.
 1.9.0-dev,TRUE,host,host.network.egress.bytes,long,extended,,,The number of bytes sent on all network interfaces.
 1.9.0-dev,TRUE,host,host.network.egress.packets,long,extended,,,The number of packets sent on all network interfaces.
@@ -270,26 +310,38 @@
 1.9.0-dev,TRUE,host,host.os.family,keyword,extended,,debian,"OS family (such as redhat, debian, freebsd, windows)."
 1.9.0-dev,TRUE,host,host.os.full,keyword,extended,,Mac OS Mojave,"Operating system name, including the version or code name."
 1.9.0-dev,TRUE,host,host.os.full.text,text,extended,,Mac OS Mojave,"Operating system name, including the version or code name."
+custom,TRUE,host,host.os.installation_date,date,Custom Field,,Custom Field,The installation date of a host OS.
 1.9.0-dev,TRUE,host,host.os.kernel,keyword,extended,,4.4.0-112-generic,Operating system kernel version as a raw string.
 1.9.0-dev,TRUE,host,host.os.name,keyword,extended,,Mac OS X,"Operating system name, without the version."
 1.9.0-dev,TRUE,host,host.os.name.text,text,extended,,Mac OS X,"Operating system name, without the version."
 1.9.0-dev,TRUE,host,host.os.platform,keyword,extended,,darwin,"Operating system platform (such centos, ubuntu, windows)."
 1.9.0-dev,TRUE,host,host.os.type,keyword,extended,,macos,"Which commercial OS family (one of: linux, macos, unix or windows)."
 1.9.0-dev,TRUE,host,host.os.version,keyword,extended,,10.14.1,Operating system version as a raw string.
+custom,TRUE,host,host.serial,keyword,Custom Field,,Custom Field,The serial number associated with a host.
+custom,TRUE,host,host.timezone,keyword,Custom Field,,Custom Field,The timezone that a host device is located in.
 1.9.0-dev,TRUE,host,host.type,keyword,core,,,Type of host.
 1.9.0-dev,TRUE,host,host.uptime,long,extended,,1325,Seconds the host has been up.
+custom,TRUE,host,host.user.business.unit,keyword,Custom Field,,,
+custom,TRUE,host,host.user.department,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,host,host.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,host,host.user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,host,host.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,host,host.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,host,host.user.geo.country_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,host,host.user.geo.region_name,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,host,host.user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,host,host.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,host,host.user.group.name,keyword,extended,,,Name of the group.
 1.9.0-dev,TRUE,host,host.user.hash,keyword,extended,,,Unique user hash to correlate information for a user in anonymized form.
 1.9.0-dev,TRUE,host,host.user.id,keyword,core,,,Unique identifier of the user.
+custom,TRUE,host,host.user.manager_email,keyword,Custom Field,,Custom Field,
+custom,TRUE,host,host.user.manager_name,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,host,host.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,host,host.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,host,host.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,host,host.user.title,keyword,Custom Field,,,
+custom,TRUE,http,http.cookie.name,keyword,Custom Field,,Custom Field,HTTP Cookie
 1.9.0-dev,TRUE,http,http.request.body.bytes,long,extended,,887,Size in bytes of the request body.
 1.9.0-dev,TRUE,http,http.request.body.content,keyword,extended,,Hello world,The full HTTP request body.
 1.9.0-dev,TRUE,http,http.request.body.content.text,text,extended,,Hello world,The full HTTP request body.
@@ -305,6 +357,11 @@
 1.9.0-dev,TRUE,http,http.response.mime_type,keyword,extended,,image/gif,Mime type of the body of the response.
 1.9.0-dev,TRUE,http,http.response.status_code,long,extended,,404,HTTP response status code.
 1.9.0-dev,TRUE,http,http.version,keyword,extended,,1.1,HTTP version.
+custom,TRUE,kafka,kafka.offset,long,extended,,"3,405,575",Kafka offset count
+custom,TRUE,kafka,kafka.partition,integer,extended,,17,partitions #
+custom,TRUE,kafka,kafka.timestamp,date,extended,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
+custom,TRUE,kafka,kafka.topic,keyword,extended,,log_audit_proxy_weekly,kafka topic name
+1.9.0-dev,TRUE,base,labels,object,core,,"{""application"": ""foo-bar"", ""env"": ""production""}",Custom key/value pairs.
 1.9.0-dev,TRUE,log,log.file.path,keyword,extended,,/var/log/fun-times.log,Full path to the log file this event came from.
 1.9.0-dev,TRUE,log,log.level,keyword,core,,error,Log level of the log event.
 1.9.0-dev,TRUE,log,log.logger,keyword,core,,org.elasticsearch.bootstrap.Bootstrap,Name of the logger.
@@ -312,23 +369,45 @@
 1.9.0-dev,TRUE,log,log.origin.file.name,keyword,extended,,Bootstrap.java,The code file which originated the log event.
 1.9.0-dev,TRUE,log,log.origin.function,keyword,extended,,init,The function which originated the log event.
 1.9.0-dev,FALSE,log,log.original,keyword,core,,Sep 19 08:26:10 localhost My log,"Original log message with light interpretation only (encoding, newlines)."
+custom,TRUE,log,log.source.hostname,keyword,extended,,,
+custom,TRUE,log,log.source.ip,ip,extended,,,
 1.9.0-dev,TRUE,log,log.syslog,object,extended,,,Syslog metadata
 1.9.0-dev,TRUE,log,log.syslog.facility.code,long,extended,,23,Syslog numeric facility of the event.
 1.9.0-dev,TRUE,log,log.syslog.facility.name,keyword,extended,,local7,Syslog text-based facility of the event.
 1.9.0-dev,TRUE,log,log.syslog.priority,long,extended,,135,Syslog priority of the event.
 1.9.0-dev,TRUE,log,log.syslog.severity.code,long,extended,,3,Syslog numeric severity of the event.
 1.9.0-dev,TRUE,log,log.syslog.severity.name,keyword,extended,,Error,Syslog text-based severity of the event.
+1.9.0-dev,TRUE,base,message,text,core,,Hello World,Log message optimized for viewing in a log viewer.
 1.9.0-dev,TRUE,network,network.application,keyword,extended,,aim,Application level protocol name.
 1.9.0-dev,TRUE,network,network.bytes,long,core,,368,Total bytes transferred in both directions.
 1.9.0-dev,TRUE,network,network.community_id,keyword,extended,,1:hO+sN4H+MG5MY/8hIrXPqc4ZQz0=,A hash of source and destination IPs and ports.
+custom,TRUE,network,network.description,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,network,network.direction,keyword,core,,inbound,Direction of the network traffic.
+custom,TRUE,network,network.dmz,boolean,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,network,network.forwarded_ip,ip,core,,192.1.1.2,Host IP address when the source IP address is the proxy.
+custom,TRUE,network,network.geo.bu,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.city_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.continent_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.continent_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.country_iso_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.country_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.location,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.postal_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.region_iso_code,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.region_name,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.site_id,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.street_address,keyword,Custom Field,,Custom Field,
+custom,TRUE,network,network.geo.timezone,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,network,network.iana_number,keyword,extended,,6,IANA Protocol Number.
 1.9.0-dev,TRUE,network,network.inner,object,extended,,,Inner VLAN tag information
 1.9.0-dev,TRUE,network,network.inner.vlan.id,keyword,extended,,10,VLAN ID as reported by the observer.
 1.9.0-dev,TRUE,network,network.inner.vlan.name,keyword,extended,,outside,Optional VLAN name as reported by the observer.
+custom,TRUE,network,network.mac,keyword,Custom Field,,Custom Field,MAC address of a network device.
 1.9.0-dev,TRUE,network,network.name,keyword,extended,,Guest Wifi,Name given by operators to sections of their network.
+custom,TRUE,network,network.network_range,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,network,network.packets,long,core,,24,Total packets transferred in both directions.
+custom,TRUE,network,network.plant_system_control,boolean,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,network,network.protocol,keyword,core,,http,L7 Network protocol name.
 1.9.0-dev,TRUE,network,network.transport,keyword,core,,tcp,Protocol Name corresponding to the field `iana_number`.
 1.9.0-dev,TRUE,network,network.type,keyword,core,,ipv4,"In the OSI Model this would be the Network Layer. ipv4, ipv6, ipsec, pim, etc"
@@ -338,6 +417,7 @@
 1.9.0-dev,TRUE,observer,observer.egress.interface.alias,keyword,extended,,outside,Interface alias
 1.9.0-dev,TRUE,observer,observer.egress.interface.id,keyword,extended,,10,Interface ID
 1.9.0-dev,TRUE,observer,observer.egress.interface.name,keyword,extended,,eth0,Interface name
+custom,TRUE,observer,observer.egress.ip,ip,Custom Field,,https://github.com/elastic/ecs/issues/2053,
 1.9.0-dev,TRUE,observer,observer.egress.vlan.id,keyword,extended,,10,VLAN ID as reported by the observer.
 1.9.0-dev,TRUE,observer,observer.egress.vlan.name,keyword,extended,,outside,Optional VLAN name as reported by the observer.
 1.9.0-dev,TRUE,observer,observer.egress.zone,keyword,extended,,Public_Internet,Observer Egress zone
@@ -355,8 +435,10 @@
 1.9.0-dev,TRUE,observer,observer.hostname,keyword,core,,,Hostname of the observer.
 1.9.0-dev,TRUE,observer,observer.ingress,object,extended,,,Object field for ingress information
 1.9.0-dev,TRUE,observer,observer.ingress.interface.alias,keyword,extended,,outside,Interface alias
+custom,TRUE,observer,observer.ingress.interface.host_count,integer,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,observer,observer.ingress.interface.id,keyword,extended,,10,Interface ID
 1.9.0-dev,TRUE,observer,observer.ingress.interface.name,keyword,extended,,eth0,Interface name
+custom,TRUE,observer,observer.ingress.ip,ip,Custom Field,,https://github.com/elastic/ecs/issues/2053,
 1.9.0-dev,TRUE,observer,observer.ingress.vlan.id,keyword,extended,,10,VLAN ID as reported by the observer.
 1.9.0-dev,TRUE,observer,observer.ingress.vlan.name,keyword,extended,,outside,Optional VLAN name as reported by the observer.
 1.9.0-dev,TRUE,observer,observer.ingress.zone,keyword,extended,,DMZ,Observer ingress zone
@@ -483,6 +565,7 @@
 1.9.0-dev,TRUE,related,related.hash,keyword,extended,array,,All the hashes seen on your event.
 1.9.0-dev,TRUE,related,related.hosts,keyword,extended,array,,All the host identifiers seen on your event.
 1.9.0-dev,TRUE,related,related.ip,ip,extended,array,,All of the IPs seen on your event.
+custom,TRUE,related,related.mac,keyword,Custom Field,,Custom Field,All MAC addresses seen on your event.
 1.9.0-dev,TRUE,related,related.user,keyword,extended,array,,All the user names seen on your event.
 1.9.0-dev,TRUE,rule,rule.author,keyword,extended,array,"[""Star-Lord""]",Rule author
 1.9.0-dev,TRUE,rule,rule.category,keyword,extended,,Attempted Information Leak,Rule category
@@ -520,10 +603,15 @@
 1.9.0-dev,TRUE,server,server.registered_domain,keyword,extended,,example.com,"The highest registered server domain, stripped of the subdomain."
 1.9.0-dev,TRUE,server,server.subdomain,keyword,extended,,east,The subdomain of the domain.
 1.9.0-dev,TRUE,server,server.top_level_domain,keyword,extended,,co.uk,"The effective top level domain (com, org, net, co.uk)."
+custom,TRUE,server,server.user.business.unit,keyword,Custom Field,,,
 1.9.0-dev,TRUE,server,server.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,server,server.user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,server,server.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,server,server.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,server,server.user.geo.city_name,keyword,Custom Field,,,
+custom,TRUE,server,server.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,server,server.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,server,server.user.geo.region_name,keyword,Custom Field,,,
 1.9.0-dev,TRUE,server,server.user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,server,server.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,server,server.user.group.name,keyword,extended,,,Name of the group.
@@ -532,6 +620,7 @@
 1.9.0-dev,TRUE,server,server.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,server,server.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,server,server.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,server,server.user.title,keyword,Custom Field,,,
 1.9.0-dev,TRUE,service,service.ephemeral_id,keyword,extended,,8a4f500f,Ephemeral identifier of this service.
 1.9.0-dev,TRUE,service,service.id,keyword,core,,d37e5ebfe0ae6c4972dbe9f0174a1637bb8247f6,Unique identifier of the running service.
 1.9.0-dev,TRUE,service,service.name,keyword,core,,elasticsearch-metrics,Name of the service.
@@ -565,10 +654,15 @@
 1.9.0-dev,TRUE,source,source.registered_domain,keyword,extended,,example.com,"The highest registered source domain, stripped of the subdomain."
 1.9.0-dev,TRUE,source,source.subdomain,keyword,extended,,east,The subdomain of the domain.
 1.9.0-dev,TRUE,source,source.top_level_domain,keyword,extended,,co.uk,"The effective top level domain (com, org, net, co.uk)."
+custom,TRUE,source,source.user.business.unit,keyword,Custom Field,,,
 1.9.0-dev,TRUE,source,source.user.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,source,source.user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,source,source.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,source,source.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,source,source.user.geo.city_name,keyword,Custom Field,,,
+custom,TRUE,source,source.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,source,source.user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,source,source.user.geo.region_name,keyword,Custom Field,,,
 1.9.0-dev,TRUE,source,source.user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,source,source.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,source,source.user.group.name,keyword,extended,,,Name of the group.
@@ -577,8 +671,33 @@
 1.9.0-dev,TRUE,source,source.user.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,source,source.user.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,source,source.user.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,source,source.user.title,keyword,Custom Field,,,
 1.9.0-dev,TRUE,span,span.id,keyword,extended,,3ff9a8981b7ccd5a,Unique identifier of the span within the scope of its trace.
+1.9.0-dev,TRUE,base,tags,keyword,core,array,"[""production"", ""env2""]",List of keywords used to tag each event.
 1.9.0-dev,TRUE,threat,threat.framework,keyword,extended,,MITRE ATT&CK,Threat classification framework.
+custom,TRUE,threat,threat.list.attribute_tag,keyword,extended,,,
+custom,TRUE,threat,threat.list.category,keyword,extended,,,
+custom,TRUE,threat,threat.list.comment,keyword,extended,,,
+custom,TRUE,threat,threat.list.created,date,extended,,,
+custom,TRUE,threat,threat.list.distribution,keyword,extended,,,
+custom,TRUE,threat,threat.list.event_analysis,keyword,extended,,,
+custom,TRUE,threat,threat.list.event_id,keyword,extended,,,
+custom,TRUE,threat,threat.list.event_info,keyword,extended,,,
+custom,TRUE,threat,threat.list.event_tag,keyword,extended,,,
+custom,TRUE,threat,threat.list.injested,date,extended,,,
+custom,TRUE,threat,threat.list.ioc,keyword,extended,,,
+custom,TRUE,threat,threat.list.member_org,keyword,extended,,,
+custom,TRUE,threat,threat.list.object_category,keyword,extended,,,
+custom,TRUE,threat,threat.list.object_name,keyword,extended,,,
+custom,TRUE,threat,threat.list.object_relation,keyword,extended,,,
+custom,TRUE,threat,threat.list.object_uuid,keyword,extended,,,
+custom,TRUE,threat,threat.list.safe_to_enable_ids,boolean,extended,,,
+custom,TRUE,threat,threat.list.severity_name,keyword,extended,,,
+custom,TRUE,threat,threat.list.source_org,keyword,extended,,,
+custom,TRUE,threat,threat.list.start,date,extended,,,
+custom,TRUE,threat,threat.list.type,keyword,extended,,,
+custom,TRUE,threat,threat.list.type,keyword,extended,,,
+custom,TRUE,threat,threat.list.uuid,keyword,extended,,,
 1.9.0-dev,TRUE,threat,threat.tactic.id,keyword,extended,array,TA0002,Threat tactic id.
 1.9.0-dev,TRUE,threat,threat.tactic.name,keyword,extended,array,Execution,Threat tactic.
 1.9.0-dev,TRUE,threat,threat.tactic.reference,keyword,extended,array,https://attack.mitre.org/tactics/TA0002/,Threat tactic URL reference.
@@ -685,6 +804,7 @@
 1.9.0-dev,TRUE,url,url.subdomain,keyword,extended,,east,The subdomain of the domain.
 1.9.0-dev,TRUE,url,url.top_level_domain,keyword,extended,,co.uk,"The effective top level domain (com, org, net, co.uk)."
 1.9.0-dev,TRUE,url,url.username,keyword,extended,,,Username of the request.
+custom,TRUE,user,user.business.unit,keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,user,user.changes.domain,keyword,extended,,,Name of the directory the user is a member of.
 1.9.0-dev,TRUE,user,user.changes.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,user,user.changes.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
@@ -713,6 +833,10 @@
 1.9.0-dev,TRUE,user,user.email,keyword,extended,,,User email address.
 1.9.0-dev,TRUE,user,user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
 1.9.0-dev,TRUE,user,user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
+custom,TRUE,user,user.geo.city_name,keyword,Custom Field,,,
+custom,TRUE,user,user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,user,user.geo.country_name,keyword,Custom Field,,,
+custom,TRUE,user,user.geo.region_name,keyword,Custom Field,,,
 1.9.0-dev,TRUE,user,user.group.domain,keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,user,user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,user,user.group.name,keyword,extended,,,Name of the group.
@@ -733,6 +857,7 @@
 1.9.0-dev,TRUE,user,user.target.name,keyword,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,user,user.target.name.text,text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,user,user.target.roles,keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
+custom,TRUE,user,user.title,keyword,Custom Field,,,
 1.9.0-dev,TRUE,user_agent,user_agent.device.name,keyword,extended,,iPhone,Name of the device.
 1.9.0-dev,TRUE,user_agent,user_agent.name,keyword,extended,,Safari,Name of the user agent.
 1.9.0-dev,TRUE,user_agent,user_agent.original,keyword,extended,,"Mozilla/5.0 (iPhone; CPU iPhone OS 12_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1",Unparsed user_agent string.
@@ -761,96 +886,3 @@
 1.9.0-dev,TRUE,vulnerability,vulnerability.score.temporal,float,extended,,,Vulnerability Temporal score.
 1.9.0-dev,TRUE,vulnerability,vulnerability.score.version,keyword,extended,,2,CVSS version.
 1.9.0-dev,TRUE,vulnerability,vulnerability.severity,keyword,extended,,Critical,Severity of the vulnerability.
-custom,TRUE,database,database.user.email,keyword,extended,,,User email address.
-custom,TRUE,database,database.user.full_name,keyword,extended,,Albert Einstein,"User's full name, if available."
-custom,TRUE,database,database.user.full_name.text,text,extended,,Albert Einstein,"User's full name, if available."
-custom,TRUE,database,database.user.group.id,keyword,extended,,,Unique identifier for the group on the system/platform.
-custom,TRUE,database,database.user.group.name,keyword,extended,,,Name of the group.
-custom,TRUE,database,database.user.hash,keyword,extended,,,Unique user hash to correlate information for a user in anonymized form.
-custom,TRUE,database,database.user.id,keyword,extended,,,Unique identifiers of the user.
-custom,TRUE,database,database.user.name,keyword,extended,,albert,Short name or login of the user.
-custom,TRUE,database,database.user.name.text,text,extended,,albert,Short name or login of the user.
-custom,TRUE,database,database.name ,keyword,extended,,,
-custom,TRUE,database,database.instance,keyword,extended,,,
-custom,TRUE,database,database.table,keyword,extended,,,
-custom,TRUE,database,database.field_names,keyword,extended,,,
-custom,TRUE,email,email.subject,keyword,extended,,,
-custom,TRUE,agent,agent.parse_rule,keyword,extended,,,
-custom,TRUE,email,email.header,keyword,extended,,,
-custom,TRUE,kafka,kafka.offset,long,extended,,"3,405,575",Kafka offset count
-custom,TRUE,kafka,kafka.partition,integer,extended,,17,partitions #
-custom,TRUE,kafka,kafka.timestamp,date,extended,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
-custom,TRUE,kafka,kafka.topic,keyword,extended,,log_audit_proxy_weekly,kafka topic name
-custom,TRUE,log,log.source.ip,ip,extended,,,
-custom,TRUE,log,log.source.hostname,keyword,extended,,,
-custom,TRUE,email,email.src_display_name ,keyword,extended,,,
-custom,TRUE,email,email.reply_to ,keyword,extended,,,
-custom,TRUE,email,email.x_mailer,keyword,extended,,,
-custom,TRUE,email,email.body,keyword,extended,,,
-custom,TRUE,threat,threat.list.uuid,keyword,extended,,,
-custom,TRUE,threat,threat.list.category,keyword,extended,,,
-custom,TRUE,threat,threat.list.type,keyword,extended,,,
-custom,TRUE,threat,threat.list.event_id,keyword,extended,,,
-custom,TRUE,threat,threat.list.object_uuid,keyword,extended,,,
-custom,TRUE,threat,threat.list.type,keyword,extended,,,
-custom,TRUE,threat,threat.list.ioc,keyword,extended,,,
-custom,TRUE,threat,threat.list.start,date,extended,,,
-custom,TRUE,threat,threat.list.created,date,extended,,,
-custom,TRUE,threat,threat.list.injested,date,extended,,,
-custom,TRUE,threat,threat.list.member_org,keyword,extended,,,
-custom,TRUE,threat,threat.list.source_org,keyword,extended,,,
-custom,TRUE,threat,threat.list.event_info,keyword,extended,,,
-custom,TRUE,threat,threat.list.severity_name,keyword,extended,,,
-custom,TRUE,threat,threat.list.object_category,keyword,extended,,,
-custom,TRUE,threat,threat.list.comment,keyword,extended,,,
-custom,TRUE,threat,threat.list.event_tag,keyword,extended,,,
-custom,TRUE,threat,threat.list.safe_to_enable_ids,boolean,extended,,,
-custom,TRUE,threat,threat.list.object_relation,keyword,extended,,,
-custom,TRUE,threat,threat.list.attribute_tag,keyword,extended,,,
-custom,TRUE,threat,threat.list.object_name,keyword,extended,,,
-custom,TRUE,threat,threat.list.event_analysis,keyword,extended,,,
-custom,TRUE,threat,threat.list.distribution,keyword,extended,,,
-custom,TRUE,event,event.modified,date,extended,,,
-custom,TRUE,database,database.user.domain,keyword,extended,,,Name of the directory the user is a member of.
-custom,TRUE,event,event.severity_name,keyword,extended,,,
-custom,TRUE,assignee,assignee.user.name,keyword,Custom Field,,Custom Field,
-custom,TRUE,assignee,assignee.user.email,Keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.mac,keyword,Custom Field,,Custom Field,MAC address of a network device.
-custom,TRUE,host,host.business,keyword,Custom Field,,Custom Field,Host Business name
-custom,TRUE,host,host.last_logged_in_user,keyword,Custom Field,,Custom Field,Last logged in user on a host device.
-custom,TRUE,host,host.logged_in_users,keyword,Custom Field,,Custom Field,Currently logged in users on a host device.
-custom,TRUE,host,host.manufacturer,keyword,Custom Field,,Custom Field,The manufacturer of a host device.
-custom,TRUE,host,host.model,keyword,Custom Field,,Custom Field,The model of a host device.
-custom,TRUE,host,host.os.installation_date,date,Custom Field,,Custom Field,The installation date of a host OS.
-custom,TRUE,host,host.serial,keyword,Custom Field,,Custom Field,The serial number associated with a host.
-custom,TRUE,host,host.timezone,keyword,Custom Field,,Custom Field,The timezone that a host device is located in.
-custom,TRUE,host,host.user.department,keyword,Custom Field,,Custom Field,
-custom,TRUE,host,host.user.manager_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,host,host.user.manager_email,keyword,Custom Field,,Custom Field,
-custom,TRUE,host,host.user.geo.region_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,host,host.user.geo.country_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,related,related.mac,keyword,Custom Field,,Custom Field,All MAC addresses seen on your event.
-custom,TRUE,observer,observer.ingress.interface.host_count,integer,Custom Field,,Custom Field,
-custom,TRUE,event,event.recommendation,keyword,Custom Field,,Custom Field,"Recommendation provided by the log, given an event."
-custom,TRUE,http,http.cookie.name,keyword,Custom Field,,Custom Field,HTTP Cookie
-custom,TRUE,network,network.geo.city_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.continent_code,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.continent_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.country_iso_code,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.country_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.location,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.name,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.postal_code,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.region_iso_code,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.region_name,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.timezone,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.street_address,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.site_id,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.description,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.geo.bu,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.network_range,keyword,Custom Field,,Custom Field,
-custom,TRUE,network,network.dmz,boolean,Custom Field,,Custom Field,
-custom,TRUE,network,network.plant_system_control,boolean,Custom Field,,Custom Field,
-custom,TRUE,user,user.business.unit,keyword,Custom Field,,Custom Field,
-custom,TRUE,observer,observer.egress.ip,ip,Custom Field,,https://github.com/elastic/ecs/issues/2053,
-custom,TRUE,observer,observer.ingress.ip,ip,Custom Field,,https://github.com/elastic/ecs/issues/2053,
