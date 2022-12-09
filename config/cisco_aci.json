@@ -1,0 +1,3 @@
+{ 
+"F0532":{ "fault_name":"fltEthpmIfPortDownInfraEpg", "msg_explanation":"This fault occurs when a port is down and is in use for epg", "msg_recommendation":"Check the port connectivity or VPC configuration" }
+}
