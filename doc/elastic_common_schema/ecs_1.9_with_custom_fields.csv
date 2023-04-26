@@ -567,6 +567,8 @@ custom,TRUE,observer,observer.ingress.ip,[observer][ingress][ip],ip,Custom Field
 1.9.0-dev,TRUE,related,related.ip,[related][ip],ip,extended,array,,All of the IPs seen on your event.
 custom,TRUE,related,related.mac,[related][mac],keyword,Custom Field,,Custom Field,All MAC addresses seen on your event.
 1.9.0-dev,TRUE,related,related.user,[related][user],keyword,extended,array,,All the user names seen on your event.
+custom,TRUE,repository,repository.name,[repository][name],keyword,Custom Field,,Custom Field,
+custom,TRUE,repository,repository.visible,[repository][visible],keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,rule,rule.author,[rule][author],keyword,extended,array,"[""Star-Lord""]",Rule author
 1.9.0-dev,TRUE,rule,rule.category,[rule][category],keyword,extended,,Attempted Information Leak,Rule category
 1.9.0-dev,TRUE,rule,rule.description,[rule][description],keyword,extended,,Block requests to public DNS over HTTPS / TLS protocols,Rule description
@@ -674,6 +676,9 @@ custom,TRUE,source,source.user.geo.region_name,[source][user][geo][region_name],
 custom,TRUE,source,source.user.title,[source][user][title],keyword,Custom Field,,,
 1.9.0-dev,TRUE,span,span.id,[span][id],keyword,extended,,3ff9a8981b7ccd5a,Unique identifier of the span within the scope of its trace.
 1.9.0-dev,TRUE,base,tags,[tags],keyword,core,array,"[""production"", ""env2""]",List of keywords used to tag each event.
+custom,TRUE,team,team.email,[team][email],keyword,Custom Field,,Custom Field,
+custom,TRUE,team,team.name,[team][name],keyword,Custom Field,,Custom Field,
+custom,TRUE,team,team.contact,[team][contact],keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,threat,threat.framework,[threat][framework],keyword,extended,,MITRE ATT&CK,Threat classification framework.
 custom,TRUE,threat,threat.list.attribute_tag,[threat][list][attribute_tag],keyword,extended,,,
 custom,TRUE,threat,threat.list.category,[threat][list][category],keyword,extended,,,
@@ -877,7 +882,10 @@ custom,TRUE,user,user.title,[user][title],keyword,Custom Field,,,
 1.9.0-dev,TRUE,vulnerability,vulnerability.description,[vulnerability][description],keyword,extended,,"In macOS before 2.12.6, there is a vulnerability in the RPC...",Description of the vulnerability.
 1.9.0-dev,TRUE,vulnerability,vulnerability.description.text,[vulnerability][description][text],text,extended,,"In macOS before 2.12.6, there is a vulnerability in the RPC...",Description of the vulnerability.
 1.9.0-dev,TRUE,vulnerability,vulnerability.enumeration,[vulnerability][enumeration],keyword,extended,,CVE,Identifier of the vulnerability.
+custom,TRUE,vulnerability,vulnerability.exception,[vulnerability][exception],boolean,Custom Field,,Custom Field,
+custom,TRUE,vulnerability,vulnerability.exploitable,[vulnerability][exploitable],boolean,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,vulnerability,vulnerability.id,[vulnerability][id],keyword,extended,,CVE-2019-00001,ID of the vulnerability.
+custom,TRUE,vulnerability,vulnerability.recurrence,[vulnerability][recurrence],boolean,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,vulnerability,vulnerability.reference,[vulnerability][reference],keyword,extended,,https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-6111,Reference of the vulnerability.
 1.9.0-dev,TRUE,vulnerability,vulnerability.report_id,[vulnerability][report_id],keyword,extended,,20191018,Scan identification number.
 1.9.0-dev,TRUE,vulnerability,vulnerability.scanner.vendor,[vulnerability][scanner][vendor],keyword,extended,,Tenable,Name of the scanner vendor.
@@ -886,3 +894,5 @@ custom,TRUE,user,user.title,[user][title],keyword,Custom Field,,,
 1.9.0-dev,TRUE,vulnerability,vulnerability.score.temporal,[vulnerability][score][temporal],float,extended,,,Vulnerability Temporal score.
 1.9.0-dev,TRUE,vulnerability,vulnerability.score.version,[vulnerability][score][version],keyword,extended,,2,CVSS version.
 1.9.0-dev,TRUE,vulnerability,vulnerability.severity,[vulnerability][severity],keyword,extended,,Critical,Severity of the vulnerability.
+custom,TRUE,vulnerability,vulnerability.status,[vulnerability][status],keyword,Custom Field,,Custom Field,
+
