@@ -64,6 +64,15 @@ custom,TRUE,client,client.user.title,[client][user][title],keyword,Custom Field,
 1.9.0-dev,TRUE,cloud,cloud.provider,[cloud][provider],keyword,extended,,aws,Name of the cloud provider.
 1.9.0-dev,TRUE,cloud,cloud.region,[cloud][region],keyword,extended,,us-east-1,Region in which this host is running.
 1.9.0-dev,TRUE,cloud,cloud.service.name,[cloud][service][name],keyword,extended,,lambda,The cloud service name.
+1.9.0-dev,TRUE,cmdb,cmdb.application.criticality,[cmdb][application][criticality],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.id,[cmdb][application][id],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.name,[cmdb][application][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.owner,id,[cmdb][application][owner][id],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.owner.name,[cmdb][application][owner][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.sensitivity,[cmdb][application][sensitivity],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.status,[cmdb][application][status],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.application.type,[cmdb][application][type],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.class.name,[cmdb][class][name],keyword,extended,,,
 1.9.0-dev,TRUE,container,container.id,[container][id],keyword,core,,,Unique container id.
 1.9.0-dev,TRUE,container,container.image.name,[container][image][name],keyword,extended,,,Name of the image the container was built on.
 1.9.0-dev,TRUE,container,container.image.tag,[container][image][tag],keyword,extended,array,,Container image tags.
@@ -689,7 +698,7 @@ custom,TRUE,threat,threat.list.event_analysis,[threat][list][event_analysis],key
 custom,TRUE,threat,threat.list.event_id,[threat][list][event_id],keyword,extended,,,
 custom,TRUE,threat,threat.list.event_info,[threat][list][event_info],keyword,extended,,,
 custom,TRUE,threat,threat.list.event_tag,[threat][list][event_tag],keyword,extended,,,
-custom,TRUE,threat,threat.list.injested,[threat][list][injested],date,extended,,,
+custom,TRUE,threat,threat.list.ingested,[threat][list][ingested],date,extended,,,
 custom,TRUE,threat,threat.list.ioc,[threat][list][ioc],keyword,extended,,,
 custom,TRUE,threat,threat.list.member_org,[threat][list][member_org],keyword,extended,,,
 custom,TRUE,threat,threat.list.object_category,[threat][list][object_category],keyword,extended,,,
