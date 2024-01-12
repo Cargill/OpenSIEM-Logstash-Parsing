@@ -73,6 +73,16 @@ custom,TRUE,client,client.user.title,[client][user][title],keyword,Custom Field,
 1.9.0-dev,TRUE,cmdb,cmdb.application.status,[cmdb][application][status],keyword,extended,,,
 1.9.0-dev,TRUE,cmdb,cmdb.application.type,[cmdb][application][type],keyword,extended,,,
 1.9.0-dev,TRUE,cmdb,cmdb.class.name,[cmdb][class][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.destination.application.criticality,[cmdb][destination][application][criticality],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.destination.application.name,[cmdb][destination][application][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.destination.application.owner.id,[cmdb][destination][application][owner][id],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.destination.application.owner.name,[cmdb][destination][application][owner][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.destination.application.sensitivity,[cmdb][destination][application][sensitivity],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.source.application.criticality,[cmdb][source][application][criticality],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.source.application.name,[cmdb][source][application][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.source.application.owner.id,[cmdb][source][application][owner][id],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.source.application.owner.name,[cmdb][source][application][owner][name],keyword,extended,,,
+1.9.0-dev,TRUE,cmdb,cmdb.source.application.sensitivity,[cmdb][source][application][sensitivity],keyword,extended,,,
 1.9.0-dev,TRUE,container,container.id,[container][id],keyword,core,,,Unique container id.
 1.9.0-dev,TRUE,container,container.image.name,[container][image][name],keyword,extended,,,Name of the image the container was built on.
 1.9.0-dev,TRUE,container,container.image.tag,[container][image][tag],keyword,extended,array,,Container image tags.
