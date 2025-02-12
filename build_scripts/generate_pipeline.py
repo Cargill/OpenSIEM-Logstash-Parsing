@@ -170,6 +170,7 @@ class LogstashHelper(object):
             'ELASTIC_PASSWORD': self.elastic_pwd,
             'AZURE_AUDIT_CONN': self.logstash_api_secrets['azure_audit_conn'],
             'AZURE_STORAGE_CONN': self.logstash_api_secrets['azure_storage_conn'],
+            'AZURE_STORAGE2_CONN': self.logstash_api_secrets['azure_storage2_conn'],
             'AZURE_OPERATIONAL_CONN': self.logstash_api_secrets['azure_operational_conn'],
             'AZURE_SIGNIN_CONN': self.logstash_api_secrets['azure_signin_conn'],
             'AZURE_O365_CONN': self.logstash_api_secrets['azure_o365_conn'],
