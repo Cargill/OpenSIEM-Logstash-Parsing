@@ -1,6 +1,5 @@
 ﻿ECS_Version,Indexed,Field_Set,Field,nested,Type,Level,Normalization,Example,Description
 1.9.0-dev,TRUE,base,@timestamp,@timestamp,date,core,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
-custom,TRUE,file,[file.new_acl,[file][new_acl],keyword,extended,,,
 1.9.0-dev,TRUE,agent,agent.build.original,[agent][build][original],keyword,core,,"metricbeat version 7.6.0 (amd64), libbeat 7.6.0 [6a23e8f8f30f5001ba344e4e54d8d9cb82cb107c built 2020-02-05 23:10:10 +0000 UTC]",Extended build information for the agent.
 1.9.0-dev,TRUE,agent,agent.ephemeral_id,[agent][ephemeral_id],keyword,extended,,8a4f500f,Ephemeral identifier of this agent.
 1.9.0-dev,TRUE,agent,agent.id,[agent][id],keyword,core,,8a4f500d,Unique identifier of this agent.
@@ -292,6 +291,7 @@ custom,TRUE,event,event.severity_name,[event][severity_name],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.mode,[file][mode],keyword,extended,,640,Mode of the file in octal representation.
 1.9.0-dev,TRUE,file,file.mtime,[file][mtime],date,extended,,,Last time the file content was modified.
 1.9.0-dev,TRUE,file,file.name,[file][name],keyword,extended,,example.png,"Name of the file including the extension, without the directory."
+custom,TRUE,file,file.new_acl,[file][new_acl],keyword,extended,,,
 custom,TRUE,file,file.old_acl,[file][old_acl],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.owner,[file][owner],keyword,extended,,alice,File owner's username.
 1.9.0-dev,TRUE,file,file.path,[file][path],keyword,extended,,/home/alice/example.png,"Full path to the file, including the file name."
