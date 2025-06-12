@@ -1,5 +1,6 @@
 ﻿ECS_Version,Indexed,Field_Set,Field,nested,Type,Level,Normalization,Example,Description
 1.9.0-dev,TRUE,base,@timestamp,@timestamp,date,core,,2016-05-23T08:05:34.853Z,Date/time when the event originated.
+custom,TRUE,file,[file.new_acl,[file][new_acl],keyword,extended,,,
 1.9.0-dev,TRUE,agent,agent.build.original,[agent][build][original],keyword,core,,"metricbeat version 7.6.0 (amd64), libbeat 7.6.0 [6a23e8f8f30f5001ba344e4e54d8d9cb82cb107c built 2020-02-05 23:10:10 +0000 UTC]",Extended build information for the agent.
 1.9.0-dev,TRUE,agent,agent.ephemeral_id,[agent][ephemeral_id],keyword,extended,,8a4f500f,Ephemeral identifier of this agent.
 1.9.0-dev,TRUE,agent,agent.id,[agent][id],keyword,core,,8a4f500d,Unique identifier of this agent.
@@ -53,17 +54,51 @@ custom,TRUE,client,client.user.geo.region_name,[client][user][geo][region_name],
 1.9.0-dev,TRUE,client,client.user.name.text,[client][user][name][text],text,core,,albert,Short name or login of the user.
 1.9.0-dev,TRUE,client,client.user.roles,[client][user][roles],keyword,extended,array,"[""kibana_admin"", ""reporting_user""]",Array of user roles at the time of the event.
 custom,TRUE,client,client.user.title,[client][user][title],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.account.environment,[cloud][account][environment],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.account.id,[cloud][account][id],keyword,extended,,6.67E+11,The cloud account or organization id.
+custom,TRUE,cloud,cloud.account.itowneremail,[cloud][account][itowneremail],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.account.managedby,[cloud][account][managedby],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.account.name,[cloud][account][name],keyword,extended,,elastic-dev,The cloud account name.
+custom,TRUE,cloud,cloud.account.platform,[cloud][account][platform],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.availability_zone,[cloud][availability_zone],keyword,extended,,us-east-1c,Availability zone in which this host is running.
 1.9.0-dev,TRUE,cloud,cloud.instance.id,[cloud][instance][id],keyword,extended,,i-1234567890abcdef0,Instance ID of the host machine.
 1.9.0-dev,TRUE,cloud,cloud.instance.name,[cloud][instance][name],keyword,extended,,,Instance name of the host machine.
 1.9.0-dev,TRUE,cloud,cloud.machine.type,[cloud][machine][type],keyword,extended,,t2.medium,Machine type of the host machine.
+custom,TRUE,cloud,cloud.origin.account.environment,[cloud][origin][account][environment],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.account.id,[cloud][origin][account][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.account.itowneremail,[cloud][origin][account][itowneremail],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.account.managedby,[cloud][origin][account][managedby],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.account.name,[cloud][origin][account][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.account.platform,[cloud][origin][account][platform],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.availability_zone,[cloud][origin][availability_zone],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.instance.id,[cloud][origin][instance][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.instance.name,[cloud][origin][instance][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.machine.type,[cloud][origin][machine][type],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.project.id,[cloud][origin][project][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.project.name,[cloud][origin][project][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.provider,[cloud][origin][provider],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.region,[cloud][origin][region],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.origin.service.name,[cloud][origin][service][name],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.project.id,[cloud][project][id],keyword,extended,,my-project,The cloud project id.
 1.9.0-dev,TRUE,cloud,cloud.project.name,[cloud][project][name],keyword,extended,,my project,The cloud project name.
 1.9.0-dev,TRUE,cloud,cloud.provider,[cloud][provider],keyword,extended,,aws,Name of the cloud provider.
 1.9.0-dev,TRUE,cloud,cloud.region,[cloud][region],keyword,extended,,us-east-1,Region in which this host is running.
 1.9.0-dev,TRUE,cloud,cloud.service.name,[cloud][service][name],keyword,extended,,lambda,The cloud service name.
+custom,TRUE,cloud,cloud.target.account.environment,[cloud][target][account][environment],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.account.id,[cloud][target][account][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.account.itowneremail,[cloud][target][account][itowneremail],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.account.managedby,[cloud][target][account][managedby],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.account.name,[cloud][target][account][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.account.platform,[cloud][target][account][platform],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.availability_zone,[cloud][target][availability_zone],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.instance.id,[cloud][target][instance][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.instance.name,[cloud][target][instance][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.machine.type,[cloud][target][machine][type],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.project.id,[cloud][target][project][id],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.project.name,[cloud][target][project][name],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.provider,[cloud][target][provider],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.region,[cloud][target][region],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.target.service.name,[cloud][target][service][name],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cmdb,cmdb.application.criticality,[cmdb][application][criticality],keyword,extended,,,
 1.9.0-dev,TRUE,cmdb,cmdb.application.id,[cmdb][application][id],keyword,extended,,,
 1.9.0-dev,TRUE,cmdb,cmdb.application.message,[cmdb][application][message],text,extended,,,
@@ -257,6 +292,7 @@ custom,TRUE,event,event.severity_name,[event][severity_name],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.mode,[file][mode],keyword,extended,,640,Mode of the file in octal representation.
 1.9.0-dev,TRUE,file,file.mtime,[file][mtime],date,extended,,,Last time the file content was modified.
 1.9.0-dev,TRUE,file,file.name,[file][name],keyword,extended,,example.png,"Name of the file including the extension, without the directory."
+custom,TRUE,file,file.old_acl,[file][old_acl],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.owner,[file][owner],keyword,extended,,alice,File owner's username.
 1.9.0-dev,TRUE,file,file.path,[file][path],keyword,extended,,/home/alice/example.png,"Full path to the file, including the file name."
 1.9.0-dev,TRUE,file,file.path.text,[file][path][text],text,extended,,/home/alice/example.png,"Full path to the file, including the file name."
@@ -267,6 +303,7 @@ custom,TRUE,event,event.severity_name,[event][severity_name],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.pe.imphash,[file][pe][imphash],keyword,extended,,0c6803c4e922103c4dca5963aad36ddf,A hash of the imports in a PE file.
 1.9.0-dev,TRUE,file,file.pe.original_file_name,[file][pe][original_file_name],keyword,extended,,MSPAINT.EXE,"Internal name of the file, provided at compile-time."
 1.9.0-dev,TRUE,file,file.pe.product,[file][pe][product],keyword,extended,,Microsoft¬Æ Windows¬Æ Operating System,"Internal product name of the file, provided at compile-time."
+custom,TRUE,file,file.sharename,[file][sharename],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.size,[file][size],long,extended,,16384,File size in bytes.
 1.9.0-dev,TRUE,file,file.target_path,[file][target_path],keyword,extended,,,Target path for symlinks.
 1.9.0-dev,TRUE,file,file.target_path.text,[file][target_path][text],text,extended,,,Target path for symlinks.
@@ -296,9 +333,6 @@ custom,TRUE,event,event.severity_name,[event][severity_name],keyword,extended,,,
 1.9.0-dev,TRUE,file,file.x509.subject.organizational_unit,[file][x509][subject][organizational_unit],keyword,extended,array,,List of organizational units (OU) of subject.
 1.9.0-dev,TRUE,file,file.x509.subject.state_or_province,[file][x509][subject][state_or_province],keyword,extended,array,California,"List of state or province names (ST, S, or P)"
 1.9.0-dev,TRUE,file,file.x509.version_number,[file][x509][version_number],keyword,extended,,3,Version of x509 format.
-custom,TRUE,file,file.sharename,[file][sharename],keyword,extended,,,
-custom,TRUE,file,[file.new_acl,[file][new_acl],keyword,extended,,,
-custom,TRUE,file,file.old_acl,[file][old_acl],keyword,extended,,,
 1.9.0-dev,TRUE,group,group.domain,[group][domain],keyword,extended,,,Name of the directory the group is a member of.
 1.9.0-dev,TRUE,group,group.id,[group][id],keyword,extended,,,Unique identifier for the group on the system/platform.
 1.9.0-dev,TRUE,group,group.name,[group][name],keyword,extended,,,Name of the group.
@@ -701,9 +735,9 @@ custom,TRUE,source,source.user.geo.region_name,[source][user][geo][region_name],
 custom,TRUE,source,source.user.title,[source][user][title],keyword,Custom Field,,,
 1.9.0-dev,TRUE,span,span.id,[span][id],keyword,extended,,3ff9a8981b7ccd5a,Unique identifier of the span within the scope of its trace.
 1.9.0-dev,TRUE,base,tags,[tags],keyword,core,array,"[""production"", ""env2""]",List of keywords used to tag each event.
+custom,TRUE,team,team.contact,[team][contact],keyword,Custom Field,,Custom Field,
 custom,TRUE,team,team.email,[team][email],keyword,Custom Field,,Custom Field,
 custom,TRUE,team,team.name,[team][name],keyword,Custom Field,,Custom Field,
-custom,TRUE,team,team.contact,[team][contact],keyword,Custom Field,,Custom Field,
 1.9.0-dev,TRUE,threat,threat.framework,[threat][framework],keyword,extended,,MITRE ATT&CK,Threat classification framework.
 custom,TRUE,threat,threat.list.attribute_tag,[threat][list][attribute_tag],keyword,extended,,,
 custom,TRUE,threat,threat.list.category,[threat][list][category],keyword,extended,,,
