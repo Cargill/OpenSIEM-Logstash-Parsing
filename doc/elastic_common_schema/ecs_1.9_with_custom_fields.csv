@@ -77,6 +77,9 @@ custom,TRUE,cloud,cloud.origin.project.id,[cloud][origin][project][id],keyword,C
 custom,TRUE,cloud,cloud.origin.project.name,[cloud][origin][project][name],keyword,Custom Field,,,
 custom,TRUE,cloud,cloud.origin.provider,[cloud][origin][provider],keyword,Custom Field,,,
 custom,TRUE,cloud,cloud.origin.region,[cloud][origin][region],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.interface_uid,[cloud][interface_uid],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.vpc_uid,[cloud][vpc_uid],keyword,Custom Field,,,
+custom,TRUE,cloud,cloud.subnet_uid,[cloud][subnet_uid],keyword,Custom Field,,,
 custom,TRUE,cloud,cloud.origin.service.name,[cloud][origin][service][name],keyword,Custom Field,,,
 1.9.0-dev,TRUE,cloud,cloud.project.id,[cloud][project][id],keyword,extended,,my-project,The cloud project id.
 1.9.0-dev,TRUE,cloud,cloud.project.name,[cloud][project][name],keyword,extended,,my project,The cloud project name.
