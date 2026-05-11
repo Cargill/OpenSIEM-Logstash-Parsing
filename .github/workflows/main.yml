@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.9
+        python-version: 3.14
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -33,7 +33,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Set logstash variables to be used accross steps
       run: |
-        export LOGSTASH_VERSION=7.16.2
+        export LOGSTASH_VERSION=9.4.0
         export LOGSTASH_HOME="/usr/share/logstash"
         echo "LOGSTASH_VERSION=$LOGSTASH_VERSION" >> $GITHUB_ENV
         echo "LOGSTASH_HOME=$LOGSTASH_HOME" >> $GITHUB_ENV
