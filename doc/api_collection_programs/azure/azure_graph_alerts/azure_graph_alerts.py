@@ -32,12 +32,12 @@ logger.addHandler(handler)
 def pull_graph_alerts(secrets, token):
     default_headers = {'Authorization': f'Bearer {token}'}
     current_time = datetime.datetime.utcnow()
-    tem_minutes_ago = (current_time - datetime.timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S%zZ")
+    ten_minutes_ago = (current_time - datetime.timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S%zZ")
     msgraph = OAuth2Session(secrets["azure_graph_client_id"],
                         # redirect_uri=config.REDIRECT_URI,
                         scope=secrets["azure_graph_scope"])
 
-    url = f"https://graph.microsoft.com/v1.0/security/alerts?$filter=createdDateTime ge {tem_minutes_ago}"
+    url = f"https://graph.microsoft.com/v1.0/security/alerts?$filter=createdDateTime ge {ten_minutes_ago}"
 
     logs = msgraph.get(url, headers=default_headers).json()
     print(f"logs: {str(logs)}")
